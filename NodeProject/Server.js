@@ -2,10 +2,18 @@ var express = require('express');
 var path = require('path'); // модуль для парсинга пути
 var logger = require('morgan');
 var bodyParser = require('body-parser');
-var mongoose  = require('mongoose');
 var cors = require('cors');
-var mongodb = require("mongodb");
+var mongodb = require('mongodb');
 
+var mongoose  = require('mongoose');
+mongoose.connect('mongodb://localhost:27017/austenDB');
+
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'error connection:'));
+db.once('open', function() {
+
+	console.log('Success!');
+});
 
 var app = express();
 
