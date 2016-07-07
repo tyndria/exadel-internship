@@ -2,11 +2,9 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var answerSchema = new Schema({
-	text:String,
-	isCorrect:boolean,
-	meta{}
+	text: String,
+	isCorrect: Boolean,
+	meta: {}
 });
 
-var Answer = mongoose.model('Answer', answerSchema)
-
-module.exports = Answer;
+module.exports = answerSchema;

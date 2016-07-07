@@ -21,18 +21,9 @@ app.use(logger('dev')); // выводим все запросы со стату�
 app.use(bodyParser.json()); // стандартный модуль, для парсинга JSON в запросах
 app.use(express.static(path.join(__dirname, 'public'))); // запуск статического файлового сервера, который смотрит на папку public/ (в нашем случае отдает index.html)
 
+//import main router
 
-var router = express.Router();  
-
-
-router.get('/fucU', function (req, res) {
-    res.send('You are in faq');
-});
-
-router.get('/', function (req, res) {
-    res.send('API is running');
-});
-
+var router = require('./routes/index');
 app.use('/api', router);
 
 app.listen(1337, function(){
@@ -46,3 +37,4 @@ app.use(function(req, res, next){
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
+

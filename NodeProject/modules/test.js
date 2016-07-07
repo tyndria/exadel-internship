@@ -18,6 +18,5 @@ var testSchema = new Schema({
 	isChecked: Boolean
 });
 
-var Test = mongoose.model('Test', testSchema);
 
-module.exports = Test;
+module.exports = testSchema;
