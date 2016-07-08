@@ -4,7 +4,7 @@ var mongoose  = require('mongoose');
 mongoose.model('User', require('../modules/user')); 
 var User = mongoose.models.User;
 
-router.post('/createUser', function(req, res) {
+router.post('/', function(req, res) {
 	var newUser = new User(req.body);
 
 	newUser.save(function(err) {
@@ -18,24 +18,21 @@ router.post('/createUser', function(req, res) {
 });
 
 
+router.get('/', function (req, res) {
+	var query = User.find({});
 
-router.get('/getUsers', function (req, res) {
-	User.find({},function(err,users){
+	query.select('-__v');
+
+	query.exec(function(err, users ) {
 		if (err) { 
 			res.send(err);
 		}
 
-		var userMap = {};
-   		users.forEach(function(user) {
-    	
-      		userMap[user._id] = user;
-    });
-
-    res.send(userMap);  
-  });
+    	res.json(users); 
+	});
 });
 
-router.get('/getUserById/:id', function(req, res) {
+router.get('/:id', function(req, res) {
 	User.findById(req.params.id, function(err, user) {
 		if (err) {
            res.send(err);

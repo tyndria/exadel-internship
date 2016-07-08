@@ -1,11 +1,10 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var User = require('./models/user.js');
-var Question = require('./models/question.js');
+mongoose.model('UsersAnswer', require('../modules/usersAnswer')); 
 
 var testSchema = new Schema({
-	candidate: { type: mongoose.Schema.Types.ObjectId,
+	candidateId: { type: mongoose.Schema.Types.ObjectId,
 		ref: 'User'
 	},
 	reviewer: { type: mongoose.Schema.Types.ObjectId,
@@ -14,6 +13,8 @@ var testSchema = new Schema({
 	questions: [{ type: mongoose.Schema.Types.ObjectId,
 		ref: 'Question'
 	}],
+	usersAnswers: [{type: mongoose.Schema.Types.ObjectId,
+		ref: 'UsersAnswer'}],
 	mark: Number, 
 	isChecked: Boolean
 });

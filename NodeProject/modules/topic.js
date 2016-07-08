@@ -1,15 +1,14 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var Question = require('./models/question.js')
+mongoose.model('Question', require('../modules/question')); 
 
 var topicSchema = new Schema({
 	name: String,
 	questions: [{ type: mongoose.Schema.Types.ObjectId,
 		ref: 'Question'
 	}],
-	description: String, 
-	meta{}
+	description: String
 });
 
 module.exports = topicSchema;

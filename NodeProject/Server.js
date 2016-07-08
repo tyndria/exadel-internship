@@ -26,8 +26,8 @@ app.use(express.static(path.join(__dirname, 'public'))); // запуск ста�
 var router = require('./routes/index');
 app.use('/api', router);
 
-app.listen(1337, function(){
-    console.log('Express server listening on port 1337');
+app.listen(8083, function(){
+    console.log('Express server listening on port 8083');
 });
 
 app.use(cors());

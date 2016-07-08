@@ -1,12 +1,12 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var Answer = require('./models/answer.js');
-var Topic = require('./models/topic.js');
+mongoose.model('Answer', require('../modules/answer')); 
+mongoose.model('Topic', require('../modules/topic')); 
 
 var questionSchema = new Schema({
 	text: String,
-	questionType: boolean,
+	questionType: Boolean,
 	answerType: String,
 	level: String,
 	cost: Number,
@@ -14,7 +14,10 @@ var questionSchema = new Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Topic'
 	},
-	answers: [Answer.Schema]
+	answers: [{
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'Answer'
+	}]
 });
 
 
