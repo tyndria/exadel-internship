@@ -2,10 +2,18 @@ var express = require('express');
 var path = require('path'); // модуль для парсинга пути
 var logger = require('morgan');
 var bodyParser = require('body-parser');
-var mongoose  = require('mongoose');
 var cors = require('cors');
-var mongodb = require("mongodb");
+var mongodb = require('mongodb');
 
+var mongoose  = require('mongoose');
+mongoose.connect('mongodb://localhost:27017/austenDB');
+
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'error connection:'));
+db.once('open', function() {
+
+	console.log('Success!');
+});
 
 var app = express();
 
@@ -13,22 +21,21 @@ app.use(logger('dev')); // выводим все запросы со стату�
 app.use(bodyParser.json()); // стандартный модуль, для парсинга JSON в запросах
 app.use(express.static(path.join(__dirname, 'public'))); // запуск статического файлового сервера, который смотрит на папку public/ (в нашем случае отдает index.html)
 
+//require models 
+mongoose.model('User', require('./modules/user')); 
+mongoose.model('Test', require('./modules/test'));
+mongoose.model('Answer', require('./modules/answer')); 
+mongoose.model('Topic', require('./modules/topic'));
+mongoose.model('UsersAnswer', require('./modules/usersAnswer')); 
+mongoose.model('Question', require('./modules/question'));
 
-var router = express.Router();  
+//import main router
 
-
-router.get('/fucU', function (req, res) {
-    res.send('You are in faq');
-});
-
-router.get('/', function (req, res) {
-    res.send('API is running');
-});
-
+var router = require('./routes/index');
 app.use('/api', router);
 
-app.listen(1337, function(){
-    console.log('Express server listening on port 1337');
+app.listen(8083, function(){
+    console.log('Express server listening on port 8083');
 });
 
 app.use(cors());
@@ -38,3 +45,4 @@ app.use(function(req, res, next){
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
+
