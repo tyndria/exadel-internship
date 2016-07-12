@@ -5,17 +5,16 @@ Answer = mongoose.models.Answer;
 Topic = mongoose.models.Topic; 
 
 var questionSchema = new Schema({
-	header: {type: String, unique: true},
-	text: String,
+	description: String,
+	taskId: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'Task'
+	},
 	questionType: Boolean,
 	answerType: String,
 	level: String,
 	cost: Number,
-	topic: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'Topic'
-	},
-	answers: [{
+	answersId: [{
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Answer'
 	}]

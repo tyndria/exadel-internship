@@ -3,10 +3,12 @@ var router = require('express').Router();
 var constants = require('../consts');
 
 var mongoose = require('mongoose');
+var promise = require('bluebird');
 
 var Test = mongoose.models.Test;
 var Topic = mongoose.models.Topic;
 var Question = mongoose.models.Question;
+var Task = mongoose.models.Task;
 
 
 
@@ -28,35 +30,86 @@ router.post('/', function(req, res) {
 
 
 
+/*function getRandomTaskId(questions) {
+			return questions[Math.floor(Math.random()*questions.length)].taskId;
+}*/
+
+ 
+
+
 router.get('/:id/startTest', function(req, res) {
 
-	function getLexicalGrammarTest(test) {
+	function getLexicalGrammarTest() {
 
-		Question.find({}).limit(2).exec(function(err, results){
-			test.questions = results.map(function(question) {
-				return question._id;
-			})
 
-			test.questions = results;
-			res.json(test);
+		var questionsResult;
 
-			test.save(function(err) {
-				if (err) {
-					res.send(err);
+		var LEXICAL_GRAMMAR_ID = constants.LEXICAL_GRAMMAR_ID;
+
+		var promisesArraySecond = [];
+
+		var filteredQuestions = [];
+
+		Question.find({}).exec(function(err, results){
+
+			var promisesArrayFirst = [];
+
+			var filteredQuestionsByTopic = [];
+
+			results.forEach(function(question) {
+
+				if(question.taskId) {
+
+					promisesArrayFirst.push(
+						Task.findById(question.taskId).then(function(res){
+							if (res.topicId == LEXICAL_GRAMMAR_ID) {
+								filteredQuestionsByTopic.push(question);
+							}
+						}, function(){
+							console.log('error');
+						})
+					);
 				}
+
 			});
-		});
-	}
 
-	Test.find({candidateId: req.params.id}, function(err, tests) {
+			promise.all(promisesArrayFirst).then(function() {
+		
+				//var taskId = getRandomTaskId(filteredQuestionsByTopic);
 
-		if (err) {
-           res.send(err);
-		}
+				filteredQuestionsByTopic.forEach(function(question) {
+					if (question.taskId == "5784f099b46b64c824577be3")
+						filteredQuestions.push(question);
+				});
 
-		getLexicalGrammarTest(tests[0]);
+				Test.find({candidateId: req.params.id}, function(err, tests) {
+
+					if (err) {
+           				res.send(err);
+					}
+
+					tests[0].questions = filteredQuestions;
+
+					res.json(tests[0]);
+
+
+					tests[0].save(function(err) {
+						if (err) {
+							res.send(err);
+						}
+					});
 	
-	});
+				});
+			});
+
+		});
+
+
+	}
+	
+	getLexicalGrammarTest();
+
+
 });
  
 
