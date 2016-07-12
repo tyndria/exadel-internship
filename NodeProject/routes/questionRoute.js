@@ -2,43 +2,42 @@ var router = require('express').Router();
 
 var mongoose  = require('mongoose');
 
-var User = mongoose.models.User;
+var Question = mongoose.models.Question;
 
 router.post('/', function(req, res) {
-	var newUser = new User(req.body);
+	var newQuestion = new Question(req.body);
 
-	newUser.save(function(err) {
+	newQuestion.save(function(err) {
 		if (err) {
 			res.send(err);
 		}
 
-		res.send(newUser);
+		res.json(newQuestion);
 	}); 
 
 });
 
-
 router.get('/', function (req, res) {
-	var query = User.find({});
+	var query = Question.find({});
 
 	query.select('-__v');
 
-	query.exec(function(err, users ) {
+	query.exec(function(err, questions) {
 		if (err) { 
 			res.send(err);
 		}
 
-    	res.json(users); 
+    	res.json(questions); 
 	});
 });
 
 router.get('/:id', function(req, res) {
-	User.findById(req.params.id, function(err, user) {
+	Question.findById(req.params.id, function(err, questions) {
 		if (err) {
            res.send(err);
 		}
 
-		res.send(user);
+		res.send(questions);
 	});
 });
 

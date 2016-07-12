@@ -1,9 +1,9 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var User = require('./models/user');
-var Test = require('./models/test');
-var Question = require('./models/question');
+var User = mongoose.models.User;
+var Test = mongoose.models.Test;
+var Question = mongoose.models.Question;
 
 var usersAnswerSchema = new Schema({
 	user: {

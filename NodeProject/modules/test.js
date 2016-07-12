@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-mongoose.model('UsersAnswer', require('../modules/usersAnswer')); 
+UsersAnswer = mongoose.models.UsersAnswer; 
 
 var testSchema = new Schema({
 	candidateId: { type: mongoose.Schema.Types.ObjectId,

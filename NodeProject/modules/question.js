@@ -1,10 +1,11 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-mongoose.model('Answer', require('../modules/answer')); 
-mongoose.model('Topic', require('../modules/topic')); 
+Answer = mongoose.models.Answer; 
+Topic = mongoose.models.Topic; 
 
 var questionSchema = new Schema({
+	header: {type: String, unique: true},
 	text: String,
 	questionType: Boolean,
 	answerType: String,

@@ -1,10 +1,10 @@
 var router = require('express').Router();  
 
 var mongoose  = require('mongoose');
-mongoose.model('Answer', require('../modules/answer')); 
+
 var Answer = mongoose.models.Answer;
 
-router.post('/createAnswer', function(req, res) {
+router.post('/', function(req, res) {
 	var newAnswer = new Answer(req.body);
 
 	newAnswer.save(function(err) {
@@ -17,20 +17,14 @@ router.post('/createAnswer', function(req, res) {
 
 });
 
-router.get('/getAnswers', function (req, res) {
+router.get('/', function (req, res) {
 	Answer.find({},function(err,answers){
 		if (err) { 
 			res.send(err);
 		}
-
-		var answerMap = {};
-   		answers.forEach(function(answer) {
-    	
-      		answerMap[answer._id] = answer;
+		res.json(answers);  
     });
-
-    res.send(answerMap);  
-  });
+    
 });
 
 module.exports = router;

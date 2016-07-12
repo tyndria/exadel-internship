@@ -1,8 +1,6 @@
-var router = require('express').Router();  
+ var router = require('express').Router();  
 
 var mongoose  = require('mongoose');
-
-mongoose.model('UsersAnswer', require('../modules/usersAnswer')); 
 
 router.post('/create', function(req, res) {
 	var newUsersAnswer = new UsersAnswer(req.body);
@@ -12,7 +10,7 @@ router.post('/create', function(req, res) {
 			res.send(err);
 		}
 
-		res.send(newUsersAnswer);
+		res.json(newUsersAnswer);
 	}); 
 
 });
