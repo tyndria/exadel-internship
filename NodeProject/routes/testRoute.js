@@ -116,38 +116,6 @@ router.get('/:id/startTest', function(req, res) {
 	
 	getLexicalGrammarTest();
 
-
-=======
-router.get('/:id/startTest', function(req, res) {
-
-	function getLexicalGrammarTest(test) {
-
-		Question.find({}).limit(2).exec(function(err, results){
-			test.questions = results.map(function(question) {
-				return question._id;
-			})
-
-			test.questions = results;
-			res.json(test);
-
-			test.save(function(err) {
-				if (err) {
-					res.send(err);
-				}
-			});
-		});
-	}
-
-	Test.find({candidateId: req.params.id}, function(err, tests) {
-
-		if (err) {
-           res.send(err);
-		}
-
-		getLexicalGrammarTest(tests[0]);
-	
-	});
->>>>>>> e77b1c7b90ea226e0479f171ded3782d35066ff1
 });
  
 
