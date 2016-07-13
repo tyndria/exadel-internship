@@ -5,20 +5,20 @@ var User = mongoose.models.User;
 var Test = mongoose.models.Test;
 var Question = mongoose.models.Question;
 
-var usersAnswerSchema = new Schema({
-	user: {
+var userAnswerSchema = new Schema({
+	userId: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User'
 	},
-	test: {
+	testId: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Test'
 	},
-	question: {
+	questionId: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Question'
 	},
 	answer: String
 });
 
-module.exports = usersAnswerSchema;
+module.exports = userAnswerSchema;

@@ -1,21 +1,21 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-UsersAnswer = mongoose.models.UsersAnswer; 
+UsersAnswer = mongoose.models.UsersAnswer;
 
 var testSchema = new Schema({
 	candidateId: { type: mongoose.Schema.Types.ObjectId,
 		ref: 'User'
 	},
-	reviewer: { type: mongoose.Schema.Types.ObjectId,
+	reviewerId: { type: mongoose.Schema.Types.ObjectId,
 		ref: 'User'
 	},
-	questions: [{ type: mongoose.Schema.Types.ObjectId,
+	questionsId: [{ type: mongoose.Schema.Types.ObjectId,
 		ref: 'Question'
 	}],
-	usersAnswers: [{type: mongoose.Schema.Types.ObjectId,
+	usersAnswersId: [{type: mongoose.Schema.Types.ObjectId,
 		ref: 'UsersAnswer'}],
-	mark: Number, 
+	mark: Number,
 	isChecked: Boolean
 });
 

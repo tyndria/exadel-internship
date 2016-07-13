@@ -1,4 +1,4 @@
-var router = require('express').Router();  
+var router = require('express').Router();
 
 var mongoose  = require('mongoose');
 
@@ -13,18 +13,16 @@ router.post('/', function(req, res) {
 		}
 
 		res.send(newAnswer);
-	}); 
-
+	});
 });
 
 router.get('/', function (req, res) {
 	Answer.find({},function(err,answers){
-		if (err) { 
+		if (err) {
 			res.send(err);
 		}
-		res.json(answers);  
+		res.json(answers);
     });
-    
 });
 
 module.exports = router;

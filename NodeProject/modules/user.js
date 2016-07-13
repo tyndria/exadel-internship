@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 var userSchema = new Schema({
 	firstName:String,
 	lastName:String,
-	role: Number, 
+	role: Number,
 	mail: String,
 	meta: {}
 });
