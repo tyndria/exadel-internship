@@ -5,10 +5,6 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 var mongodb = require('mongodb');
 
-<<<<<<< HEAD
-
-=======
->>>>>>> e77b1c7b90ea226e0479f171ded3782d35066ff1
 var mongoose  = require('mongoose');
 mongoose.connect('mongodb://localhost:27017/austenDB');
 
@@ -32,10 +28,7 @@ mongoose.model('Answer', require('./modules/answer'));
 mongoose.model('Topic', require('./modules/topic'));
 mongoose.model('UsersAnswer', require('./modules/usersAnswer')); 
 mongoose.model('Question', require('./modules/question'));
-<<<<<<< HEAD
 mongoose.model('Task', require('./modules/task'));
-=======
->>>>>>> e77b1c7b90ea226e0479f171ded3782d35066ff1
 
 //import main router
 

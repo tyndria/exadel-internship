@@ -3,18 +3,16 @@ var router = require('express').Router();
 var constants = require('../consts');
 
 var mongoose = require('mongoose');
-<<<<<<< HEAD
+
 var promise = require('bluebird');
-=======
->>>>>>> e77b1c7b90ea226e0479f171ded3782d35066ff1
+
 
 var Test = mongoose.models.Test;
 var Topic = mongoose.models.Topic;
 var Question = mongoose.models.Question;
-<<<<<<< HEAD
+
 var Task = mongoose.models.Task;
-=======
->>>>>>> e77b1c7b90ea226e0479f171ded3782d35066ff1
+
 
 
 
@@ -35,8 +33,6 @@ router.post('/', function(req, res) {
 });
 
 
-
-<<<<<<< HEAD
 /*function getRandomTaskId(questions) {
 			return questions[Math.floor(Math.random()*questions.length)].taskId;
 }*/
@@ -52,8 +48,6 @@ router.get('/:id/startTest', function(req, res) {
 		var questionsResult;
 
 		var LEXICAL_GRAMMAR_ID = constants.LEXICAL_GRAMMAR_ID;
-
-		var promisesArraySecond = [];
 
 		var filteredQuestions = [];
 
