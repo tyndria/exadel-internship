@@ -18,7 +18,8 @@ var userAnswerSchema = new Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Question'
 	},
-	answer: String
+	answer: String,
+	isCorrect: Boolean
 });
 
 module.exports = userAnswerSchema;

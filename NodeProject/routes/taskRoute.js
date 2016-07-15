@@ -13,7 +13,7 @@ router.post('/', function(req, res) {
 		}
 
 		res.send(newTask);
-	}); 
+	});
 
 });
 
@@ -23,11 +23,11 @@ router.get('/', function (req, res) {
 	query.select('-__v');
 
 	query.exec(function(err, tasks) {
-		if (err) { 
+		if (err) {
 			res.send(err);
 		}
 
-    	res.json(tasks); 
+    	res.json(tasks);
 	});
 });
 

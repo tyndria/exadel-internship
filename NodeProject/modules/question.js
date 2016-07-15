@@ -1,8 +1,8 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-UserAnswer = mongoose.models.UserAnswer; 
-Topic = mongoose.models.Topic; 
+//UserAnswer = mongoose.models.UserAnswer;
+Task = mongoose.models.Task;
 
 
 var questionSchema = new Schema({
@@ -11,23 +11,7 @@ var questionSchema = new Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Task'
 	},
-
-	header: {type: String, unique: true},
-	text: String,
-
-	questionType: Boolean,
-	answerType: String,
-	level: String,
-	cost: Number,
-
-	topicId: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'Topic'
-	},
-	userAnswersId: [{
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'UserAnswer'
-	}]
+	level: String
 });
 
 

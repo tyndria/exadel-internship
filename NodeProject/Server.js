@@ -25,7 +25,6 @@ app.use(express.static(path.join(__dirname, 'public'))); // запуск ста�
 mongoose.model('User', require('./modules/user')); 
 mongoose.model('Test', require('./modules/test'));
 mongoose.model('Answer', require('./modules/answer')); 
-mongoose.model('Topic', require('./modules/topic'));
 mongoose.model('UserAnswer', require('./modules/userAnswer')); 
 mongoose.model('Question', require('./modules/question'));
 mongoose.model('Task', require('./modules/task'));

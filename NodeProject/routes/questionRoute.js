@@ -1,4 +1,4 @@
-var router = require('express').Router();  
+var router = require('express').Router();
 
 var mongoose  = require('mongoose');
 
@@ -9,11 +9,12 @@ router.post('/', function(req, res) {
 
 	newQuestion.save(function(err) {
 		if (err) {
-			res.send(err);
+			return res.send(err);
 		}
-
-		res.json(newQuestion);
-	}); 
+		else {
+			return res.json(newQuestion);
+		}
+	});
 
 });
 
@@ -23,11 +24,13 @@ router.get('/', function (req, res) {
 	query.select('-__v');
 
 	query.exec(function(err, questions) {
-		if (err) { 
-			res.send(err);
+		if (err) {
+			return res.send(err);
 		}
 
-    	res.json(questions); 
+		else {
+    		return res.json(questions);
+    	}
 	});
 });
 

@@ -1,4 +1,4 @@
- var router = require('express').Router();  
+ var router = require('express').Router();
 
 var mongoose  = require('mongoose');
 
@@ -11,7 +11,7 @@ router.post('/create', function(req, res) {
 		}
 
 		res.json(newUsersAnswer);
-	}); 
+	});
 
 });
 
