@@ -144,9 +144,9 @@ router.get('/:id/startTest', function(req, res) {
 		})
 		.then(function(tasks) {
 			var resultQuestions = [];
-			return Question.find({}).then(function(questions) {
+			return Question.find({}).populate('taskId').then(function(questions) {
 				questions.forEach(function(question) {
-					if (question.taskId.toString() == tasks[0]._id) {
+					if (question.taskId._id.toString() == tasks[0]._id) {
 						resultQuestions.push(question);
 					}
 				});
@@ -168,7 +168,7 @@ router.get('/:id/startTest', function(req, res) {
 
 					tests[0].questionsId = questions;
 
-					res.json(tests[0]);
+					res.json(questions);
 
 					tests[0].save(function(err) {
 						if (err) {
@@ -193,32 +193,32 @@ router.get('/:id/getReadingTest/', function(req, res) {
 			return getTasksById(tasks, constants.READING_ID);
 		})
 		.then(function(tasks) {
-			console.log(tasks);
 			return getTaskByLevel(tasks, level)[0];
 		})
 		.then(function (task) {
 			var resultTasks = [];
-			return Task.find({}).then(function(tasks) {
+			return Task.find({}).populate('parentTaskId').then(function(tasks) {
 				tasks.forEach(function(onetask) {
 					if (onetask.parentTaskId) {
-						if (onetask.parentTaskId.toString() == task._id) {
+						if (onetask.parentTaskId._id.toString() == task._id) {
 							resultTasks.push(onetask);
 						}
 					}
 				});
+
 				return resultTasks;
 			});
 		})
 		.then (function(tasks) {
-
 			var arrayPromises = [];
 			tasks.forEach(function(task) {
 				arrayPromises.push(
 					
-					Question.find({}).then(function(questions) {
+					Question.find({}).populate('taskId').then(function(questions) {
 						var resultQuestions = [];
 						questions.forEach(function(question) {
-							if (question.taskId.toString() == task._id) {
+							if (question.taskId._id.toString() == task._id) {
+								question.taskId.parentTaskId = task.parentTaskId; 
 								resultQuestions.push(question);
 							}
 						});
@@ -237,7 +237,7 @@ router.get('/:id/getReadingTest/', function(req, res) {
 
         			Array.prototype.push.apply(tests[0].questionsId, result);
 
-					res.json(tests[0]);
+					res.json(result);
 
 					tests[0].save(function(err) {
 						if (err) {
