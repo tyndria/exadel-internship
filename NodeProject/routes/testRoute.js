@@ -7,8 +7,23 @@ var mongodb = require("mongodb");
 
 var Test = mongoose.models.Test;
 var Question = mongoose.models.Question;
-
 var Task = mongoose.models.Task;
+
+router.get('/', function (req, res) {
+	var query = Test.find({});
+
+	query.select('-__v');
+
+	query.exec(function(err, tests) {
+		if (err) {
+			return res.send(err);
+		}
+
+		else {
+    		return res.json(tests);
+    	}
+	});
+});
 
 router.post('/', function(req, res) {
 	var candidateId = req.body.candidateId;
@@ -119,7 +134,6 @@ function getQuestionsByTask(taskId) {
 		}
 
 
-
 router.get('/:id/startTest', function(req, res) {
 
 	function getLexicalGrammarTest() {
@@ -166,7 +180,6 @@ router.get('/:id/startTest', function(req, res) {
 	}
 
 	getLexicalGrammarTest();
-
 });
 
 
@@ -178,6 +191,73 @@ router.get('/:id/getReadingTest/', function(req, res) {
 	Task.find({}).
 		then( function(tasks) {
 			return getTasksById(tasks, constants.READING_ID);
+		})
+		.then(function(tasks) {
+			console.log(tasks);
+			return getTaskByLevel(tasks, level)[0];
+		})
+		.then(function (task) {
+			var resultTasks = [];
+			return Task.find({}).then(function(tasks) {
+				tasks.forEach(function(onetask) {
+					if (onetask.parentTaskId) {
+						if (onetask.parentTaskId.toString() == task._id) {
+							resultTasks.push(onetask);
+						}
+					}
+				});
+				return resultTasks;
+			});
+		})
+		.then (function(tasks) {
+
+			var arrayPromises = [];
+			tasks.forEach(function(task) {
+				arrayPromises.push(
+					
+					Question.find({}).then(function(questions) {
+						var resultQuestions = [];
+						questions.forEach(function(question) {
+							if (question.taskId.toString() == task._id) {
+								resultQuestions.push(question);
+							}
+						});
+						return resultQuestions;
+					})
+				
+				)
+			});
+
+			promise.all(arrayPromises).then(function(result) {
+				Test.find({candidateId: req.params.id}, function(err, tests) {
+
+					if (err) {
+        				res.send(err);
+        			}
+
+        			Array.prototype.push.apply(tests[0].questionsId, result);
+
+					res.json(tests[0]);
+
+					tests[0].save(function(err) {
+						if (err) {
+							res.send(err);
+						}
+					});
+				});
+			});
+
+		});
+});
+
+
+
+router.get('/:id/getListeningTest', function(req, res) {
+	var level = 'B1';
+
+	Task.find({}).
+		then( function(tasks) {
+			return getTasksById(tasks, constants.LISTENING_ID);
 		})
 		.then(function(tasks) {
 			return getTaskByLevel(tasks, level)[0];
@@ -198,10 +278,9 @@ router.get('/:id/getReadingTest/', function(req, res) {
 		.then (function(tasks) {
 
 			var arrayPromises = [];
-			var questions = [];
 			tasks.forEach(function(task) {
 				arrayPromises.push(
-
+					//getQuestionsByTask(task._id)
 					Question.find({}).then(function(questions) {
 						var resultQuestions = [];
 						questions.forEach(function(question) {
@@ -216,16 +295,15 @@ router.get('/:id/getReadingTest/', function(req, res) {
 			});
 
 			promise.all(arrayPromises).then(function(result) {
-				Array.prototype.push.apply(questions, result);
 				Test.find({candidateId: req.params.id}, function(err, tests) {
 
 					if (err) {
         				res.send(err);
         			}
 
-        			Array.prototype.push.apply(tests[0].questionsId, questions);
+        			Array.prototype.push.apply(tests[0].questionsId, result);
 
-					res.json(questions);
+					res.json(tests[0]);
 
 					tests[0].save(function(err) {
 						if (err) {
@@ -240,67 +318,46 @@ router.get('/:id/getReadingTest/', function(req, res) {
 
 
 
-router.get('/:id/getListeningTest', function(req, res) {
-	var level = 'B1';
-
-	var tasksByTopic = getTasksById(constants.LISTENING_ID);
-
-	var task = getTaskByLevel(tasksByTopic, level);
-
-	var resultTasks = getTasksById(task._id);
-
-	var questions = [];
-	resultTasks.forEach(function(resultTask) {
-		Array.prototype.push.apply(questions,getQuestionsByTask(resultTask._id));
-	});
-
-	Test.find({candidateId: req.params.id}, function(err, tests) {
-
-		if (err) {
-        	res.send(err);
-        }
-
-        questions // populating???
-		Array.prototype.push.apply(tests[0].questionsId, questions);
-
-		res.json(tests[0]);
-
-		tests[0].save(function(err) {
-			if (err) {
-				res.send(err);
-			}
-		});
-	});
-});
-
 
 router.get('/:id/getSpeakingTest', function(req, res) {
-	var level = 'B1';
+	var level = 'B2';
 
-	var tasksByTopic = getTasksById(constants.LISTENING_ID);
+	Task.find({}).
+		then( function(tasks) {
+			return getTasksById(tasks, constants.SPEAKING_ID)[0];
+		})
+		.then(function(task) {
+			var resultQuestions = [];
+			return Question.find({}).then(function(questions) {
+				questions.forEach(function(question) {
+					if (question.taskId.toString() == task._id) {
+						resultQuestions.push(question);
+					}
+				});
+				return resultQuestions;
+			});
+		})
+		.then (function(questions) {
+			var filteredQuestionsByLevel = getAllQuestionsByLevels(questions, [level]);
+			Test.find({candidateId: req.params.id}, function(err, tests) {
 
-	var task = getTaskByLevel(tasksByTopic, level);
+				if (err) {
+        			res.send(err);
+        		}
 
-	var questions = getQuestionsByTask(task._id);
+        		Array.prototype.push.apply(tests[0].questionsId, filteredQuestionsByLevel);
 
-	Test.find({candidateId: req.params.id}, function(err, tests) {
+				res.json(tests[0]);
 
-		if (err) {
-        	res.send(err);
-        }
-
-        questions // populating???
-		Array.prototype.push.apply(tests[0].questionsId, questions);
-
-		res.json(tests[0]);
-
-		tests[0].save(function(err) {
-			if (err) {
-				res.send(err);
-			}
+				tests[0].save(function(err) {
+					if (err) {
+						res.send(err);
+					}
+				});
+			});
 		});
-	});
 });
+
 
 
 module.exports = router;
