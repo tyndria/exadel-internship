@@ -221,42 +221,23 @@ router.get('/:id/getReadingTest/', function(req, res) {
 router.get('/:id/getListeningTest', function(req, res) {
 	var level = 'B1';
 
-	Task.find({}).
-		then( function(tasks) {
+	var allTasks = [];
+	Task.find({}).populate('parentTaskId')
+		.then( function(tasks) {
+			allTasks = tasks;
 			return getTasksById(tasks, constants.LISTENING_ID);
 		})
 		.then(function(tasks) {
 			return getTaskByLevel(tasks, level)[0];
 		})
 		.then(function (task) {
-			var resultTasks = [];
-			return Task.find({}).then(function(tasks) {
-				tasks.forEach(function(onetask) {
-					if (onetask.parentTaskId) {
-						if (onetask.parentTaskId.toString() == task._id) {
-							resultTasks.push(onetask);
-						}
-					}
-				});
-				return resultTasks;
-			});
+			return getTasksById(allTasks, task._id);
 		})
 		.then (function(tasks) {
-
 			var arrayPromises = [];
 			tasks.forEach(function(task) {
 				arrayPromises.push(
-					//getQuestionsByTask(task._id)
-					Question.find({}).then(function(questions) {
-						var resultQuestions = [];
-						questions.forEach(function(question) {
-							if (question.taskId.toString() == task._id) {
-								resultQuestions.push(question);
-							}
-						});
-						return resultQuestions;
-					})
-				
+					getQuestionsByTask(task)
 				)
 			});
 
@@ -269,7 +250,7 @@ router.get('/:id/getListeningTest', function(req, res) {
 
         			Array.prototype.push.apply(tests[0].questionsId, result);
 
-					res.json(tests[0]);
+					res.json(result);
 
 					tests[0].save(function(err) {
 						if (err) {
@@ -288,20 +269,12 @@ router.get('/:id/getListeningTest', function(req, res) {
 router.get('/:id/getSpeakingTest', function(req, res) {
 	var level = 'B2';
 
-	Task.find({}).
-		then( function(tasks) {
+	Task.find({}).populate('parentTaskId')
+		.then( function(tasks) {
 			return getTasksById(tasks, constants.SPEAKING_ID)[0];
 		})
 		.then(function(task) {
-			var resultQuestions = [];
-			return Question.find({}).then(function(questions) {
-				questions.forEach(function(question) {
-					if (question.taskId.toString() == task._id) {
-						resultQuestions.push(question);
-					}
-				});
-				return resultQuestions;
-			});
+			return getQuestionsByTask(task);
 		})
 		.then (function(questions) {
 			var filteredQuestionsByLevel = getAllQuestionsByLevels(questions, [level]);
@@ -313,7 +286,7 @@ router.get('/:id/getSpeakingTest', function(req, res) {
 
         		Array.prototype.push.apply(tests[0].questionsId, filteredQuestionsByLevel);
 
-				res.json(tests[0]);
+				res.json(filteredQuestionsByLevel);
 
 				tests[0].save(function(err) {
 					if (err) {
