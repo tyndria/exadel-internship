@@ -13,8 +13,8 @@ var testSchema = new Schema({
 	questionsId: [{ type: mongoose.Schema.Types.ObjectId,
 		ref: 'Question'
 	}],
-	usersAnswersId: [{type: mongoose.Schema.Types.ObjectId,
-		ref: 'UsersAnswer'}],
+	userAnswersId: [{type: mongoose.Schema.Types.ObjectId,
+		ref: 'UserAnswer'}],
 	mark: Number,
 	isChecked: Boolean
 });

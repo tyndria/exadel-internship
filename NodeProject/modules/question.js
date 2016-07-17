@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-//UserAnswer = mongoose.models.UserAnswer;
+Answer = mongoose.models.Answer;
 Task = mongoose.models.Task;
 
 
@@ -11,7 +11,14 @@ var questionSchema = new Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Task'
 	},
-	level: String
+	level: String,
+	questionType: Boolean,
+	answerType: String,
+	answersId: [{
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'Answer'
+	}],
+	cost: Number
 });
 
 

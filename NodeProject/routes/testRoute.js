@@ -170,11 +170,8 @@ router.get('/:id/startTest', function(req, res) {
 
 
 router.get('/:id/getReadingTest/', function(req, res) {
-
 	var level = 'B1';
-
 	var allTasks = [];
-
 	Task.find({}).populate('parentTaskId')
 		.then( function(tasks) {
 			allTasks = tasks;
