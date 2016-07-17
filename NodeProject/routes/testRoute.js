@@ -99,21 +99,11 @@ function getAllQuestionsByRandomTask(questions) {
 }
 
 
-function getTopics() {
-			var topics = []
-			Task.forEach(function(task) {
-				if (!task.parentTaskId) {
-					topics.push(task);
-				}
-			});
-			return topics;
-		}
-
 function getTasksById(tasks, taskId) {
 			var resultTasks = [];
 			tasks.forEach(function(task) {
 				if (task.parentTaskId) {
-					if (task.parentTaskId.toString() == taskId) {
+					if (task.parentTaskId._id.toString() == taskId) {
 						resultTasks.push(task);
 					}
 				}	
@@ -121,16 +111,19 @@ function getTasksById(tasks, taskId) {
 			return resultTasks;
 		}
 
-function getQuestionsByTask(taskId) {
-			var resultQuestions = [];
-			Question.find({}, function(questions) {
+function getQuestionsByTask(task) {
+			return Question.find({}).populate('taskId').then(function(questions) {
+				var resultQuestions = [];
 				questions.forEach(function(question) {
-					if (question.taskId.toString() == taskId) {
+					if (question.taskId._id.toString() == task._id) {
+						if (task.parentTaskId) {
+							question.taskId.parentTaskId = task.parentTaskId;
+						}
 						resultQuestions.push(question);
 					}
 				});
+				return resultQuestions;
 			});
-			return resultQuestions;
 		}
 
 
@@ -138,20 +131,12 @@ router.get('/:id/startTest', function(req, res) {
 
 	function getLexicalGrammarTest() {
 
-		Task.find({}).
+		Task.find({}).populate('parentTaskId').
 		then( function(tasks) {
 			return getTasksById(tasks, constants.LEXICAL_GRAMMAR_ID);
 		})
 		.then(function(tasks) {
-			var resultQuestions = [];
-			return Question.find({}).populate('taskId').then(function(questions) {
-				questions.forEach(function(question) {
-					if (question.taskId._id.toString() == tasks[0]._id) {
-						resultQuestions.push(question);
-					}
-				});
-				return resultQuestions;
-			});
+			return getQuestionsByTask(tasks[0]);
 		})
 		.then(function (questions) {
 			return getAllQuestionsByRandomTask(questions);
@@ -188,43 +173,24 @@ router.get('/:id/getReadingTest/', function(req, res) {
 
 	var level = 'B1';
 
-	Task.find({}).
-		then( function(tasks) {
+	var allTasks = [];
+
+	Task.find({}).populate('parentTaskId')
+		.then( function(tasks) {
+			allTasks = tasks;
 			return getTasksById(tasks, constants.READING_ID);
 		})
 		.then(function(tasks) {
 			return getTaskByLevel(tasks, level)[0];
 		})
 		.then(function (task) {
-			var resultTasks = [];
-			return Task.find({}).populate('parentTaskId').then(function(tasks) {
-				tasks.forEach(function(onetask) {
-					if (onetask.parentTaskId) {
-						if (onetask.parentTaskId._id.toString() == task._id) {
-							resultTasks.push(onetask);
-						}
-					}
-				});
-
-				return resultTasks;
-			});
+			return getTasksById(allTasks, task._id);
 		})
 		.then (function(tasks) {
 			var arrayPromises = [];
 			tasks.forEach(function(task) {
 				arrayPromises.push(
-					
-					Question.find({}).populate('taskId').then(function(questions) {
-						var resultQuestions = [];
-						questions.forEach(function(question) {
-							if (question.taskId._id.toString() == task._id) {
-								question.taskId.parentTaskId = task.parentTaskId; 
-								resultQuestions.push(question);
-							}
-						});
-						return resultQuestions;
-					})
-				
+					getQuestionsByTask(task)
 				)
 			});
 
