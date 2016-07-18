@@ -4,6 +4,7 @@ var mongoose = require('mongoose');
 var promise = require('bluebird');
 var shuffle = require('knuth-shuffle').knuthShuffle;
 var mongodb = require("mongodb");
+var Engine = require('../Engine');
 
 var Test = mongoose.models.Test;
 var Question = mongoose.models.Question;
@@ -42,222 +43,74 @@ router.post('/', function(req, res) {
 });
 
 
-function getRandomArray(questions, timesToGenerate) {
-	return shuffle(questions.slice(0)).slice(0, timesToGenerate);
-}
-
-function getRandomIndex(length) {
-	return Math.floor(Math.random()*length);
-}
-
-function getAllQuestionsByLevels(questions, levels) {
-	var resultQuestions = [];
-
-	levels.forEach(function(level) {
-		var array = [];
-
-		questions.forEach(function(question){
-			if (question.level == level) {
-				array.push(question);
-			}
-		});
-		Array.prototype.push.apply(resultQuestions, getRandomArray(array, 2));
-	});
-
-	return resultQuestions;
-}
-
-function getTaskByLevel(tasks, level) {
-	var allTasks = [];
-
-	tasks.forEach(function(task) {
-		if (task.level) {
-			if (task.level.toString() == level) {
-				allTasks.push(task);
-			}
-		}
-	});
-
-	task = getRandomArray(allTasks, 1);
-
-	return task;
-}
-
-function getAllQuestionsByRandomTask(questions) {
-	var filteredQuestionsByTask = [];
-
-	var randomTaskId = questions[getRandomIndex(questions.length)].taskId;
-
-	questions.forEach(function(question) {
-		
-		if (question.taskId.toString() == randomTaskId.toString()) {
-			filteredQuestionsByTask.push(question);
-		}
-	});
-
-	return filteredQuestionsByTask;
-}
-
-
-function getTasksById(tasks, taskId) {
-			var resultTasks = [];
-			tasks.forEach(function(task) {
-				if (task.parentTaskId) {
-					if (task.parentTaskId._id.toString() == taskId) {
-						resultTasks.push(task);
-					}
-				}	
-			});
-			return resultTasks;
-		}
-
-function getQuestionsByTask(task) {
-			return Question.find({}).populate('taskId').then(function(questions) {
-				var resultQuestions = [];
-				questions.forEach(function(question) {
-					if (question.taskId._id.toString() == task._id) {
-						if (task.parentTaskId) {
-							question.taskId.parentTaskId = task.parentTaskId;
-						}
-						resultQuestions.push(question);
-					}
-				});
-				return resultQuestions;
-			});
-		}
-
-
 router.get('/:id/startTest', function(req, res) {
 
-	function getLexicalGrammarTest() {
+	Test.find({candidateId: req.params.id}, function(err, tests) {
 
-		Task.find({}).populate('parentTaskId').
-		then( function(tasks) {
-			return getTasksById(tasks, constants.LEXICAL_GRAMMAR_ID);
-		})
-		.then(function(tasks) {
-			return getQuestionsByTask(tasks[0]);
-		})
-		.then(function (questions) {
-			return getAllQuestionsByRandomTask(questions);
-		})
-		.then(function (questions) {
-			return getAllQuestionsByLevels(questions, constants.LEVELS)
-		})
-		.then (function(questions) {
-			Test.find({candidateId: req.params.id}, function(err, tests) {
+		let engine = new Engine(tests[0]._id);
 
-					if (err) {
-           				res.send(err);
-					}
+		engine.getLexicalGrammarTest().then(function(questions) {
+			console.log(questions);
+        	Array.prototype.push.apply(tests[0].questionsId, questions);
 
-					tests[0].questionsId = questions;
-
-					res.json(questions);
-
-					tests[0].save(function(err) {
-						if (err) {
-							res.send(err);
-						}
-					});
+			tests[0].save(function(err) {
+				if (err) {
+					res.send(err);
+				}
 			});
-		});
-	}
+		 	res.json(questions);
 
-	getLexicalGrammarTest();
+        });
+	});
 });
 
 
-
 router.get('/:id/getReadingTest/', function(req, res) {
-	var level = 'B1';
-	var allTasks = [];
-	Task.find({}).populate('parentTaskId')
-		.then( function(tasks) {
-			allTasks = tasks;
-			return getTasksById(tasks, constants.READING_ID);
-		})
-		.then(function(tasks) {
-			return getTaskByLevel(tasks, level)[0];
-		})
-		.then(function (task) {
-			return getTasksById(allTasks, task._id);
-		})
-		.then (function(tasks) {
-			var arrayPromises = [];
-			tasks.forEach(function(task) {
-				arrayPromises.push(
-					getQuestionsByTask(task)
-				)
+
+	Test.find({candidateId: req.params.id}, function(err, tests) {
+		let engine = new Engine(tests[0]._id);
+
+		if (err) {
+        	res.send(err);
+        }
+
+        engine.getReadingTest().then(function(questions) {
+        	Array.prototype.push.apply(tests[0].questionsId, questions);
+
+			tests[0].save(function(err) {
+				if (err) {
+					res.send(err);
+				}
 			});
+		 	res.json(questions);
 
-			promise.all(arrayPromises).then(function(result) {
-				Test.find({candidateId: req.params.id}, function(err, tests) {
-
-					if (err) {
-        				res.send(err);
-        			}
-
-        			Array.prototype.push.apply(tests[0].questionsId, result);
-
-					res.json(result);
-
-					tests[0].save(function(err) {
-						if (err) {
-							res.send(err);
-						}
-					});
-				});
-			});
-
-		});
+        });
+	});
 });
 
 
 
 router.get('/:id/getListeningTest', function(req, res) {
-	var level = 'B1';
+	Test.find({candidateId: req.params.id}, function(err, tests) {
+		let engine = new Engine(tests[0]._id);
 
-	var allTasks = [];
-	Task.find({}).populate('parentTaskId')
-		.then( function(tasks) {
-			allTasks = tasks;
-			return getTasksById(tasks, constants.LISTENING_ID);
-		})
-		.then(function(tasks) {
-			return getTaskByLevel(tasks, level)[0];
-		})
-		.then(function (task) {
-			return getTasksById(allTasks, task._id);
-		})
-		.then (function(tasks) {
-			var arrayPromises = [];
-			tasks.forEach(function(task) {
-				arrayPromises.push(
-					getQuestionsByTask(task)
-				)
+		if (err) {
+        	res.send(err);
+        }
+
+        engine.getListeningTest().then(function(questions) {
+        	Array.prototype.push.apply(tests[0].questionsId, questions);
+
+			res.json(result);
+
+			tests[0].save(function(err) {
+				if (err) {
+					res.send(err);
+				}
 			});
+        });
 
-			promise.all(arrayPromises).then(function(result) {
-				Test.find({candidateId: req.params.id}, function(err, tests) {
-
-					if (err) {
-        				res.send(err);
-        			}
-
-        			Array.prototype.push.apply(tests[0].questionsId, result);
-
-					res.json(result);
-
-					tests[0].save(function(err) {
-						if (err) {
-							res.send(err);
-						}
-					});
-				});
-			});
-
-		});
+	});
 });
 
 

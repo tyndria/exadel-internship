@@ -6,12 +6,11 @@
 
 class TestChecker {
 
-	//is it right to place this declarations here?
 	var mongoose = require('mongoose');
 	var Test = mongoose.models.Test;
 	var Question = mongoose.models.Question;
 	var UserAnswer = mongoose.models.UserAnswer;
-	//
+
 
 	constructor(testId) {
 		this.testId = testId;
@@ -21,27 +20,39 @@ class TestChecker {
 	function getUserAnswers() {
 		Test.findById(this.testId).populate({path: 'userAnswersId', 
 									populate: {path: 'questionId', 														
-									populate: {path: 'answersId'}}}).then(function(test) {
+									populate: {path: 'answersId'}}})
+		.then(function(test) {
 			return test.userAnswersId;
 		});
 	}
 
+	function getCorrectAnswer(userAnswer) {
+			userAnswer.questionId.answersId.forEach(function(answer) {
+				if (answer.isCorrect) {
+					return answer;
+				}
+			});
+	}
+
+
+	function saveTest() {
+		Test.findById(this.testId).
+		.then(function(test) {
+			test.save();
+	}
+
+
 	function checkAnswers() {
 		var userAnswers = getUserAnswers();
 		userAnswers.forEach(function(userAnswer) {
-			var rightAnswer = "";
-			userAnswer.questionId.answersId.forEach(function(answer) {
-				if (answer.isCorrect) {
-					rightAnswer = answer;
-				}
-			});
-			if (userAnswer.answer == rightAnswer) {
+			if (userAnswer.answer == getCorrectAnswer(userAnswer)) {
 				userAnswer.isCorrect = true;
 			}
 		});
 	}
 
-	function getLevel() {
+	saveTest();
+	/*function getLevel() { //get
 
 		checkAnswers();
 
@@ -54,5 +65,5 @@ class TestChecker {
 		});
 		return sum;
 	}
-
+*/
 }
