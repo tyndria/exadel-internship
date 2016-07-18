@@ -23,7 +23,7 @@ class Engine {
 
 	summarize() {
 		var sum = 0;
-		Test.findById(this.testId).populate({path: 'userAnswersId', 
+		Test.findById(this.testId).populate({path: 'userAnswersId',
 									populate: {path: 'questionId'}})
 		.then(function(test) {
 			userAnswers = test.userAnswersId;
@@ -43,11 +43,10 @@ class Engine {
 		let data = [];
 		return Task.find({}).populate('parentTaskId')
 			.then( function(tasks) {
-				let	allTasks = tasks;
-				let tasks1 =  Engine.getTasksById(tasks, constants.READING_ID);
-				let task = Engine.getTaskByLevel(tasks1, level)[0];
-				let tasks2 = Engine.getTasksById(allTasks, "5788e3cf53a32e8419afd93e");
-				tasks2.forEach(function(task) {
+				var filteredTasksByTopic =  Engine.getTasksById(tasks, constants.READING_ID);
+				var task = Engine.getTaskByLevel(filteredTasksByTopic, level)[0];
+				let tasksByParentTask = Engine.getTasksById(tasks, "5788e3cf53a32e8419afd93e");
+				tasksByParentTask.forEach(function(task) {
 					arrayPromises.push(Engine.getQuestionsByTask(task).then(function(question){
 						Array.prototype.push.apply(data, question);
 					}));
@@ -67,60 +66,44 @@ class Engine {
 			.then(function(questions) {
 				var questionsByRandomTask = Engine.getAllQuestionsByRandomTask(questions);
 				var resultQuestions = Engine.getAllQuestionsByLevels(questionsByRandomTask, constants.LEVELS);
-		
+
 				return resultQuestions;
 			});
 		});
 	}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	getListeningTest() {
-
 		let level = 'B1';
-		
-		let allTasks = [];
+		let arrayPromises = [];
+		let data = [];
 		return Task.find({}).populate('parentTaskId')
-		.then( function(tasks) {
-			allTasks = tasks;
-			let tasks1 =  Engine.getTasksById(tasks, constants.LISTENING_ID);
-			let task = Engine.getTaskByLevel(tasks1, level)[0];
-			let tasks2 = Engine.getTasksById(allTasks, task._id);
-			tasks2.forEach(function(task) {
-				arrayPromises.push(Engine.getQuestionsByTask(task));
+			.then( function(tasks) {
+				var filteredTasksByTopic =  Engine.getTasksById(tasks, constants.LISTENING_ID);
+				var task = Engine.getTaskByLevel(filteredTasksByTopic, level)[0];
+				let tasksByParentTask = Engine.getTasksById(tasks, task._id);
+				tasksByParentTask.forEach(function(task) {
+					arrayPromises.push(Engine.getQuestionsByTask(task).then(function(question){
+						Array.prototype.push.apply(data, question);
+					}));
+				});
+				return promise.all(arrayPromises).then(function() {
+					return data;
+				});
+			})
+	}
+
+	getSpeakingTest() {
+		var level = 'B2';
+
+		return Task.find({}).populate('parentTaskId')
+			.then( function(tasks) {
+				var filteredTaskByTopic =  Engine.getTasksById(tasks, constants.SPEAKING_ID)[0];
+				return Engine.getQuestionsByTask(filteredTaskByTopic)
+					.then(function(questions) {
+						return Engine.getAllQuestionsByLevels(questions, [level]);
+					});
 			});
-			debugger;
-			return promise.all(arrayPromises);
-		});
 	}
 
 
@@ -171,7 +154,7 @@ static getAllQuestionsByRandomTask(questions) {
 	let randomTaskId = questions[Engine.getRandomIndex(questions.length)].taskId;
 
 	questions.forEach(function(question) {
-		
+
 		if (question.taskId.toString() == randomTaskId.toString()) {
 			filteredQuestionsByTask.push(question);
 		}
@@ -188,7 +171,7 @@ static getTasksById(tasks, taskId) {
 					if (task.parentTaskId._id.toString() == taskId.toString()) {
 						resultTasks.push(task);
 					}
-				}	
+				}
 			});
 			return resultTasks;
 		}
@@ -207,7 +190,7 @@ static getQuestionsByTask(task) {
 				return resultQuestions;
 			});
 		}
-		
+
 
 }
 

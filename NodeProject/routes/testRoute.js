@@ -50,7 +50,6 @@ router.get('/:id/startTest', function(req, res) {
 		let engine = new Engine(tests[0]._id);
 
 		engine.getLexicalGrammarTest().then(function(questions) {
-			console.log(questions);
         	Array.prototype.push.apply(tests[0].questionsId, questions);
 
 			tests[0].save(function(err) {
@@ -101,7 +100,7 @@ router.get('/:id/getListeningTest', function(req, res) {
         engine.getListeningTest().then(function(questions) {
         	Array.prototype.push.apply(tests[0].questionsId, questions);
 
-			res.json(result);
+			res.json(questions);
 
 			tests[0].save(function(err) {
 				if (err) {
@@ -117,34 +116,26 @@ router.get('/:id/getListeningTest', function(req, res) {
 
 
 router.get('/:id/getSpeakingTest', function(req, res) {
-	var level = 'B2';
+	Test.find({candidateId: req.params.id}, function(err, tests) {
+		let engine = new Engine(tests[0]._id);
 
-	Task.find({}).populate('parentTaskId')
-		.then( function(tasks) {
-			return getTasksById(tasks, constants.SPEAKING_ID)[0];
-		})
-		.then(function(task) {
-			return getQuestionsByTask(task);
-		})
-		.then (function(questions) {
-			var filteredQuestionsByLevel = getAllQuestionsByLevels(questions, [level]);
-			Test.find({candidateId: req.params.id}, function(err, tests) {
 
+		if (err) {
+        	res.send(err);
+        }
+
+        engine.getSpeakingTest().then(function(questions) {
+        	Array.prototype.push.apply(tests[0].questionsId, questions);
+
+			res.json(questions);
+
+			tests[0].save(function(err) {
 				if (err) {
-        			res.send(err);
-        		}
-
-        		Array.prototype.push.apply(tests[0].questionsId, filteredQuestionsByLevel);
-
-				res.json(filteredQuestionsByLevel);
-
-				tests[0].save(function(err) {
-					if (err) {
-						res.send(err);
-					}
-				});
+					res.send(err);
+				}
 			});
-		});
+        });
+	});
 });
 
 

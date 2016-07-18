@@ -11,17 +11,21 @@ var Answer = mongoose.models.Answer;
 router.post('/:id', function(req, res) {
 	var topicId = req.params.id;
 	if (topicId.toString() == constants.LEXICAL_GRAMMAR_ID) {
-		postLexGrTask(req, res);
+		postLexicalGrammarTask(req, res);
 	} else if (topicId.toString() == constants.READING_ID) {
-		postReadingTask(req);
+		postReadingTask(req, res);
 	} else if (topicId.toString() == constants.LISTENING_ID) {
-		postListeningTask(req);
+		postListeningTask(req, res);
 	} else if (topicId.toString() == constants.SPEAKING_ID) {
-		postSpeakingTask(req);
+		postSpeakingTask(req, res);
 	}
 });
 
-function postLexGrTask(req, res) {
+function postReadingTask(req, res) {
+	
+}
+
+function postLexicalGrammarTask(req, res) {
 	Task.find({parentTaskId: req.params.id})
 	.then(function(tasks) {
 
