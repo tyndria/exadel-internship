@@ -7,7 +7,6 @@ var mongodb = require('mongodb');
 
 var port = process.env.PORT || 8083;
 var mongoUri = process.env.MONGO_URL ||
-  process.env.MONGOHQ_URL ||
   'mongodb://localhost:27017/austenDB';
 
 var mongoose  = require('mongoose');
