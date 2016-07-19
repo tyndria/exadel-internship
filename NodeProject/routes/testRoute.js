@@ -4,24 +4,24 @@ var mongoose = require('mongoose');
 var promise = require('bluebird');
 var shuffle = require('knuth-shuffle').knuthShuffle;
 var mongodb = require("mongodb");
-var Engine = require('../Engine');
+var Engine = require('../serverAssistance/Engine');
 
 var Test = mongoose.models.Test;
 var Question = mongoose.models.Question;
 var Task = mongoose.models.Task;
 
 router.get('/', function (req, res) {
-	var query = Test.find({});
+	var query = Test.find({}).populate('questionsId');
 
 	query.select('-__v');
 
 	query.exec(function(err, tests) {
 		if (err) {
-			return res.send(err);
+			res.send(err);
 		}
 
 		else {
-    		return res.json(tests);
+    		res.send(tests);
     	}
 	});
 });
@@ -49,15 +49,18 @@ router.get('/:id/startTest', function(req, res) {
 
 		let engine = new Engine(tests[0]._id);
 
+		tests[0].questionsId = [];
 		engine.getLexicalGrammarTest().then(function(questions) {
-        	Array.prototype.push.apply(tests[0].questionsId, questions);
+			questions.forEach(function(question) {
+				tests[0].questionsId.push(question._id);
+			});
 
 			tests[0].save(function(err) {
 				if (err) {
 					res.send(err);
 				}
+				res.json(tests[0]);
 			});
-		 	res.json(questions);
 
         });
 	});
@@ -74,14 +77,17 @@ router.get('/:id/getReadingTest/', function(req, res) {
         }
 
         engine.getReadingTest().then(function(questions) {
-        	Array.prototype.push.apply(tests[0].questionsId, questions);
+
+        	/*questions.forEach(function(question) {
+				tests[0].questionsId.push(question._id);
+			});*/
 
 			tests[0].save(function(err) {
 				if (err) {
 					res.send(err);
 				}
+				res.json(tests[0]);
 			});
-		 	res.json(questions);
 
         });
 	});
@@ -98,14 +104,15 @@ router.get('/:id/getListeningTest', function(req, res) {
         }
 
         engine.getListeningTest().then(function(questions) {
-        	Array.prototype.push.apply(tests[0].questionsId, questions);
-
-			res.json(questions);
+        	questions.forEach(function(question) {
+				tests[0].questionsId.push(question._id);
+			});
 
 			tests[0].save(function(err) {
 				if (err) {
 					res.send(err);
 				}
+				res.json(tests[0]);
 			});
         });
 
@@ -125,14 +132,15 @@ router.get('/:id/getSpeakingTest', function(req, res) {
         }
 
         engine.getSpeakingTest().then(function(questions) {
-        	Array.prototype.push.apply(tests[0].questionsId, questions);
-
-			res.json(questions);
+        	questions.forEach(function(question) {
+				tests[0].questionsId.push(question._id);
+			});
 
 			tests[0].save(function(err) {
 				if (err) {
 					res.send(err);
 				}
+				res.json(tests[0]);
 			});
         });
 	});

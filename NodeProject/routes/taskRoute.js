@@ -3,10 +3,24 @@ var constants = require('../consts');
 var mongoose = require('mongoose');
 var ObjectId = mongoose.Types.ObjectId;
 var promise = require('bluebird');
+var Engine = require('../serverAssistance/Engine');
 
 var Task = mongoose.models.Task;
 var Question = mongoose.models.Question;
 var Answer = mongoose.models.Answer;
+
+router.post('/', function(req, res) {
+	var newTask = new Task(req.body);
+
+	newTask.save(function(err) {
+		if (err) {
+			res.send(err);
+		}
+
+		res.send(newTask);
+	}); 
+
+});
 
 router.post('/:id', function(req, res) {
 	var topicId = req.params.id;
@@ -21,9 +35,150 @@ router.post('/:id', function(req, res) {
 	}
 });
 
-function postReadingTask(req, res) {
-	
+function postSpeakingTask(req, res) {
+	Task.find({parentTaskId: req.params.id})
+	.then(function(tasks) {
+		var task = tasks[0];
+
+		var newQuestion = new Question();
+
+		newQuestion.taskId = ObjectId(task._id.toString());
+		newQuestion.description = req.body.description;
+		newQuestion.level = req.body.level;
+		newQuestion.questionType = req.body.questionType;
+		newQuestion.answerType = req.body.answerType;
+		newQuestion.cost = req.body.cost;		
+
+		newQuestion.save(function() {
+			res.send(newQuestion);
+		});
+	});
 }
+
+function postListeningTask(req, res) {
+	var tasksforText = req.body.tasksForText;
+	var textTask = req.body.text;
+
+	var newTextTask = new Task({
+		title: textTask.title,
+		description: textTask.description,
+		parentTaskId: ObjectId(req.params.id),
+		level: textTask.level
+	});
+
+	newTextTask.save(function() {
+
+		tasksforText.forEach(function(taskForText) {
+
+			var questions = taskForText.questions;
+
+			var newTask = new Task({
+				title: taskForText.title,
+				parentTaskId: ObjectId(newTextTask._id.toString()),
+			});
+
+
+			newTask.save(function(){
+				questions.forEach(function(question) {
+
+					var promises = [];
+
+					var newQuestion = new Question({
+						taskId: ObjectId(newTask._id.toString()),
+						description: question.description,
+						questionType: question.questionType,
+						answerType: question.answerType,
+						cost: question.cost	
+					});
+
+					var answers = question.answersId;
+					if (answers) {
+						answers.forEach(function(answer) {
+							var newAnswer = new Answer(answer);
+							newQuestion.answersId.push(ObjectId(newAnswer._id.toString()));
+							promises.push(newAnswer.save().then(function(answer, err) {
+								console.log(err);
+							}));
+						});
+					}
+
+					promise.all(promises).then(function() { // what happenes with promise?
+						newQuestion.save(function() {
+							console.log(newQuestion);
+						});
+					});
+				});
+			});
+		});
+	})
+	.then(function() {
+		res.send(textTask);
+	});
+}
+
+
+function postReadingTask(req, res) {
+	var tasksforText = req.body.tasksForText;
+	var textTask = req.body.text;
+
+	var newTextTask = new Task({
+		title: textTask.title,
+		description: textTask.description,
+		parentTaskId: ObjectId(req.params.id),
+		level: textTask.level
+	});
+
+	newTextTask.save(function() {
+
+		tasksforText.forEach(function(taskForText) {
+
+			var questions = taskForText.questions;
+
+			var newTask = new Task({
+				title: taskForText.title,
+				parentTaskId: ObjectId(newTextTask._id.toString()),
+			});
+
+
+			newTask.save(function(){
+				questions.forEach(function(question) {
+
+					var promises = [];
+
+					var newQuestion = new Question({
+						taskId: ObjectId(newTask._id.toString()),
+						description: question.description,
+						questionType: question.questionType,
+						answerType: question.answerType,
+						cost: question.cost	
+					});
+
+					var answers = question.answersId;
+
+					answers.forEach(function(answer) {
+						var newAnswer = new Answer(answer);
+						newQuestion.answersId.push(ObjectId(newAnswer._id.toString()));
+						promises.push(newAnswer.save().then(function(answer, err) {
+							console.log(err);
+						}));
+					});
+
+					promise.all(promises).then(function() {
+						newQuestion.save(function() {
+							console.log(newQuestion);
+						});
+					});
+				});
+			});
+		});
+	})
+	.then(function() {
+		res.send(textTask);
+	});
+
+}
+
+
 
 function postLexicalGrammarTask(req, res) {
 	Task.find({parentTaskId: req.params.id})

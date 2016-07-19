@@ -4,9 +4,10 @@ var UserAnswer = mongoose.models.UserAnswer;
 var Test = mongoose.models.Test;
 var Question = mongoose.models.Question;
 var Task = mongoose.models.Task;
-var constants = require('./consts');
+var constants = require('../consts');
 var shuffle = require('knuth-shuffle').knuthShuffle;
 var promise = require('bluebird');
+var TestChecker = require('../TestChecker');
 
 'use strict';
 
@@ -17,49 +18,39 @@ class Engine {
 	}
 
 
-	get Level() {
+	static get Level() {
 		return this.level;
-	}
-
-	summarize() {
-		var sum = 0;
-		Test.findById(this.testId).populate({path: 'userAnswersId',
-									populate: {path: 'questionId'}})
-		.then(function(test) {
-			userAnswers = test.userAnswersId;
-			userAnswers.forEach(function(answer) {
-				if (answer.isCorrect) {
-					sum += answer.questionId.cost;
-				}
-			});
-			this.level = sum;
-		});
 	}
 
 
 	getReadingTest() {
-		let level = 'B1';
-		let arrayPromises = [];
-		let data = [];
-		return Task.find({}).populate('parentTaskId')
-			.then( function(tasks) {
-				var filteredTasksByTopic =  Engine.getTasksById(tasks, constants.READING_ID);
-				var task = Engine.getTaskByLevel(filteredTasksByTopic, level)[0];
-				let tasksByParentTask = Engine.getTasksById(tasks, "5788e3cf53a32e8419afd93e");
-				tasksByParentTask.forEach(function(task) {
-					arrayPromises.push(Engine.getQuestionsByTask(task).then(function(question){
-						Array.prototype.push.apply(data, question);
-					}));
-				});
-				return promise.all(arrayPromises).then(function() {
-					return data;
-				});
-			})
+		var testChecker = new TestChecker(this.testId);
+		return testChecker.summarize().then(function(level) {
+			let levelDef = 'B1';
+			console.log("level:" + level);
+			let arrayPromises = [];
+			let data = [];
+			return Task.find({}).populate('parentTaskId')
+				.then( function(tasks) {
+					var filteredTasksByTopic =  Engine.getTasksById(tasks, constants.READING_ID);
+					var task = Engine.getTaskByLevel(filteredTasksByTopic, levelDef)[0];
+					let tasksByParentTask = Engine.getTasksById(tasks, task._id);
+					tasksByParentTask.forEach(function(task) {
+						arrayPromises.push(Engine.getQuestionsByTask(task).then(function(question){
+							Array.prototype.push.apply(data, question);
+						}));
+					});
+					return promise.all(arrayPromises).then(function() {
+						return data;
+					});
+				})
+		});
+
 	}
 
 
 	getLexicalGrammarTest() {
-		return Task.find({}).populate('parentTaskId', 'answersId')
+		return Task.find({}).populate('parentTaskId', 'title')
 		.then(function(tasks) {
 			var filteredTasksByTopic = Engine.getTasksById(tasks, constants.LEXICAL_GRAMMAR_ID);
 			return Engine.getQuestionsByTask(filteredTasksByTopic[0])
@@ -94,7 +85,7 @@ class Engine {
 	}
 
 	getSpeakingTest() {
-		var level = 'B2';
+		var level = 'B1';
 
 		return Task.find({}).populate('parentTaskId')
 			.then( function(tasks) {
@@ -177,7 +168,8 @@ static getTasksById(tasks, taskId) {
 		}
 
 static getQuestionsByTask(task) {
-			return Question.find({}).populate('taskId').then(function(questions) {
+			return Question.find({}).populate('taskId').populate('answersId')
+			.then(function(questions) {
 				let resultQuestions = [];
 				questions.forEach(function(question) {
 					if (question.taskId._id.toString() == task._id) {
