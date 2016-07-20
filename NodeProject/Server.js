@@ -6,7 +6,7 @@ var cors = require('cors');
 var mongodb = require('mongodb');
 
 var mongoose  = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/austenDB');
+mongoose.connect('mongodb://readOnlyUser:readOnlyUser@ds052408.mlab.com:52408/austendb');
 
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'error connection:'));

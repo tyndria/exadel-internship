@@ -11,32 +11,25 @@ var TestChecker = require('../TestChecker');
 
 'use strict';
 
-class Engine {
-
-	constructor(testId) {
-		this.testId = testId;
-	}
-
+class TestAssistant {
 
 	static get Level() {
 		return this.level;
 	}
 
 
-	getReadingTest() {
-		var testChecker = new TestChecker(this.testId);
-		return testChecker.summarize().then(function(level) {
-			let levelDef = 'B1';
-			console.log("level:" + level);
+	static getReadingTest(testId) {
+		return TestChecker.summarize(testId).then(function(sum) {
+			var	level = 'B1';
 			let arrayPromises = [];
 			let data = [];
 			return Task.find({}).populate('parentTaskId')
 				.then( function(tasks) {
-					var filteredTasksByTopic =  Engine.getTasksById(tasks, constants.READING_ID);
-					var task = Engine.getTaskByLevel(filteredTasksByTopic, levelDef)[0];
-					let tasksByParentTask = Engine.getTasksById(tasks, task._id);
+					var filteredTasksByTopic = TestAssistant.getTasksById(tasks, constants.READING_ID);
+					var task = TestAssistant.getTaskByLevel(filteredTasksByTopic, level)[0];
+					let tasksByParentTask = TestAssistant.getTasksById(tasks, task._id);
 					tasksByParentTask.forEach(function(task) {
-						arrayPromises.push(Engine.getQuestionsByTask(task).then(function(question){
+						arrayPromises.push(TestAssistant.getQuestionsByTask(task).then(function(question){
 							Array.prototype.push.apply(data, question);
 						}));
 					});
@@ -49,14 +42,14 @@ class Engine {
 	}
 
 
-	getLexicalGrammarTest() {
+	static getLexicalGrammarTest(testId) {
 		return Task.find({}).populate('parentTaskId', 'title')
 		.then(function(tasks) {
-			var filteredTasksByTopic = Engine.getTasksById(tasks, constants.LEXICAL_GRAMMAR_ID);
-			return Engine.getQuestionsByTask(filteredTasksByTopic[0])
+			var filteredTasksByTopic = TestAssistant.getTasksById(tasks, constants.LEXICAL_GRAMMAR_ID);
+			return TestAssistant.getQuestionsByTask(filteredTasksByTopic[0])
 			.then(function(questions) {
-				var questionsByRandomTask = Engine.getAllQuestionsByRandomTask(questions);
-				var resultQuestions = Engine.getAllQuestionsByLevels(questionsByRandomTask, constants.LEVELS);
+				var questionsByRandomTask = TestAssistant.getAllQuestionsByRandomTask(questions);
+				var resultQuestions = TestAssistant.getAllQuestionsByLevels(questionsByRandomTask, constants.LEVELS);
 
 				return resultQuestions;
 			});
@@ -64,17 +57,17 @@ class Engine {
 	}
 
 
-	getListeningTest() {
+	static getListeningTest(testId) {
 		let level = 'B1';
 		let arrayPromises = [];
 		let data = [];
 		return Task.find({}).populate('parentTaskId')
 			.then( function(tasks) {
-				var filteredTasksByTopic =  Engine.getTasksById(tasks, constants.LISTENING_ID);
-				var task = Engine.getTaskByLevel(filteredTasksByTopic, level)[0];
-				let tasksByParentTask = Engine.getTasksById(tasks, task._id);
+				var filteredTasksByTopic =  TestAssistant.getTasksById(tasks, constants.LISTENING_ID);
+				var task = TestAssistant.getTaskByLevel(filteredTasksByTopic, level)[0];
+				let tasksByParentTask = TestAssistant.getTasksById(tasks, task._id);
 				tasksByParentTask.forEach(function(task) {
-					arrayPromises.push(Engine.getQuestionsByTask(task).then(function(question){
+					arrayPromises.push(TestAssistant.getQuestionsByTask(task).then(function(question){
 						Array.prototype.push.apply(data, question);
 					}));
 				});
@@ -84,15 +77,15 @@ class Engine {
 			})
 	}
 
-	getSpeakingTest() {
+	static getSpeakingTest(testId) {
 		var level = 'B1';
 
 		return Task.find({}).populate('parentTaskId')
 			.then( function(tasks) {
-				var filteredTaskByTopic =  Engine.getTasksById(tasks, constants.SPEAKING_ID)[0];
-				return Engine.getQuestionsByTask(filteredTaskByTopic)
+				var filteredTaskByTopic = TestAssistant.getTasksById(tasks, constants.SPEAKING_ID)[0];
+				return TestAssistant.getQuestionsByTask(filteredTaskByTopic)
 					.then(function(questions) {
-						return Engine.getAllQuestionsByLevels(questions, [level]);
+						return TestAssistant.getAllQuestionsByLevels(questions, [level]);
 					});
 			});
 	}
@@ -117,7 +110,7 @@ static getAllQuestionsByLevels(questions, levels) {
 				array.push(question);
 			}
 		});
-		Array.prototype.push.apply(resultQuestions, Engine.getRandomArray(array, 2));
+		Array.prototype.push.apply(resultQuestions, TestAssistant.getRandomArray(array, 2));
 	});
 
 	return resultQuestions;
@@ -134,7 +127,7 @@ static getTaskByLevel(tasks, level) {
 		}
 	});
 
-	let task = Engine.getRandomArray(allTasks, 1);
+	let task = TestAssistant.getRandomArray(allTasks, 1);
 
 	return task;
 }
@@ -142,7 +135,7 @@ static getTaskByLevel(tasks, level) {
 static getAllQuestionsByRandomTask(questions) {
 	let filteredQuestionsByTask = [];
 
-	let randomTaskId = questions[Engine.getRandomIndex(questions.length)].taskId;
+	let randomTaskId = questions[TestAssistant.getRandomIndex(questions.length)].taskId;
 
 	questions.forEach(function(question) {
 
@@ -186,4 +179,4 @@ static getQuestionsByTask(task) {
 
 }
 
-module.exports = Engine;
+module.exports = TestAssistant;

@@ -1,5 +1,3 @@
-
-
 	var mongoose = require('mongoose');
 	var Test = mongoose.models.Test;
 	var Question = mongoose.models.Question;
@@ -7,11 +5,6 @@
 'use strict'
 
 module.exports = class TestChecker {
-
-	constructor(testId) {
-		this.testId = testId;
-	}
-
 
 	static getUserAnswers(id) {
 		return Test.findById(id).populate({path: 'userAnswersId', 
@@ -53,8 +46,8 @@ module.exports = class TestChecker {
 		});
 	}
 
-	summarize() {
-		var id = this.testId;
+	static summarize(testId) {
+		var id = testId;
 		return TestChecker.checkAnswers(id).then(function(userAnswers) {
 			var sum = 0;
 			userAnswers.forEach(function(userAnswer) {

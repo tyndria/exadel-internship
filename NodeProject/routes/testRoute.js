@@ -4,7 +4,7 @@ var mongoose = require('mongoose');
 var promise = require('bluebird');
 var shuffle = require('knuth-shuffle').knuthShuffle;
 var mongodb = require("mongodb");
-var Engine = require('../serverAssistance/Engine');
+var TestAssistant = require('../serverAssistance/TestAssistant');
 
 var Test = mongoose.models.Test;
 var Question = mongoose.models.Question;
@@ -47,10 +47,9 @@ router.get('/:id/startTest', function(req, res) {
 
 	Test.find({candidateId: req.params.id}, function(err, tests) {
 
-		let engine = new Engine(tests[0]._id);
-
 		tests[0].questionsId = [];
-		engine.getLexicalGrammarTest().then(function(questions) {
+
+		TestAssistant.getLexicalGrammarTest().then(function(questions) {
 			questions.forEach(function(question) {
 				tests[0].questionsId.push(question._id);
 			});
@@ -70,13 +69,12 @@ router.get('/:id/startTest', function(req, res) {
 router.get('/:id/getReadingTest/', function(req, res) {
 
 	Test.find({candidateId: req.params.id}, function(err, tests) {
-		let engine = new Engine(tests[0]._id);
 
 		if (err) {
         	res.send(err);
         }
 
-        engine.getReadingTest().then(function(questions) {
+        TestAssistant.getReadingTest(tests[0]._id).then(function(questions) {
 
         	/*questions.forEach(function(question) {
 				tests[0].questionsId.push(question._id);
@@ -86,7 +84,7 @@ router.get('/:id/getReadingTest/', function(req, res) {
 				if (err) {
 					res.send(err);
 				}
-				res.json(tests[0]);
+				res.json(questions);
 			});
 
         });
@@ -94,16 +92,14 @@ router.get('/:id/getReadingTest/', function(req, res) {
 });
 
 
-
 router.get('/:id/getListeningTest', function(req, res) {
 	Test.find({candidateId: req.params.id}, function(err, tests) {
-		let engine = new Engine(tests[0]._id);
 
 		if (err) {
         	res.send(err);
         }
 
-        engine.getListeningTest().then(function(questions) {
+        TestAssistant.getListeningTest().then(function(questions) {
         	questions.forEach(function(question) {
 				tests[0].questionsId.push(question._id);
 			});
@@ -124,14 +120,12 @@ router.get('/:id/getListeningTest', function(req, res) {
 
 router.get('/:id/getSpeakingTest', function(req, res) {
 	Test.find({candidateId: req.params.id}, function(err, tests) {
-		let engine = new Engine(tests[0]._id);
-
 
 		if (err) {
         	res.send(err);
         }
 
-        engine.getSpeakingTest().then(function(questions) {
+        TestAssistant.getSpeakingTest().then(function(questions) {
         	questions.forEach(function(question) {
 				tests[0].questionsId.push(question._id);
 			});

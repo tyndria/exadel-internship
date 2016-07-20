@@ -1,10 +1,12 @@
 var router = require('express').Router();
+var multer  = require('multer');
+var upload = multer({ dest: 'public/listening/answers'});
 var constants = require('../consts');
 var mongoose = require('mongoose');
 var ObjectId = mongoose.Types.ObjectId;
 var promise = require('bluebird');
-var Engine = require('../serverAssistance/Engine');
 
+var ModelAssistant = require('../serverAssistance/ModelAssistant');
 var Task = mongoose.models.Task;
 var Question = mongoose.models.Question;
 var Answer = mongoose.models.Answer;
@@ -18,9 +20,13 @@ router.post('/', function(req, res) {
 		}
 
 		res.send(newTask);
-	}); 
+	});
 
 });
+
+//post for audio file
+
+//
 
 router.post('/:id', function(req, res) {
 	var topicId = req.params.id;
@@ -40,14 +46,7 @@ function postSpeakingTask(req, res) {
 	.then(function(tasks) {
 		var task = tasks[0];
 
-		var newQuestion = new Question();
-
-		newQuestion.taskId = ObjectId(task._id.toString());
-		newQuestion.description = req.body.description;
-		newQuestion.level = req.body.level;
-		newQuestion.questionType = req.body.questionType;
-		newQuestion.answerType = req.body.answerType;
-		newQuestion.cost = req.body.cost;		
+		var newQuestion = ModelAssistant.createQuestion(req.body, task._id.toString());;
 
 		newQuestion.save(function() {
 			res.send(newQuestion);
@@ -57,14 +56,8 @@ function postSpeakingTask(req, res) {
 
 function postListeningTask(req, res) {
 	var tasksforText = req.body.tasksForText;
-	var textTask = req.body.text;
 
-	var newTextTask = new Task({
-		title: textTask.title,
-		description: textTask.description,
-		parentTaskId: ObjectId(req.params.id),
-		level: textTask.level
-	});
+	var newTextTask = ModelAssistant.createTask(req.body.text, req.params.id);
 
 	newTextTask.save(function() {
 
@@ -83,13 +76,7 @@ function postListeningTask(req, res) {
 
 					var promises = [];
 
-					var newQuestion = new Question({
-						taskId: ObjectId(newTask._id.toString()),
-						description: question.description,
-						questionType: question.questionType,
-						answerType: question.answerType,
-						cost: question.cost	
-					});
+					var newQuestion = ModelAssistant.createQuestion(question, newTask._id.toString());
 
 					var answers = question.answersId;
 					if (answers) {
@@ -119,14 +106,8 @@ function postListeningTask(req, res) {
 
 function postReadingTask(req, res) {
 	var tasksforText = req.body.tasksForText;
-	var textTask = req.body.text;
 
-	var newTextTask = new Task({
-		title: textTask.title,
-		description: textTask.description,
-		parentTaskId: ObjectId(req.params.id),
-		level: textTask.level
-	});
+	var newTextTask = ModelAssistant.createTask(req.body.text, req.params.id);
 
 	newTextTask.save(function() {
 
@@ -145,13 +126,7 @@ function postReadingTask(req, res) {
 
 					var promises = [];
 
-					var newQuestion = new Question({
-						taskId: ObjectId(newTask._id.toString()),
-						description: question.description,
-						questionType: question.questionType,
-						answerType: question.answerType,
-						cost: question.cost	
-					});
+					var newQuestion = ModelAssistant.createQuestion(question, newTask._id.toString());
 
 					var answers = question.answersId;
 
@@ -188,14 +163,7 @@ function postLexicalGrammarTask(req, res) {
 
 		var task = tasks[0];
 
-		var newQuestion = new Question();
-
-		newQuestion.taskId = ObjectId(task._id.toString());
-		newQuestion.description = req.body.description;
-		newQuestion.level = req.body.level;
-		newQuestion.questionType = req.body.questionType;
-		newQuestion.answerType = req.body.answerType;
-		newQuestion.cost = req.body.cost;		
+		var newQuestion = ModelAssistant.createQuestion(req.body, task._id.toString());
 
 		var answers = req.body.answersId;
 
