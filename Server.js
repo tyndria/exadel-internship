@@ -6,8 +6,7 @@ var cors = require('cors');
 var mongodb = require('mongodb');
 
 var port = process.env.PORT || 8083;
-var mongoUri = process.env.MONGO_URL ||
-  'mongodb://localhost:27017/austenDB';
+var mongoUri = 'mongodb://readOnlyUser:readOnlyUser@ds052408.mlab.com:52408/austendb';
 
 var mongoose  = require('mongoose');
 mongoose.connect(mongoUri, function (err, res) {
