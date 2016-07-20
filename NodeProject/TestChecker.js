@@ -1,24 +1,13 @@
-
-
-
-//  I have an idea to make method "getLevel()" static and do like this:
-//	var level = TestChecker.getLevel(testId); 
-
-class TestChecker {
-
 	var mongoose = require('mongoose');
 	var Test = mongoose.models.Test;
 	var Question = mongoose.models.Question;
 	var UserAnswer = mongoose.models.UserAnswer;
+'use strict'
 
+module.exports = class TestChecker {
 
-	constructor(testId) {
-		this.testId = testId;
-	}
-
-
-	function getUserAnswers() {
-		Test.findById(this.testId).populate({path: 'userAnswersId', 
+	static getUserAnswers(id) {
+		return Test.findById(id).populate({path: 'userAnswersId', 
 									populate: {path: 'questionId', 														
 									populate: {path: 'answersId'}}})
 		.then(function(test) {
@@ -26,44 +15,45 @@ class TestChecker {
 		});
 	}
 
-	function getCorrectAnswer(userAnswer) {
+	static getCorrectAnswer(userAnswer) {
+		var correctAnswer = {};
 			userAnswer.questionId.answersId.forEach(function(answer) {
-				if (answer.isCorrect) {
-					return answer;
+				if (answer.isCorrect.toString() == "true") {
+					correctAnswer = answer;
 				}
 			});
+		return correctAnswer;
 	}
 
 
-	function saveTest() {
-		Test.findById(this.testId).
+	static saveTest() {
+		return Test.findById(this.testId)
 		.then(function(test) {
-			test.save();
-	}
-
-
-	function checkAnswers() {
-		var userAnswers = getUserAnswers();
-		userAnswers.forEach(function(userAnswer) {
-			if (userAnswer.answer == getCorrectAnswer(userAnswer)) {
-				userAnswer.isCorrect = true;
-			}
+			return test.save();
 		});
 	}
 
-	saveTest();
-	/*function getLevel() { //get
 
-		checkAnswers();
-
-		var sum = 0;
-		var userAnswers = getUserAnswers();
-		userAnswers.forEach(function (answer) {
-			if (answer.isCorrect) {
-				sum += answer.questionId.cost;
-			}
+	static checkAnswers(id) {
+		return TestChecker.getUserAnswers(id).then(function(userAnswers) {
+			userAnswers.forEach(function(userAnswer) {
+				let answer = TestChecker.getCorrectAnswer(userAnswer);
+				if (userAnswer.answer.toString() == TestChecker.getCorrectAnswer(userAnswer).text.toString()) {
+					userAnswer.isCorrect = true;
+				}
+			});
+			return userAnswers;
 		});
-		return sum;
 	}
-*/
+
+	static summarize(testId) {
+		var id = testId;
+		return TestChecker.checkAnswers(id).then(function(userAnswers) {
+			var sum = 0;
+			userAnswers.forEach(function(userAnswer) {
+				sum += userAnswer.questionId.cost;
+			});
+			return sum;
+		});
+	}
 }

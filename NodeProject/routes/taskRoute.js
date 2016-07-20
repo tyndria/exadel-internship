@@ -1,12 +1,32 @@
 var router = require('express').Router();
+var multer  = require('multer');
+var upload = multer({ dest: 'public/listening/answers'});
 var constants = require('../consts');
 var mongoose = require('mongoose');
 var ObjectId = mongoose.Types.ObjectId;
 var promise = require('bluebird');
 
+var ModelAssistant = require('../serverAssistance/ModelAssistant');
 var Task = mongoose.models.Task;
 var Question = mongoose.models.Question;
 var Answer = mongoose.models.Answer;
+
+router.post('/', function(req, res) {
+	var newTask = new Task(req.body);
+
+	newTask.save(function(err) {
+		if (err) {
+			res.send(err);
+		}
+
+		res.send(newTask);
+	});
+
+});
+
+//post for audio file
+
+//
 
 router.post('/:id', function(req, res) {
 	var topicId = req.params.id;
@@ -21,9 +41,119 @@ router.post('/:id', function(req, res) {
 	}
 });
 
-function postReadingTask(req, res) {
-	
+function postSpeakingTask(req, res) {
+	Task.find({parentTaskId: req.params.id})
+	.then(function(tasks) {
+		var task = tasks[0];
+
+		var newQuestion = ModelAssistant.createQuestion(req.body, task._id.toString());;
+
+		newQuestion.save(function() {
+			res.send(newQuestion);
+		});
+	});
 }
+
+function postListeningTask(req, res) {
+	var tasksforText = req.body.tasksForText;
+
+	var newTextTask = ModelAssistant.createTask(req.body.text, req.params.id);
+
+	newTextTask.save(function() {
+
+		tasksforText.forEach(function(taskForText) {
+
+			var questions = taskForText.questions;
+
+			var newTask = new Task({
+				title: taskForText.title,
+				parentTaskId: ObjectId(newTextTask._id.toString()),
+			});
+
+
+			newTask.save(function(){
+				questions.forEach(function(question) {
+
+					var promises = [];
+
+					var newQuestion = ModelAssistant.createQuestion(question, newTask._id.toString());
+
+					var answers = question.answersId;
+					if (answers) {
+						answers.forEach(function(answer) {
+							var newAnswer = new Answer(answer);
+							newQuestion.answersId.push(ObjectId(newAnswer._id.toString()));
+							promises.push(newAnswer.save().then(function(answer, err) {
+								console.log(err);
+							}));
+						});
+					}
+
+					promise.all(promises).then(function() { // what happenes with promise?
+						newQuestion.save(function() {
+							console.log(newQuestion);
+						});
+					});
+				});
+			});
+		});
+	})
+	.then(function() {
+		res.send(textTask);
+	});
+}
+
+
+function postReadingTask(req, res) {
+	var tasksforText = req.body.tasksForText;
+
+	var newTextTask = ModelAssistant.createTask(req.body.text, req.params.id);
+
+	newTextTask.save(function() {
+
+		tasksforText.forEach(function(taskForText) {
+
+			var questions = taskForText.questions;
+
+			var newTask = new Task({
+				title: taskForText.title,
+				parentTaskId: ObjectId(newTextTask._id.toString()),
+			});
+
+
+			newTask.save(function(){
+				questions.forEach(function(question) {
+
+					var promises = [];
+
+					var newQuestion = ModelAssistant.createQuestion(question, newTask._id.toString());
+
+					var answers = question.answersId;
+
+					answers.forEach(function(answer) {
+						var newAnswer = new Answer(answer);
+						newQuestion.answersId.push(ObjectId(newAnswer._id.toString()));
+						promises.push(newAnswer.save().then(function(answer, err) {
+							console.log(err);
+						}));
+					});
+
+					promise.all(promises).then(function() {
+						newQuestion.save(function() {
+							console.log(newQuestion);
+						});
+					});
+				});
+			});
+		});
+	})
+	.then(function() {
+		res.send(textTask);
+	});
+
+}
+
+
 
 function postLexicalGrammarTask(req, res) {
 	Task.find({parentTaskId: req.params.id})
@@ -33,14 +163,7 @@ function postLexicalGrammarTask(req, res) {
 
 		var task = tasks[0];
 
-		var newQuestion = new Question();
-
-		newQuestion.taskId = ObjectId(task._id.toString());
-		newQuestion.description = req.body.description;
-		newQuestion.level = req.body.level;
-		newQuestion.questionType = req.body.questionType;
-		newQuestion.answerType = req.body.answerType;
-		newQuestion.cost = req.body.cost;		
+		var newQuestion = ModelAssistant.createQuestion(req.body, task._id.toString());
 
 		var answers = req.body.answersId;
 

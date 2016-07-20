@@ -15,7 +15,10 @@ var testSchema = new Schema({
 	}],
 	userAnswersId: [{type: mongoose.Schema.Types.ObjectId,
 		ref: 'UserAnswer'}],
-	mark: Number,
+	resultLexicalGrammarTest: Number,
+	resultReadingTest: Number,
+	resultListeningTest: Number,
+	resultSpeakingTest: Number,
 	isChecked: Boolean
 });
 

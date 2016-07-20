@@ -4,68 +4,52 @@ var UserAnswer = mongoose.models.UserAnswer;
 var Test = mongoose.models.Test;
 var Question = mongoose.models.Question;
 var Task = mongoose.models.Task;
-var constants = require('./consts');
+var constants = require('../consts');
 var shuffle = require('knuth-shuffle').knuthShuffle;
 var promise = require('bluebird');
+var TestChecker = require('../TestChecker');
 
 'use strict';
 
-class Engine {
+class TestAssistant {
 
-	constructor(testId) {
-		this.testId = testId;
-	}
-
-
-	get Level() {
+	static get Level() {
 		return this.level;
 	}
 
-	summarize() {
-		var sum = 0;
-		Test.findById(this.testId).populate({path: 'userAnswersId',
-									populate: {path: 'questionId'}})
-		.then(function(test) {
-			userAnswers = test.userAnswersId;
-			userAnswers.forEach(function(answer) {
-				if (answer.isCorrect) {
-					sum += answer.questionId.cost;
-				}
-			});
-			this.level = sum;
+
+	static getReadingTest(testId) {
+		return TestChecker.summarize(testId).then(function(sum) {
+			var	level = 'B1';
+			let arrayPromises = [];
+			let data = [];
+			return Task.find({}).populate('parentTaskId')
+				.then( function(tasks) {
+					var filteredTasksByTopic = TestAssistant.getTasksById(tasks, constants.READING_ID);
+					var task = TestAssistant.getTaskByLevel(filteredTasksByTopic, level)[0];
+					let tasksByParentTask = TestAssistant.getTasksById(tasks, task._id);
+					tasksByParentTask.forEach(function(task) {
+						arrayPromises.push(TestAssistant.getQuestionsByTask(task).then(function(question){
+							Array.prototype.push.apply(data, question);
+						}));
+					});
+					return promise.all(arrayPromises).then(function() {
+						return data;
+					});
+				})
 		});
+
 	}
 
 
-	getReadingTest() {
-		let level = 'B1';
-		let arrayPromises = [];
-		let data = [];
-		return Task.find({}).populate('parentTaskId')
-			.then( function(tasks) {
-				var filteredTasksByTopic =  Engine.getTasksById(tasks, constants.READING_ID);
-				var task = Engine.getTaskByLevel(filteredTasksByTopic, level)[0];
-				let tasksByParentTask = Engine.getTasksById(tasks, "5788e3cf53a32e8419afd93e");
-				tasksByParentTask.forEach(function(task) {
-					arrayPromises.push(Engine.getQuestionsByTask(task).then(function(question){
-						Array.prototype.push.apply(data, question);
-					}));
-				});
-				return promise.all(arrayPromises).then(function() {
-					return data;
-				});
-			})
-	}
-
-
-	getLexicalGrammarTest() {
-		return Task.find({}).populate('parentTaskId', 'answersId')
+	static getLexicalGrammarTest(testId) {
+		return Task.find({}).populate('parentTaskId', 'title')
 		.then(function(tasks) {
-			var filteredTasksByTopic = Engine.getTasksById(tasks, constants.LEXICAL_GRAMMAR_ID);
-			return Engine.getQuestionsByTask(filteredTasksByTopic[0])
+			var filteredTasksByTopic = TestAssistant.getTasksById(tasks, constants.LEXICAL_GRAMMAR_ID);
+			return TestAssistant.getQuestionsByTask(filteredTasksByTopic[0])
 			.then(function(questions) {
-				var questionsByRandomTask = Engine.getAllQuestionsByRandomTask(questions);
-				var resultQuestions = Engine.getAllQuestionsByLevels(questionsByRandomTask, constants.LEVELS);
+				var questionsByRandomTask = TestAssistant.getAllQuestionsByRandomTask(questions);
+				var resultQuestions = TestAssistant.getAllQuestionsByLevels(questionsByRandomTask, constants.LEVELS);
 
 				return resultQuestions;
 			});
@@ -73,17 +57,17 @@ class Engine {
 	}
 
 
-	getListeningTest() {
+	static getListeningTest(testId) {
 		let level = 'B1';
 		let arrayPromises = [];
 		let data = [];
 		return Task.find({}).populate('parentTaskId')
 			.then( function(tasks) {
-				var filteredTasksByTopic =  Engine.getTasksById(tasks, constants.LISTENING_ID);
-				var task = Engine.getTaskByLevel(filteredTasksByTopic, level)[0];
-				let tasksByParentTask = Engine.getTasksById(tasks, task._id);
+				var filteredTasksByTopic =  TestAssistant.getTasksById(tasks, constants.LISTENING_ID);
+				var task = TestAssistant.getTaskByLevel(filteredTasksByTopic, level)[0];
+				let tasksByParentTask = TestAssistant.getTasksById(tasks, task._id);
 				tasksByParentTask.forEach(function(task) {
-					arrayPromises.push(Engine.getQuestionsByTask(task).then(function(question){
+					arrayPromises.push(TestAssistant.getQuestionsByTask(task).then(function(question){
 						Array.prototype.push.apply(data, question);
 					}));
 				});
@@ -93,15 +77,15 @@ class Engine {
 			})
 	}
 
-	getSpeakingTest() {
-		var level = 'B2';
+	static getSpeakingTest(testId) {
+		var level = 'B1';
 
 		return Task.find({}).populate('parentTaskId')
 			.then( function(tasks) {
-				var filteredTaskByTopic =  Engine.getTasksById(tasks, constants.SPEAKING_ID)[0];
-				return Engine.getQuestionsByTask(filteredTaskByTopic)
+				var filteredTaskByTopic = TestAssistant.getTasksById(tasks, constants.SPEAKING_ID)[0];
+				return TestAssistant.getQuestionsByTask(filteredTaskByTopic)
 					.then(function(questions) {
-						return Engine.getAllQuestionsByLevels(questions, [level]);
+						return TestAssistant.getAllQuestionsByLevels(questions, [level]);
 					});
 			});
 	}
@@ -126,7 +110,7 @@ static getAllQuestionsByLevels(questions, levels) {
 				array.push(question);
 			}
 		});
-		Array.prototype.push.apply(resultQuestions, Engine.getRandomArray(array, 2));
+		Array.prototype.push.apply(resultQuestions, TestAssistant.getRandomArray(array, 2));
 	});
 
 	return resultQuestions;
@@ -143,7 +127,7 @@ static getTaskByLevel(tasks, level) {
 		}
 	});
 
-	let task = Engine.getRandomArray(allTasks, 1);
+	let task = TestAssistant.getRandomArray(allTasks, 1);
 
 	return task;
 }
@@ -151,7 +135,7 @@ static getTaskByLevel(tasks, level) {
 static getAllQuestionsByRandomTask(questions) {
 	let filteredQuestionsByTask = [];
 
-	let randomTaskId = questions[Engine.getRandomIndex(questions.length)].taskId;
+	let randomTaskId = questions[TestAssistant.getRandomIndex(questions.length)].taskId;
 
 	questions.forEach(function(question) {
 
@@ -177,7 +161,8 @@ static getTasksById(tasks, taskId) {
 		}
 
 static getQuestionsByTask(task) {
-			return Question.find({}).populate('taskId').then(function(questions) {
+			return Question.find({}).populate('taskId').populate('answersId')
+			.then(function(questions) {
 				let resultQuestions = [];
 				questions.forEach(function(question) {
 					if (question.taskId._id.toString() == task._id) {
@@ -194,4 +179,4 @@ static getQuestionsByTask(task) {
 
 }
 
-module.exports = Engine;
+module.exports = TestAssistant;
