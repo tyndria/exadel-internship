@@ -3,7 +3,7 @@ var constants = require('../consts');
 var shuffle = require('knuth-shuffle').knuthShuffle;
 var promise = require('bluebird');
 var ObjectId = mongoose.Types.ObjectId;
-var TestChecker = require('../TestChecker');
+var TestChecker = require('../serverAssistance/TestChecker');
 
 var UserAnswer = mongoose.models.UserAnswer;
 var Test = mongoose.models.Test;

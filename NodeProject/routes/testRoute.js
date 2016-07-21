@@ -11,7 +11,7 @@ var Question = mongoose.models.Question;
 var Task = mongoose.models.Task;
 
 router.get('/', function (req, res) {
-	var query = Test.find({}).populate('questionsId');
+	var query = Test.find({isChecked: true}).populate('questionsId');
 
 	query.select('-__v');
 
@@ -43,44 +43,34 @@ router.post('/', function(req, res) {
 });
 
 
+/*router.get('/:id/:seqNumber', function(req, res) {
+
+	Test.findById({candidateId: req.params.id}, function(err, tests) {
+		if (err) {
+			res.send(err);
+		}
+		if (req.params.seqNumber > tests.length + 1)
+			res.send("bad request");
+
+		res.send(tests[req.params.seqNumber - 1]);
+	});
+});*/
+
 router.get('/:id/startTest', function(req, res) {
 
 	Test.find({candidateId: req.params.id}, function(err, tests) {
 
-		tests[0].questionsId = [];
+		console.log(tests);
+		var CURRENT_TEST = tests.length - 1;
+
+		tests[CURRENT_TEST].questionsId = [];
 
 		TestAssistant.getLexicalGrammarTest().then(function(questions) {
 			questions.forEach(function(question) {
-				tests[0].questionsId.push(question._id);
+				tests[CURRENT_TEST].questionsId.push(question._id);
 			});
 
-			tests[0].save(function(err) {
-				if (err) {
-					res.send(err);
-				}
-				res.json(tests[0]);
-			});
-
-        });
-	});
-});
-
-
-router.get('/:id/getReadingTest/', function(req, res) {
-
-	Test.find({candidateId: req.params.id}, function(err, tests) {
-
-		if (err) {
-        	res.send(err);
-        }
-
-        TestAssistant.getReadingTest(tests[0]._id).then(function(questions) {
-
-        	/*questions.forEach(function(question) {
-				tests[0].questionsId.push(question._id);
-			});*/
-
-			tests[0].save(function(err) {
+			tests[CURRENT_TEST].save(function(err) {
 				if (err) {
 					res.send(err);
 				}
@@ -92,8 +82,46 @@ router.get('/:id/getReadingTest/', function(req, res) {
 });
 
 
+router.get('/:id/getReadingTest/', function(req, res) {
+
+	Test.find({candidateId: req.params.id}).populate({path: 'userAnswersId', 
+									populate: {path: 'questionId', 														
+									populate: {path: 'answersId'}}})
+		.then(function(err, tests) {
+			if (err) {
+	        	res.send(err);
+	        }
+			var CURRENT_TEST = tests.length - 1;
+
+			var userAnswers = tests[CURRENT_TEST];
+
+			TestAssistant.summarize(userAnswers).then(function(err, sum) {
+
+				console.log(sum);
+				var level = 'B1';
+				TestAssistant.getReadingTest(level).then(function(questions) {
+
+		        	/*questions.forEach(function(question) {
+						tests[0].questionsId.push(question._id);
+					});*/
+
+					tests[CURRENT_TEST].save(function(err) {
+						if (err) {
+							res.send(err);
+						}
+						res.json(questions);
+					});
+
+	        	});
+			});
+	});
+});
+
+
 router.get('/:id/getListeningTest', function(req, res) {
 	Test.find({candidateId: req.params.id}, function(err, tests) {
+
+		var CURRENT_TEST = tests.length - 1;
 
 		if (err) {
         	res.send(err);
@@ -101,14 +129,14 @@ router.get('/:id/getListeningTest', function(req, res) {
 
         TestAssistant.getListeningTest().then(function(questions) {
         	questions.forEach(function(question) {
-				tests[0].questionsId.push(question._id);
+				tests[CURRENT_TEST].questionsId.push(question._id);
 			});
 
-			tests[0].save(function(err) {
+			tests[CURRENT_TEST].save(function(err) {
 				if (err) {
 					res.send(err);
 				}
-				res.json(tests[0]);
+				res.json(tests[CURRENT_TEST]);
 			});
         });
 
@@ -121,20 +149,22 @@ router.get('/:id/getListeningTest', function(req, res) {
 router.get('/:id/getSpeakingTest', function(req, res) {
 	Test.find({candidateId: req.params.id}, function(err, tests) {
 
+		var CURRENT_TEST = tests.length - 1;
+
 		if (err) {
         	res.send(err);
         }
 
         TestAssistant.getSpeakingTest().then(function(questions) {
         	questions.forEach(function(question) {
-				tests[0].questionsId.push(question._id);
+				tests[CURRENT_TEST].questionsId.push(question._id);
 			});
 
-			tests[0].save(function(err) {
+			tests[CURRENT_TEST].save(function(err) {
 				if (err) {
 					res.send(err);
 				}
-				res.json(tests[0]);
+				res.json(tests[CURRENT_TEST]);
 			});
         });
 	});

@@ -7,7 +7,7 @@ var Task = mongoose.models.Task;
 var constants = require('../consts');
 var shuffle = require('knuth-shuffle').knuthShuffle;
 var promise = require('bluebird');
-var TestChecker = require('../TestChecker');
+var TestChecker = require('../serverAssistance/TestChecker');
 
 'use strict';
 
@@ -18,31 +18,38 @@ class TestAssistant {
 	}
 
 
-	static getReadingTest(testId) {
-		return TestChecker.summarize(testId).then(function(sum) {
-			var	level = 'B1';
-			let arrayPromises = [];
-			let data = [];
-			return Task.find({}).populate('parentTaskId')
-				.then( function(tasks) {
-					var filteredTasksByTopic = TestAssistant.getTasksById(tasks, constants.READING_ID);
-					var task = TestAssistant.getTaskByLevel(filteredTasksByTopic, level)[0];
-					let tasksByParentTask = TestAssistant.getTasksById(tasks, task._id);
-					tasksByParentTask.forEach(function(task) {
-						arrayPromises.push(TestAssistant.getQuestionsByTask(task).then(function(question){
-							Array.prototype.push.apply(data, question);
-						}));
-					});
-					return promise.all(arrayPromises).then(function() {
-						return data;
-					});
-				})
+	static summarize(userAnswers) {
+		return TestChecker.checkAnswers(userAnswers).then(function(userAnswers) {
+			var sum = 0;
+			userAnswers.forEach(function(userAnswer) {
+				sum += userAnswer.questionId.cost;
+			});
+			return sum;
 		});
+	}
 
+	static getReadingTest(level) {
+		this.level = level;
+		let arrayPromises = [];
+		let data = [];
+		return Task.find({}).populate('parentTaskId')
+			.then( function(tasks) {
+				var filteredTasksByTopic = TestAssistant.getTasksById(tasks, constants.READING_ID);
+				var task = TestAssistant.getTaskByLevel(filteredTasksByTopic, level)[0];
+				let tasksByParentTask = TestAssistant.getTasksById(tasks, task._id);
+				tasksByParentTask.forEach(function(task) {
+					arrayPromises.push(TestAssistant.getQuestionsByTask(task).then(function(question){
+						Array.prototype.push.apply(data, question);
+					}));
+				});
+				return promise.all(arrayPromises).then(function() {
+					return data;
+				});
+			})
 	}
 
 
-	static getLexicalGrammarTest(testId) {
+	static getLexicalGrammarTest() {
 		return Task.find({}).populate('parentTaskId', 'title')
 		.then(function(tasks) {
 			var filteredTasksByTopic = TestAssistant.getTasksById(tasks, constants.LEXICAL_GRAMMAR_ID);
@@ -57,14 +64,14 @@ class TestAssistant {
 	}
 
 
-	static getListeningTest(testId) {
-		let level = 'B1';
+	static getListeningTest() {
+		var that = this;
 		let arrayPromises = [];
 		let data = [];
 		return Task.find({}).populate('parentTaskId')
 			.then( function(tasks) {
 				var filteredTasksByTopic =  TestAssistant.getTasksById(tasks, constants.LISTENING_ID);
-				var task = TestAssistant.getTaskByLevel(filteredTasksByTopic, level)[0];
+				var task = TestAssistant.getTaskByLevel(filteredTasksByTopic, that.level)[0];
 				let tasksByParentTask = TestAssistant.getTasksById(tasks, task._id);
 				tasksByParentTask.forEach(function(task) {
 					arrayPromises.push(TestAssistant.getQuestionsByTask(task).then(function(question){
@@ -77,15 +84,14 @@ class TestAssistant {
 			})
 	}
 
-	static getSpeakingTest(testId) {
-		var level = 'B1';
-
+	static getSpeakingTest() {
+		var that = this;
 		return Task.find({}).populate('parentTaskId')
 			.then( function(tasks) {
 				var filteredTaskByTopic = TestAssistant.getTasksById(tasks, constants.SPEAKING_ID)[0];
 				return TestAssistant.getQuestionsByTask(filteredTaskByTopic)
 					.then(function(questions) {
-						return TestAssistant.getAllQuestionsByLevels(questions, [level]);
+						return TestAssistant.getAllQuestionsByLevels(questions, [that.level]);
 					});
 			});
 	}
