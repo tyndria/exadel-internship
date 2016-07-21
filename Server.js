@@ -5,6 +5,7 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 var mongodb = require('mongodb');
 
+var port =process.env.PORT || 3000;
 var mongoose  = require('mongoose');
 mongoose.connect('mongodb://adminUser:adminUser@ds052408.mlab.com:52408/austendb');
 
@@ -35,8 +36,8 @@ mongoose.model('Task', require('./modules/task'));
 var router = require('./routes/index');
 app.use('/api', router);
 
-app.listen(8083, function(){
-    console.log('Express server listening on port 8083');
+app.listen(port, function(){
+    console.log('Express server listening on port '+ port);
 });
 
 app.use(cors());
