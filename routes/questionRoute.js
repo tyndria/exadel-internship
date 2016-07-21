@@ -19,7 +19,7 @@ router.post('/', function(req, res) {
 });
 
 router.get('/', function (req, res) {
-	var query = Question.find({});
+	var query = Question.find({}).populate('answersId');
 
 	query.select('-__v');
 
