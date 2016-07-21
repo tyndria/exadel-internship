@@ -12,6 +12,7 @@
     "knuth-shuffle": "^1.0.1",
     "mongoose": "4.0.4",
     "morgan": "~1.6.1",
+    "nodemailer": "^2.5.0",
     "promise": "^7.1.1"
   },
   "engines": {
