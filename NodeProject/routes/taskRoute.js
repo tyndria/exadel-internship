@@ -24,20 +24,20 @@ router.post('/', function(req, res) {
 
 });
 
-//post for audio file
-
-//
-
 router.post('/:id', function(req, res) {
 	var topicId = req.params.id;
-	if (topicId.toString() == constants.LEXICAL_GRAMMAR_ID) {
-		postLexicalGrammarTask(req, res);
-	} else if (topicId.toString() == constants.READING_ID) {
-		postReadingTask(req, res);
-	} else if (topicId.toString() == constants.LISTENING_ID) {
-		postListeningTask(req, res);
-	} else if (topicId.toString() == constants.SPEAKING_ID) {
-		postSpeakingTask(req, res);
+	switch(topicId.toString()) {
+		case constants.LEXICAL_GRAMMAR_ID:
+			postLexicalGrammarTask(req, res);
+			break;
+		case constants.READING_ID:
+			postReadingTask(req, res);
+			break;
+		case constants.LISTENING_ID:
+			postListeningTask(req, res);
+			break;
+		case constants.SPEAKING_ID:
+			postSpeakingTask(req, res);
 	}
 });
 
@@ -89,7 +89,7 @@ function postListeningTask(req, res) {
 						});
 					}
 
-					promise.all(promises).then(function() { // what happenes with promise?
+					promise.all(promises).then(function() {
 						newQuestion.save(function() {
 							console.log(newQuestion);
 						});

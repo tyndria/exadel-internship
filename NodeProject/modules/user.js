@@ -6,7 +6,7 @@ var userSchema = new Schema({
 	lastName:String,
 	role: Number,
 	mail: String,
-	meta: {}
+	photo: String
 });
 
 

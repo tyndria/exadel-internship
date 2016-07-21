@@ -55,17 +55,18 @@ router.post('/:id', function(req, res) {
 	Test.find({candidateId: req.params.id}).
 	then(function(tests) {
 		var promises = []
+		var CURRENT_TEST = tests.length - 1;
 
-		var currentTest = tests[0];
-		currentTest.userAnswersId = [];
+		var test = tests[CURRENT_TEST];
+		test.userAnswersId = [];
 
 		var userAnswers = req.body.userAnswers;
 
 		userAnswers.forEach(function (userAnswer){
 
-			var newUsersAnswer = ModelAssistant.createUserAnswer(userAnswer, req.params.id, currentTest._id);
+			var newUsersAnswer = ModelAssistant.createUserAnswer(userAnswer, req.params.id, test._id);
 
-			currentTest.userAnswersId.push(ObjectId(newUsersAnswer._id));
+			test.userAnswersId.push(ObjectId(newUsersAnswer._id));
 			promises.push(newUsersAnswer.save().then(function(err) {
 				if (err) console.log(err);
 			}));
@@ -73,8 +74,8 @@ router.post('/:id', function(req, res) {
 
 
 		promise.all(promises).then(function() {
-			currentTest.save(function() {
-				console.log(currentTest);
+			test.save(function() {
+				console.log(test);
 			})
 		});
 
@@ -82,13 +83,26 @@ router.post('/:id', function(req, res) {
 
 });
 
-router.get('/:id/getLexicalGrammarTest', function(req, res) {
+router.get('/:id/:seqNumber', function(req, res) {
 	Test.find({candidateId: req.params.id}).populate({path: 'userAnswersId',
 										populate: {path: 'questionId',
 										populate: {path: 'taskId',
 										populate: {path: 'parentTaskId'}}}})
 	.then(function(tests) {
-		var test = tests[0];
+		var CURRENT_TEST = req.params.seqNumber;
+		var test = tests[CURRENT_TEST];
+
+		var getRequest = {};
+
+		var lexicalGrammarTest = [];
+		var readingTest = [];
+		var listeningTest = [];
+		var speakingTest = [];
+
+		var userAnswers = test.userAnswersId;
+		userAnswers.forEach(function(userAnswer) {
+			
+		});
 
 	});
 
