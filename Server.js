@@ -5,16 +5,14 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 var mongodb = require('mongodb');
 
-var port = process.env.PORT || 8083;
-var mongoUri = 'mongodb://adminUser:adminUser@ds052408.mlab.com:52408/austendb';
-
 var mongoose  = require('mongoose');
-mongoose.connect(mongoUri, function (err, res) {
-    if (err) {
-      console.log ('ERROR connecting to: ' + mongoUri + '. ' + err);
-    } else {
-      console.log ('Succeeded connected to: ' + mongoUri);
-    }
+mongoose.connect('mongodb://adminUser:adminUser@ds052408.mlab.com:52408/austendb');
+
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'error connection:'));
+db.once('open', function() {
+
+	console.log('Success!');
 });
 
 var app = express();
@@ -37,7 +35,7 @@ mongoose.model('Task', require('./modules/task'));
 var router = require('./routes/index');
 app.use('/api', router);
 
-app.listen(port, function(){
+app.listen(8083, function(){
     console.log('Express server listening on port 8083');
 });
 
@@ -48,3 +46,4 @@ app.use(function(req, res, next){
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
+
