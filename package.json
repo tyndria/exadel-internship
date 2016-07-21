@@ -13,6 +13,7 @@
     "mongoose": "4.0.4",
     "morgan": "~1.6.1",
     "nodemailer": "^2.5.0",
+    "multer": "^1.1.0",
     "promise": "^7.1.1"
   },
   "engines": {
@@ -20,3 +21,4 @@
     "npm": "3.9.5"
   }
 }
+
