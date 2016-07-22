@@ -33,6 +33,10 @@ mongoose.model('Task', require('./modules/task'));
 
 //import main router
 
+var message=require('./emailNotifier/notifier');
+
+//message.sendNotificationEmail({mail:'domanoffa.n@gmail.com'}, "Привет от системы");
+
 var router = require('./routes/index');
 app.use('/api', router);
 
