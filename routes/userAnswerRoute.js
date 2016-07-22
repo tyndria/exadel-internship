@@ -25,21 +25,22 @@ router.get('/', function (req, res) {
 	});
 });
 
-router.post('/:id/sendAudio', upload.single('audioFromUser'), function (req, res, next) {
-  console.log('success' + req);
+router.post('/:id/:seqNumber/sendAudio', upload.single('audioFromUser'), function (req, res, next) {
   var file = req.file;
-  Test.find({candidateId: req.params.id}).
-	then(function(tests) {
-		var currentTest = tests[0];
+  Test.find({candidateId: req.params.id})
+	.then(function(tests) {
+
+		var CURRENT_TEST = req.params.seqNumber - 1;
+		var test = tests[CURRENT_TEST];
 		
 		var newUsersAnswer = new UserAnswer({
-			userId: req.params.id,
-			testId: currentTest._id,
-			questionId: req.body.userAnswer.questionId,
-			answer: req.file.path
+			userId: ObjectId(req.params.id.toString()),
+			testId: ObjectId(test._id.toString()),
+			questionId: ObjectId(req.body.questionId.toString()),
+			answer: file.path
 		});
 
-		currentTest.userAnswersId.push(ObjectId(newUsersAnswer._id));
+		test.userAnswersId.push(ObjectId(newUsersAnswer._id.toString()));
 
 		newUsersAnswer.save().then(function(err) {
 			if (err) 
