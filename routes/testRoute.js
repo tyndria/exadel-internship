@@ -5,6 +5,7 @@ var promise = require('bluebird');
 var shuffle = require('knuth-shuffle').knuthShuffle;
 var mongodb = require("mongodb");
 var TestAssistant = require('../serverAssistance/TestAssistant');
+var ObjectId = mongoose.Types.ObjectId;
 
 var Test = mongoose.models.Test;
 var Question = mongoose.models.Question;
@@ -26,11 +27,31 @@ router.get('/', function (req, res) {
 	});
 });
 
+router.post('/:reviewerId', function(req, res) {
+	var testsId = req.body.testsId;
+
+	testsId.forEach(function(testId) {
+		console.log(testId);
+		Test.findById(ObjectId(testId), function(err, test) {
+			test.reviewerId = req.params.reviewerId;
+
+			test.save(function(err) {
+				if (err)
+					res.send(err);
+				res.send(test);
+			});
+		});
+	});
+
+});
+
 router.post('/', function(req, res) {
-	var candidateId = req.body.candidateId;
 
 	var newTest = new Test({
-		candidateId: mongoose.Types.ObjectId(candidateId)
+		candidateId: mongoose.Types.ObjectId(req.body.candidateId),
+		startTime: req.body.startTime,
+		finishTime: req.body.finishTime,
+		duration: req.body.duration
 	});
 
 	newTest.save(function(err) {
@@ -41,20 +62,6 @@ router.post('/', function(req, res) {
 		res.json(newTest);
 	});
 });
-
-
-/*router.get('/:id/:seqNumber', function(req, res) {
-
-	Test.findById({candidateId: req.params.id}, function(err, tests) {
-		if (err) {
-			res.send(err);
-		}
-		if (req.params.seqNumber > tests.length + 1)
-			res.send("bad request");
-
-		res.send(tests[req.params.seqNumber - 1]);
-	});
-});*/
 
 router.get('/:id/startTest', function(req, res) {
 

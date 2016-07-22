@@ -4,6 +4,9 @@ var Schema = mongoose.Schema;
 UsersAnswer = mongoose.models.UsersAnswer;
 
 var testSchema = new Schema({
+	startTime: Number,
+	finishTime: Number,
+	duration: Number, 
 	candidateId: { type: mongoose.Schema.Types.ObjectId,
 		ref: 'User'
 	},

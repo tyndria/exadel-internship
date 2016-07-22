@@ -17,8 +17,35 @@ router.post('/', function(req, res) {
 
 });
 
+router.put('/:id/role/:role', function(req, res) {
+	User.findById(req.params.id, function(err, user) {
+		if (err)
+			res.send(err);
+		user.role = req.params.role;
 
-router.get('/:role', function (req, res) {
+		user.save(function(err) {
+			if (err)
+				res.send(err);
+			res.send(user);
+		});
+	})
+}); 
+
+router.post('/role/:role', function(req, res) {
+	var newUser = new User(req.body);
+	newUser.role = req.params.role;
+
+	newUser.save(function(err) {
+		if (err) {
+			res.send(err);
+		}
+
+		res.send(newUser);
+	}); 
+
+});
+
+router.get('/role/:role', function (req, res) {
 	var query = User.find({role: req.params.role});
 
 	query.select('-__v');
@@ -32,7 +59,21 @@ router.get('/:role', function (req, res) {
 	});
 });
 
-router.get('/:id', function(req, res) {
+router.get('/', function (req, res) {
+	var query = User.find();
+
+	query.select('-__v');
+
+	query.exec(function(err, users) {
+		if (err) { 
+			res.send(err);
+		}
+
+    	res.json(users); 
+	});
+});
+
+router.get('/id/:id', function(req, res) {
 	User.findById(req.params.id, function(err, user) {
 		if (err) {
            res.send(err);
