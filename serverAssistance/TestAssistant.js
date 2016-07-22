@@ -66,11 +66,12 @@ class TestAssistant {
 
 	static getListeningTest() {
 		var that = this;
-		let arrayPromises = [];
-		let data = [];
+		console.log(this.level);
 		return Task.find({}).populate('parentTaskId')
 			.then( function(tasks) {
-				var filteredTasksByTopic =  TestAssistant.getTasksById(tasks, constants.LISTENING_ID);
+				let arrayPromises = [];
+				let data = [];
+				var filteredTasksByTopic = TestAssistant.getTasksById(tasks, constants.LISTENING_ID);
 				var task = TestAssistant.getTaskByLevel(filteredTasksByTopic, that.level)[0];
 				let tasksByParentTask = TestAssistant.getTasksById(tasks, task._id);
 				tasksByParentTask.forEach(function(task) {

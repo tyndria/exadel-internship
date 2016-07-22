@@ -18,12 +18,12 @@ router.post('/', function(req, res) {
 });
 
 
-router.get('/', function (req, res) {
-	var query = User.find({});
+router.get('/:role', function (req, res) {
+	var query = User.find({role: req.params.role});
 
 	query.select('-__v');
 
-	query.exec(function(err, users ) {
+	query.exec(function(err, users) {
 		if (err) { 
 			res.send(err);
 		}

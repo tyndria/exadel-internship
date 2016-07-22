@@ -11,7 +11,7 @@ var Question = mongoose.models.Question;
 var Task = mongoose.models.Task;
 
 router.get('/', function (req, res) {
-	var query = Test.find({isChecked: true}).populate('questionsId');
+	var query = Test.find({}).populate('questionsId').populate('userAnswersId');
 
 	query.select('-__v');
 
@@ -84,26 +84,25 @@ router.get('/:id/startTest', function(req, res) {
 
 router.get('/:id/getReadingTest/', function(req, res) {
 
-	Test.find({candidateId: req.params.id}).populate({path: 'userAnswersId', 
-									populate: {path: 'questionId', 														
-									populate: {path: 'answersId'}}})
-		.then(function(err, tests) {
+	Test.find({candidateId: req.params.id}, function(err, tests) {
 			if (err) {
 	        	res.send(err);
 	        }
+
 			var CURRENT_TEST = tests.length - 1;
 
-			var userAnswers = tests[CURRENT_TEST];
+			var userAnswers = tests[CURRENT_TEST].userAnswersId;
+		
+			TestAssistant.summarize(userAnswers).then(function(sum) {
 
-			TestAssistant.summarize(userAnswers).then(function(err, sum) {
-
-				console.log(sum);
+				tests[CURRENT_TEST].resultLexicalGrammarTest = sum;
+			
 				var level = 'B1';
 				TestAssistant.getReadingTest(level).then(function(questions) {
 
-		        	/*questions.forEach(function(question) {
-						tests[0].questionsId.push(question._id);
-					});*/
+		        	questions.forEach(function(question) {
+						tests[CURRENT_TEST].questionsId.push(question._id);
+					});
 
 					tests[CURRENT_TEST].save(function(err) {
 						if (err) {
@@ -136,7 +135,7 @@ router.get('/:id/getListeningTest', function(req, res) {
 				if (err) {
 					res.send(err);
 				}
-				res.json(tests[CURRENT_TEST]);
+				res.json(questions);
 			});
         });
 
@@ -164,7 +163,7 @@ router.get('/:id/getSpeakingTest', function(req, res) {
 				if (err) {
 					res.send(err);
 				}
-				res.json(tests[CURRENT_TEST]);
+				res.json(questions);
 			});
         });
 	});

@@ -3,6 +3,7 @@ var mongoose  = require('mongoose');
 var promise = require('bluebird');
 var multer  = require('multer');
 var upload = multer({ dest: 'public/listening/answers'});
+var constants = require('../consts');
 
 var UserAnswer = mongoose.models.UserAnswer;
 var Test = mongoose.models.Test;
@@ -24,21 +25,22 @@ router.get('/', function (req, res) {
 	});
 });
 
-router.post('/:id/sendAudio', upload.single('audioFromUser'), function (req, res, next) {
-  console.log('success' + req);
+router.post('/:id/:seqNumber/sendAudio', upload.single('audioFromUser'), function (req, res, next) {
   var file = req.file;
-  Test.find({candidateId: req.params.id}).
-	then(function(tests) {
-		var currentTest = tests[0];
+  Test.find({candidateId: req.params.id})
+	.then(function(tests) {
+
+		var CURRENT_TEST = req.params.seqNumber - 1;
+		var test = tests[CURRENT_TEST];
 		
 		var newUsersAnswer = new UserAnswer({
-			userId: req.params.id,
-			testId: currentTest._id,
-			questionId: req.body.userAnswer.questionId,
-			answer: req.file.path
+			userId: ObjectId(req.params.id.toString()),
+			testId: ObjectId(test._id.toString()),
+			questionId: ObjectId(req.body.questionId.toString()),
+			answer: file.path
 		});
 
-		currentTest.userAnswersId.push(ObjectId(newUsersAnswer._id));
+		test.userAnswersId.push(ObjectId(newUsersAnswer._id.toString()));
 
 		newUsersAnswer.save().then(function(err) {
 			if (err) 
@@ -58,7 +60,6 @@ router.post('/:id', function(req, res) {
 		var CURRENT_TEST = tests.length - 1;
 
 		var test = tests[CURRENT_TEST];
-		test.userAnswersId = [];
 
 		var userAnswers = req.body.userAnswers;
 
@@ -84,25 +85,25 @@ router.post('/:id', function(req, res) {
 });
 
 router.get('/:id/:seqNumber', function(req, res) {
-	Test.find({candidateId: req.params.id}).populate({path: 'userAnswersId',
-										populate: {path: 'questionId',
-										populate: {path: 'taskId',
-										populate: {path: 'parentTaskId'}}}})
-	.then(function(tests) {
-		var CURRENT_TEST = req.params.seqNumber;
+	Test.find({candidateId: req.params.id}).populate('userAnswersId').then(function(tests) {
+		var CURRENT_TEST = req.params.seqNumber - 1;
 		var test = tests[CURRENT_TEST];
 
-		var getRequest = {};
-
-		var lexicalGrammarTest = [];
-		var readingTest = [];
-		var listeningTest = [];
-		var speakingTest = [];
+		var statistics = {}
 
 		var userAnswers = test.userAnswersId;
-		userAnswers.forEach(function(userAnswer) {
-			
-		});
+
+		statistics.lexicalGrammar = userAnswers.slice(0, 10);
+		statistics.reading = userAnswers.slice(10, 14);
+		statistics.listening = userAnswers.slice(14, 18);
+		statistics.speaking = userAnswers.slice(18, 20);
+
+		statistics.lexicalGrammar.push(test.resultLexicalGrammarTest);
+		statistics.reading.push(test.resultReadingTest);
+		statistics.listening.push(test.resultListeningTest);
+		statistics.speaking.push(test.resultSpeakingTest);
+
+		res.send(statistics);
 
 	});
 
