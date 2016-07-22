@@ -12,7 +12,7 @@ class MessageNotifier{
             }
         });
         var mailOptions = {
-            from: 'austenlangnotify@gmail.com>', // sender address
+            from: 'austenlangnotify', // sender address
             to: user.mail, // list of receivers
             subject: 'Austen lang nonify service', // Subject line
             text: message //, // plaintext body
