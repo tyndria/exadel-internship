@@ -7,5 +7,6 @@ router.use('/tests', require('./testRoute'));
 router.use('/questions', require('./questionRoute'));
 router.use('/tasks', require('./taskRoute'));
 router.use('/notifications', require('./notificationRoute'));
+router.use('/login', require('./loginRoute'));
 
 module.exports = router;

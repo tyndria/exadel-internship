@@ -16,6 +16,7 @@ router.post('/', function(req, res) {
 	});
 });
 
+
 router.get('/', function (req, res) {
 	Answer.find({},function(err,answers){
 		if (err) {

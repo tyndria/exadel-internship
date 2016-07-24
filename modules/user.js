@@ -6,7 +6,8 @@ var userSchema = new Schema({
 	lastName:String,
 	role: Number,
 	mail: String,
-	photo: String
+	photo: String,
+	token: String
 });
 
 
