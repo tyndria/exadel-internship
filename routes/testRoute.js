@@ -27,6 +27,7 @@ router.get('/', function (req, res) {
 	});
 });
 
+//middleware authentication(constants.ADMIN_ROLE)
 router.post('/:reviewerId', function(req, res) {
 	var testsId = req.body.testsId;
 
@@ -45,6 +46,7 @@ router.post('/:reviewerId', function(req, res) {
 
 });
 
+//middleware authentication(constants.ADMIN_ROLE)
 router.post('/', function(req, res) {
 
 	var newTest = new Test({
@@ -63,7 +65,7 @@ router.post('/', function(req, res) {
 	});
 });
 
-
+//middleware authentication(constants.USER_ROLE)
 router.get('/:id/startTest', function(req, res) {
 
 	Test.find({candidateId: req.params.id}, function(err, tests) {

@@ -24,6 +24,8 @@ router.post('/', function(req, res) {
 
 });
 
+
+//middleware authentication(constants.ADMIN_ROLE)
 router.post('/:id', function(req, res) {
 	var topicId = req.params.id;
 	switch(topicId.toString()) {

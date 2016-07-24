@@ -25,6 +25,7 @@ router.get('/', function (req, res) {
 	});
 });
 
+//middleware authentication(constants.USER_ROLE)
 router.post('/:id/:seqNumber/sendAudio', upload.single('audioFromUser'), function (req, res, next) {
   var file = req.file;
   Test.find({candidateId: req.params.id})
@@ -52,6 +53,8 @@ router.post('/:id/:seqNumber/sendAudio', upload.single('audioFromUser'), functio
 
 })
 
+
+//middleware authentication(constants.USER_ROLE)
 router.post('/:id', function(req, res) {
 
 	Test.find({candidateId: req.params.id}).
@@ -84,6 +87,7 @@ router.post('/:id', function(req, res) {
 
 });
 
+//middleware authentication(constants.ADMIN_ROLE)
 router.get('/:id/:seqNumber', function(req, res) {
 	Test.find({candidateId: req.params.id}).populate('userAnswersId').then(function(tests) {
 		var CURRENT_TEST = req.params.seqNumber - 1;
