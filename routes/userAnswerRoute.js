@@ -3,13 +3,14 @@ var mongoose  = require('mongoose');
 var promise = require('bluebird');
 var multer  = require('multer');
 var upload = multer({ dest: 'public/listening/answers'});
-var constants = require('../consts');
 
 var UserAnswer = mongoose.models.UserAnswer;
 var Test = mongoose.models.Test;
 var ObjectId = mongoose.Types.ObjectId;
 
 var ModelAssistant = require('../serverAssistance/ModelAssistant');
+var authentication = require('../serverAssistance/AuthenticationAssistant');
+var constants = require('../consts');
 
 router.get('/', function (req, res) {
 	var query = UserAnswer.find({});
@@ -25,7 +26,7 @@ router.get('/', function (req, res) {
 	});
 });
 
-//middleware authentication(constants.USER_ROLE)
+
 router.post('/:id/:seqNumber/sendAudio', upload.single('audioFromUser'), function (req, res, next) {
   var file = req.file;
   Test.find({candidateId: req.params.id})
@@ -54,8 +55,7 @@ router.post('/:id/:seqNumber/sendAudio', upload.single('audioFromUser'), functio
 })
 
 
-//middleware authentication(constants.USER_ROLE)
-router.post('/:id', function(req, res) {
+router.post('/:token/:id/', authentication([constants.USER_ROLE, constants.TEACHER_ROLE]), function(req, res) {
 
 	Test.find({candidateId: req.params.id}).
 	then(function(tests) {
@@ -87,8 +87,8 @@ router.post('/:id', function(req, res) {
 
 });
 
-//middleware authentication(constants.ADMIN_ROLE)
-router.get('/:id/:seqNumber', function(req, res) {
+
+router.get('/:token/statistics/:id/:seqNumber', authentication([constants.ADMIN_ROLE]), function(req, res) {
 	Test.find({candidateId: req.params.id}).populate('userAnswersId').then(function(tests) {
 		var CURRENT_TEST = req.params.seqNumber - 1;
 		var test = tests[CURRENT_TEST];

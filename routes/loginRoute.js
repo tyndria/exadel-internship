@@ -13,14 +13,18 @@ router.post('/', authorization, authentication(constants.USER_ROLE), function (r
 
 function authorization(req, res, next) {
 	var token = hash(req.body.login + req.body.password);
-	return User.findOne({token: token.toString()}).then(function(user) {
+	console.log(token);
+	return User.findOne({token: token.toString()}).then( function(user) {
+		console.log(user);
 		if (user) {
 			req.body.token = token;
 			return next();
 		} else {
-			return next(new Error("no authorization"));
+			next(new Error("no authorization"));
 		}
-	});
+	}, next());
 }
 
+
+// AAAAAAAA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 module.exports = router;

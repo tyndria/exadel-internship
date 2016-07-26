@@ -1,4 +1,5 @@
 var router = require('express').Router();
+var authentication = require('../serverAssistance/AuthenticationAssistant');
 var constants = require('../consts');
 var mongoose = require('mongoose');
 var promise = require('bluebird');
@@ -27,8 +28,8 @@ router.get('/', function (req, res) {
 	});
 });
 
-//middleware authentication(constants.ADMIN_ROLE)
-router.post('/:reviewerId', function(req, res) {
+
+router.post('/:token/:reviewerId', authentication([constants.ADMIN_ROLE]), function(req, res) {
 	var testsId = req.body.testsId;
 
 	testsId.forEach(function(testId) {
@@ -46,8 +47,8 @@ router.post('/:reviewerId', function(req, res) {
 
 });
 
-//middleware authentication(constants.ADMIN_ROLE)
-router.post('/', function(req, res) {
+
+router.post('/:token', authentication([constants.ADMIN_ROLE]), function(req, res) {
 
 	var newTest = new Test({
 		candidateId: mongoose.Types.ObjectId(req.body.candidateId),
@@ -65,12 +66,12 @@ router.post('/', function(req, res) {
 	});
 });
 
-//middleware authentication(constants.USER_ROLE)
-router.get('/:id/startTest', function(req, res) {
+
+router.get('/:token/:id/startTest', authentication([constants.USER_ROLE]), function(req, res) {
 
 	Test.find({candidateId: req.params.id}, function(err, tests) {
+		var objectsToSend = [];
 
-		console.log(tests);
 		var CURRENT_TEST = tests.length - 1;
 
 		tests[CURRENT_TEST].questionsId = [];
@@ -78,13 +79,27 @@ router.get('/:id/startTest', function(req, res) {
 		TestAssistant.getLexicalGrammarTest().then(function(questions) {
 			questions.forEach(function(question) {
 				tests[CURRENT_TEST].questionsId.push(question._id);
+
+				var object = {};
+				object.answersId = [];
+				object.description = question.description;
+				object.questionType = question.questionType;
+				object.title = question.taskId.title;
+				object.questionId = question._id;
+
+				question.answersId.forEach(function(answer) {
+					object.answersId.push(answer.text);
+				});
+
+				objectsToSend.push(object);
 			});
+
 
 			tests[CURRENT_TEST].save(function(err) {
 				if (err) {
 					res.send(err);
 				}
-				res.json(questions);
+				res.json(objectsToSend);
 			});
 
         });
@@ -92,7 +107,7 @@ router.get('/:id/startTest', function(req, res) {
 });
 
 
-router.get('/:id/getReadingTest/', function(req, res) {
+router.get('/:token/:id/getReadingTest/', authentication([constants.USER_ROLE]), function(req, res) {
 
 	Test.find({candidateId: req.params.id}, function(err, tests) {
 			if (err) {
@@ -110,7 +125,24 @@ router.get('/:id/getReadingTest/', function(req, res) {
 				var level = 'B1';
 				TestAssistant.getReadingTest(level).then(function(questions) {
 
+					var objectsToSend = {};
+					objectToSend.textTitle = questions[0].taskId.parentTaskId.title;
+					objectToSend.text = questions[0].taskId.parentTaskId.description;
+					objectToSend.questions = [];
+					
 		        	questions.forEach(function(question) {
+		        		var object = {};
+		        		object.title = question.taskId.title;
+		        		object.description = question.description;
+		        		object.questionType = question.questionType;
+		        		object.questionId = question._id;
+		        		object.answers = [];
+
+		        		question.answersId.forEach(function(answer) {
+		        			object.answers.push(answer.text);
+		        		});
+		        		objectToSend.questions.push(object);
+
 						tests[CURRENT_TEST].questionsId.push(question._id);
 					});
 
@@ -118,7 +150,7 @@ router.get('/:id/getReadingTest/', function(req, res) {
 						if (err) {
 							res.send(err);
 						}
-						res.json(questions);
+						res.json(objectToSend);
 					});
 
 	        	});
@@ -127,7 +159,7 @@ router.get('/:id/getReadingTest/', function(req, res) {
 });
 
 
-router.get('/:id/getListeningTest', function(req, res) {
+router.get('/:token/:id/getListeningTest', authentication([constants.USER_ROLE]), function(req, res) {
 	Test.find({candidateId: req.params.id}, function(err, tests) {
 
 		var CURRENT_TEST = tests.length - 1;
@@ -136,8 +168,26 @@ router.get('/:id/getListeningTest', function(req, res) {
         	res.send(err);
         }
 
+        var objectToSend = {};
         TestAssistant.getListeningTest().then(function(questions) {
+
+        	objectToSend.audioTitle = questions[0].taskId.parentTaskId.title;
+			objectToSend.audio = questions[0].taskId.parentTaskId.description;
+        	objectToSend.questions = []
+
         	questions.forEach(function(question) {
+        		var object = {};
+		        object.title = question.taskId.title;
+		        object.description = question.description;
+		        object.questionType = question.questionType;
+		        object.questionId = question._id;
+		        object.answers = [];
+
+		        question.answersId.forEach(function(answer) {
+		        	object.answers.push(answer.text);
+		        });
+
+		        objectToSend.questions.push(object);
 				tests[CURRENT_TEST].questionsId.push(question._id);
 			});
 
@@ -145,7 +195,7 @@ router.get('/:id/getListeningTest', function(req, res) {
 				if (err) {
 					res.send(err);
 				}
-				res.json(questions);
+				res.json(objectToSend);
 			});
         });
 
@@ -155,7 +205,7 @@ router.get('/:id/getListeningTest', function(req, res) {
 
 
 
-router.get('/:id/getSpeakingTest', function(req, res) {
+router.get('/:token/:id/getSpeakingTest', authentication([constants.USER_ROLE]), function(req, res) {
 	Test.find({candidateId: req.params.id}, function(err, tests) {
 
 		var CURRENT_TEST = tests.length - 1;
@@ -164,8 +214,19 @@ router.get('/:id/getSpeakingTest', function(req, res) {
         	res.send(err);
         }
 
+        var objectToSend = {};
         TestAssistant.getSpeakingTest().then(function(questions) {
+
+        	objectToSend.title = questions[0].taskId.title;
+        	objectToSend.questionType = questions[0].questionType;
+        	objectToSend.questions = [];
+
         	questions.forEach(function(question) {
+        		var object = {};
+        		object.description = question.description;
+        		object.questionId = question._id;
+
+        		objectToSend.questions.push(object);
 				tests[CURRENT_TEST].questionsId.push(question._id);
 			});
 
@@ -173,7 +234,7 @@ router.get('/:id/getSpeakingTest', function(req, res) {
 				if (err) {
 					res.send(err);
 				}
-				res.json(questions);
+				res.json(objectToSend);
 			});
         });
 	});

@@ -1,5 +1,6 @@
 var router = require('express').Router();  
-
+var authentication = require('../serverAssistance/AuthenticationAssistant');
+var constants = require('../consts');
 var mongoose  = require('mongoose');
 
 var User = mongoose.models.User;
@@ -17,7 +18,7 @@ router.post('/', function(req, res) {
 
 });
 
-router.put('/:id/role/:role', function(req, res) {
+router.put('/:token/:id/role/:role', authentication([constants.ADMIN_ROLE]), function(req, res) {
 	User.findById(req.params.id, function(err, user) {
 		if (err)
 			res.send(err);
@@ -31,7 +32,7 @@ router.put('/:id/role/:role', function(req, res) {
 	})
 }); 
 
-router.post('/role/:role', function(req, res) {
+router.post('/:token/role/:role', authentication([constants.ADMIN_ROLE]), function(req, res) {
 	var newUser = new User(req.body);
 	newUser.role = req.params.role;
 
@@ -73,7 +74,7 @@ router.get('/', function (req, res) {
 	});
 });
 
-router.get('/id/:id', function(req, res) {
+router.get('/:token/id/:id', authentication([constants.ADMIN_ROLE]), function(req, res) {
 	User.findById(req.params.id, function(err, user) {
 		if (err) {
            res.send(err);

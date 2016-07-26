@@ -1,6 +1,7 @@
 var router = require('express').Router();
 var multer  = require('multer');
 var upload = multer({ dest: 'public/listening/answers'});
+var authentication = require('../serverAssistance/AuthenticationAssistant');
 var constants = require('../consts');
 var mongoose = require('mongoose');
 var ObjectId = mongoose.Types.ObjectId;
@@ -25,8 +26,7 @@ router.post('/', function(req, res) {
 });
 
 
-//middleware authentication(constants.ADMIN_ROLE)
-router.post('/:id', function(req, res) {
+router.post('/:token/:id', authentication([constants.ADMIN_ROLE]), function(req, res) {
 	var topicId = req.params.id;
 	switch(topicId.toString()) {
 		case constants.LEXICAL_GRAMMAR_ID:

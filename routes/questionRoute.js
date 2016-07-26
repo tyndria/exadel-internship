@@ -4,12 +4,12 @@ var mongoose  = require('mongoose');
 
 var Question = mongoose.models.Question;
 
-router.post('/', function(req, res) {
+router.post('/', function(req, res, next) {
 	var newQuestion = new Question(req.body);
 
 	newQuestion.save(function(err) {
 		if (err) {
-			return res.send(err);
+			return next(err)
 		}
 		else {
 			return res.json(newQuestion);

@@ -66,7 +66,6 @@ class TestAssistant {
 
 	static getListeningTest() {
 		var that = this;
-		console.log(this.level);
 		return Task.find({}).populate('parentTaskId')
 			.then( function(tasks) {
 				let arrayPromises = [];

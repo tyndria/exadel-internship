@@ -2,17 +2,22 @@ var mongoose  = require('mongoose');
 
 var User = mongoose.models.User;
 
-module.exports = (role) => {
+module.exports = (roles) => {
 	return function(req, res, next) {
-		return User.findOne({token: req.body.token})
+		return User.findOne({token: req.params.token})
 		.then(function(user) {
-			if (user.role.toString() == role) {
-				req.body.user = user;
+			var isAuthorizated = false;
+			roles.forEach(function(role) {
+				if (user.role.toString() == role) {
+					req.body.user = user;
+					console.log("user.role:" + user.role + ":" + role);
+					isAuthorizated = true;
+				}
+			});
+			if(isAuthorizated)
 				return next();
-			}
-			else {
+			else
 				return res.sendStatus(401);
-			}
 		});
 	}
 };
