@@ -55,9 +55,9 @@ router.post('/:id/:seqNumber/sendAudio', upload.single('audioFromUser'), functio
 })
 
 
-router.post('/:token/:id/', authentication([constants.USER_ROLE, constants.TEACHER_ROLE]), function(req, res) {
+router.post('/:candidateId', authentication([constants.USER_ROLE, constants.TEACHER_ROLE]), function(req, res) {
 
-	Test.find({candidateId: req.params.id}).
+	Test.find({candidateId: req.params.candidateId}).
 	then(function(tests) {
 		var promises = []
 		var CURRENT_TEST = tests.length - 1;
@@ -68,7 +68,7 @@ router.post('/:token/:id/', authentication([constants.USER_ROLE, constants.TEACH
 
 		userAnswers.forEach(function (userAnswer){
 
-			var newUsersAnswer = ModelAssistant.createUserAnswer(userAnswer, req.params.id, test._id);
+			var newUsersAnswer = ModelAssistant.createUserAnswer(userAnswer, req.params.candidateId, test._id);
 
 			test.userAnswersId.push(ObjectId(newUsersAnswer._id));
 			promises.push(newUsersAnswer.save().then(function(err) {
@@ -88,14 +88,17 @@ router.post('/:token/:id/', authentication([constants.USER_ROLE, constants.TEACH
 });
 
 
-router.get('/:token/statistics/:id/:seqNumber', authentication([constants.ADMIN_ROLE]), function(req, res) {
+router.get('/:id/statistics/:seqNumber', authentication([constants.ADMIN_ROLE]), function(req, res) {
 	Test.find({candidateId: req.params.id}).populate('userAnswersId').then(function(tests) {
+
 		var CURRENT_TEST = req.params.seqNumber - 1;
 		var test = tests[CURRENT_TEST];
 
-		var statistics = {}
+		var statistics = {};
+
 
 		var userAnswers = test.userAnswersId;
+		console.log("success:" +  userAnswers);
 
 		statistics.lexicalGrammar = userAnswers.slice(0, 10);
 		statistics.reading = userAnswers.slice(10, 14);

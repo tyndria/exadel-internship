@@ -5,9 +5,14 @@ var mongoose  = require('mongoose');
 
 var User = mongoose.models.User;
 
-router.post('/:token/', authentication([constants.ADMIN_ROLE]), function(req, res) {
+
+// req.headers.authorization
+router.post('/', authentication([constants.ADMIN_ROLE]), function(req, res) {
 	console.log(req.body.user);
 	var newUser = new User(req.body.user);
+
+	newUser.role = 3;
+	newUser.photo = "1.jpeg"; // random choice!!!!!!
 
 	newUser.save(function(err) {
 		if (err) {
@@ -19,11 +24,12 @@ router.post('/:token/', authentication([constants.ADMIN_ROLE]), function(req, re
 
 });
 
-router.put('/:token/:id/role/:role', authentication([constants.ADMIN_ROLE]), function(req, res) {
+//change the role
+router.put('/:id', authentication([constants.ADMIN_ROLE]), function(req, res) {
 	User.findById(req.params.id, function(err, user) {
 		if (err)
 			res.send(err);
-		user.role = req.params.role;
+		user.role = req.body.role;
 
 		user.save(function(err) {
 			if (err)
@@ -33,21 +39,8 @@ router.put('/:token/:id/role/:role', authentication([constants.ADMIN_ROLE]), fun
 	})
 }); 
 
-router.post('/:token/role/:role', authentication([constants.ADMIN_ROLE]), function(req, res) {
-	var newUser = new User(req.body);
-	newUser.role = req.params.role;
 
-	newUser.save(function(err) {
-		if (err) {
-			res.send(err);
-		}
-
-		res.send(newUser);
-	}); 
-
-});
-
-router.get('/role/:role', function (req, res) {
+router.get('/:role', authentication([constants.ADMIN_ROLE]), function (req, res) {
 	var query = User.find({role: req.params.role});
 
 	query.select('-__v');
@@ -75,7 +68,7 @@ router.get('/', function (req, res) {
 	});
 });
 
-router.get('/:token/id/:id', authentication([constants.ADMIN_ROLE]), function(req, res) {
+router.get('/:id', authentication([constants.ADMIN_ROLE]), function(req, res) {
 	User.findById(req.params.id, function(err, user) {
 		if (err) {
            res.send(err);

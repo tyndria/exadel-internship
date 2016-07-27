@@ -26,8 +26,8 @@ router.post('/', function(req, res) {
 });
 
 
-router.post('/:token/:id', authentication([constants.ADMIN_ROLE]), function(req, res) {
-	var topicId = req.params.id;
+router.post('/:topicId', authentication([constants.ADMIN_ROLE]), function(req, res) {
+	var topicId = req.params.topicId;
 	switch(topicId.toString()) {
 		case constants.LEXICAL_GRAMMAR_ID:
 			postLexicalGrammarTask(req, res);
@@ -44,7 +44,7 @@ router.post('/:token/:id', authentication([constants.ADMIN_ROLE]), function(req,
 });
 
 function postSpeakingTask(req, res) {
-	Task.find({parentTaskId: req.params.id})
+	Task.find({parentTaskId: req.params.topicId})
 	.then(function(tasks) {
 		var task = tasks[0];
 
@@ -59,7 +59,7 @@ function postSpeakingTask(req, res) {
 function postListeningTask(req, res) {
 	var tasksforText = req.body.tasksForText;
 
-	var newTextTask = ModelAssistant.createTask(req.body.text, req.params.id);
+	var newTextTask = ModelAssistant.createTask(req.body.text, req.params.topicId);
 
 	newTextTask.save(function() {
 
@@ -109,7 +109,7 @@ function postListeningTask(req, res) {
 function postReadingTask(req, res) {
 	var tasksforText = req.body.tasksForText;
 
-	var newTextTask = ModelAssistant.createTask(req.body.text, req.params.id);
+	var newTextTask = ModelAssistant.createTask(req.body.text, req.params.topicId);
 
 	newTextTask.save(function() {
 
@@ -158,7 +158,7 @@ function postReadingTask(req, res) {
 
 
 function postLexicalGrammarTask(req, res) {
-	Task.find({parentTaskId: req.params.id})
+	Task.find({parentTaskId: req.params.topicId})
 	.then(function(tasks) {
 
 		var promises = [];

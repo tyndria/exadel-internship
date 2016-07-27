@@ -8,7 +8,7 @@ var hash = require('../hashFunction');
 var authentication = require('../serverAssistance/AuthenticationAssistant');
 
 router.post('/', authorization, authentication(constants.USER_ROLE), function (req, res) {
-	res.status(200).send(req.body.user.token);
+	res.status(200).send(req.body);
 });
 
 function authorization(req, res, next) {
@@ -17,7 +17,7 @@ function authorization(req, res, next) {
 	return User.findOne({token: token.toString()}).then( function(user) {
 		console.log(user);
 		if (user) {
-			req.body.token = token;
+			req.headers.authorization = token;
 			return next();
 		} else {
 			next(new Error("no authorization"));

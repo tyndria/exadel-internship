@@ -29,7 +29,7 @@ router.get('/', function (req, res) {
 });
 
 
-router.post('/:token/:reviewerId', authentication([constants.ADMIN_ROLE]), function(req, res) {
+router.post('/:reviewerId', authentication([constants.ADMIN_ROLE]), function(req, res) {
 	var testsId = req.body.testsId;
 
 	testsId.forEach(function(testId) {
@@ -48,7 +48,7 @@ router.post('/:token/:reviewerId', authentication([constants.ADMIN_ROLE]), funct
 });
 
 
-router.post('/:token', authentication([constants.ADMIN_ROLE]), function(req, res) {
+router.post('/', authentication([constants.ADMIN_ROLE]), function(req, res) {
 
 	var newTest = new Test({
 		candidateId: mongoose.Types.ObjectId(req.body.candidateId),
@@ -67,7 +67,7 @@ router.post('/:token', authentication([constants.ADMIN_ROLE]), function(req, res
 });
 
 
-router.get('/:token/:id/startTest', authentication([constants.USER_ROLE]), function(req, res) {
+router.get('/:id/startTest', authentication([constants.USER_ROLE]), function(req, res) {
 
 	Test.find({candidateId: req.params.id}, function(err, tests) {
 		var objectsToSend = [];
@@ -107,7 +107,7 @@ router.get('/:token/:id/startTest', authentication([constants.USER_ROLE]), funct
 });
 
 
-router.get('/:token/:id/getReadingTest/', authentication([constants.USER_ROLE]), function(req, res) {
+router.get('/:id/getReadingTest/', authentication([constants.USER_ROLE]), function(req, res) {
 
 	Test.find({candidateId: req.params.id}, function(err, tests) {
 			if (err) {
@@ -159,7 +159,7 @@ router.get('/:token/:id/getReadingTest/', authentication([constants.USER_ROLE]),
 });
 
 
-router.get('/:token/:id/getListeningTest', authentication([constants.USER_ROLE]), function(req, res) {
+router.get('/:id/getListeningTest', authentication([constants.USER_ROLE]), function(req, res) {
 	Test.find({candidateId: req.params.id}, function(err, tests) {
 
 		var CURRENT_TEST = tests.length - 1;
@@ -205,7 +205,7 @@ router.get('/:token/:id/getListeningTest', authentication([constants.USER_ROLE])
 
 
 
-router.get('/:token/:id/getSpeakingTest', authentication([constants.USER_ROLE]), function(req, res) {
+router.get('/:id/getSpeakingTest', authentication([constants.USER_ROLE]), function(req, res) {
 	Test.find({candidateId: req.params.id}, function(err, tests) {
 
 		var CURRENT_TEST = tests.length - 1;
