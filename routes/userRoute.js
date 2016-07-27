@@ -5,8 +5,8 @@ var mongoose  = require('mongoose');
 
 var User = mongoose.models.User;
 
-router.post('/', function(req, res) {
-	var newUser = new User(req.body);
+router.post('/:token/', authentication([constants.ADMIN_ROLE]), function(req, res) {
+	var newUser = new User(req.body.user);
 
 	newUser.save(function(err) {
 		if (err) {
