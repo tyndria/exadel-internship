@@ -118,28 +118,29 @@ router.get('/:id/getReadingTest/', authentication([constants.USER_ROLE]), functi
 
 			var userAnswers = tests[CURRENT_TEST].userAnswersId;
 		
-			TestAssistant.summarize(userAnswers).then(function(sum) {
+			/*TestAssistant.summarize(userAnswers).then(function(sum) {*/
 
-				tests[CURRENT_TEST].resultLexicalGrammarTest = sum;
+				//tests[CURRENT_TEST].resultLexicalGrammarTest = sum;
 			
 				var level = 'B1';
 				TestAssistant.getReadingTest(level).then(function(questions) {
 
-					var objectsToSend = {};
+					let objectToSend = {};
+				
 					objectToSend.textTitle = questions[0].taskId.parentTaskId.title;
 					objectToSend.text = questions[0].taskId.parentTaskId.description;
 					objectToSend.questions = [];
 					
 		        	questions.forEach(function(question) {
-		        		var object = {};
+		        		let object = {};
 		        		object.title = question.taskId.title;
 		        		object.description = question.description;
 		        		object.questionType = question.questionType;
 		        		object.questionId = question._id;
-		        		object.answers = [];
+		        		object.answersId = [];
 
 		        		question.answersId.forEach(function(answer) {
-		        			object.answers.push(answer.text);
+		        			object.answersId.push(answer.text);
 		        		});
 		        		objectToSend.questions.push(object);
 
@@ -154,7 +155,7 @@ router.get('/:id/getReadingTest/', authentication([constants.USER_ROLE]), functi
 					});
 
 	        	});
-			});
+			/*});*/
 	});
 });
 
@@ -171,8 +172,8 @@ router.get('/:id/getListeningTest', authentication([constants.USER_ROLE]), funct
         var objectToSend = {};
         TestAssistant.getListeningTest().then(function(questions) {
 
-        	objectToSend.audioTitle = questions[0].taskId.parentTaskId.title;
-			objectToSend.audio = questions[0].taskId.parentTaskId.description;
+        	objectToSend.textTitle = questions[0].taskId.parentTaskId.title;
+			objectToSend.text = questions[0].taskId.parentTaskId.description;
         	objectToSend.questions = []
 
         	questions.forEach(function(question) {
@@ -181,10 +182,10 @@ router.get('/:id/getListeningTest', authentication([constants.USER_ROLE]), funct
 		        object.description = question.description;
 		        object.questionType = question.questionType;
 		        object.questionId = question._id;
-		        object.answers = [];
+		        object.answersId = [];
 
 		        question.answersId.forEach(function(answer) {
-		        	object.answers.push(answer.text);
+		        	object.answersId.push(answer.text);
 		        });
 
 		        objectToSend.questions.push(object);
@@ -214,22 +215,24 @@ router.get('/:id/getSpeakingTest', authentication([constants.USER_ROLE]), functi
         	res.send(err);
         }
 
-        var objectToSend = {};
+        var objectToSend = [];
         TestAssistant.getSpeakingTest().then(function(questions) {
 
-        	objectToSend.title = questions[0].taskId.title;
-        	objectToSend.questionType = questions[0].questionType;
-        	objectToSend.questions = [];
-
         	questions.forEach(function(question) {
-        		var object = {};
-        		object.description = question.description;
-        		object.questionId = question._id;
 
-        		objectToSend.questions.push(object);
+        		var object = {};
+				
+				object.description = question.description;
+				object.questionType = question.questionType;
+				object.title = question.taskId.title;
+				object.questionId = question._id;
+
+        		objectToSend.push(object);
+        		console.log("object" + object);
 				tests[CURRENT_TEST].questionsId.push(question._id);
 			});
 
+        	console.log(objectToSend);
 			tests[CURRENT_TEST].save(function(err) {
 				if (err) {
 					res.send(err);

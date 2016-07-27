@@ -71,7 +71,7 @@ class TestAssistant {
 				let arrayPromises = [];
 				let data = [];
 				var filteredTasksByTopic = TestAssistant.getTasksById(tasks, constants.LISTENING_ID);
-				var task = TestAssistant.getTaskByLevel(filteredTasksByTopic, that.level)[0];
+				var task = TestAssistant.getTaskByLevel(filteredTasksByTopic, 'B1')[0];
 				let tasksByParentTask = TestAssistant.getTasksById(tasks, task._id);
 				tasksByParentTask.forEach(function(task) {
 					arrayPromises.push(TestAssistant.getQuestionsByTask(task).then(function(question){
@@ -91,7 +91,7 @@ class TestAssistant {
 				var filteredTaskByTopic = TestAssistant.getTasksById(tasks, constants.SPEAKING_ID)[0];
 				return TestAssistant.getQuestionsByTask(filteredTaskByTopic)
 					.then(function(questions) {
-						return TestAssistant.getAllQuestionsByLevels(questions, [that.level]);
+						return TestAssistant.getAllQuestionsByLevels(questions, ['B1']);
 					});
 			});
 	}
