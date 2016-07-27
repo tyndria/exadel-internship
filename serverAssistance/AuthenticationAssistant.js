@@ -9,7 +9,6 @@ module.exports = (roles) => {
 			var isAuthorizated = false;
 			roles.forEach(function(role) {
 				if (user.role.toString() == role) {
-					req.body.user = user;
 					console.log("user.role:" + user.role + ":" + role);
 					isAuthorizated = true;
 				}
