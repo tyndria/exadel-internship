@@ -8,7 +8,7 @@ var hash = require('../hashFunction');
 var authentication = require('../serverAssistance/AuthenticationAssistant');
 
 router.post('/', authorization, authentication(constants.USER_ROLE), function (req, res) {
-	res.status(200).send(req.body);
+	res.status(200).send(res);
 });
 
 function authorization(req, res, next) {
