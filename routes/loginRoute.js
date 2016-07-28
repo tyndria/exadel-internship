@@ -7,7 +7,7 @@ var User = mongoose.models.User;
 var hash = require('../hashFunction');
 var authentication = require('../serverAssistance/AuthenticationAssistant');
 
-router.post('/', authorization, authentication(constants.USER_ROLE), function (req, res) {
+router.post('/', authorization, authentication([constants.USER_ROLE, constants.ADMIN_ROLE]), function (req, res) {
 	res.status(200).send(res);
 });
 
@@ -17,7 +17,6 @@ function authorization(req, res, next) {
 	return User.findOne({token: token.toString()}).then( function(user) {
 		console.log(user);
 		if (user) {
-			res.headers.authorization = token;
 			res.body.success = true;
 			res.body.auth_token = token;
 			return next();
