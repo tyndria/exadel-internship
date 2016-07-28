@@ -9,7 +9,7 @@ module.exports = (roles) => {
 		.then(function(user) {
 			var isAuthorizated = false;
 			roles.forEach(function(role) {
-				console.log(user.role.toString()+"  "+role);
+				console.log("Я тутутутутутуттуту   "+user.role.toString()+"  "+role);
 
 				if (user.role.toString() == role) {
 					console.log("user.role:" + user.role + ":" + role);
