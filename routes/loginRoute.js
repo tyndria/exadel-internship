@@ -24,7 +24,7 @@ function authorization(req, res, next) {
 		} else {
 			next(new Error("no authorization"));
 		}
-	}, next());
+	});
 }
 
 
