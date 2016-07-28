@@ -18,8 +18,11 @@ function authorization(req, res, next) {
 		console.log(user);
 		if (user) {
 			req.headers.authorization=token;
+			console.log("шмотки "+req.headers.authorization);
 			res.body.success = true;
+			console.log("подождут "+res.body.success);
 			res.body.auth_token = token;
+			console.log("тем более не звонили "+res.body.success);
 			return next();
 		} else {
 			next(new Error("no authorization"));
