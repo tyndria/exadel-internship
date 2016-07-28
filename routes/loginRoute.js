@@ -12,12 +12,14 @@ router.post('/', authorization, authentication(constants.USER_ROLE), function (r
 });
 
 function authorization(req, res, next) {
-	var token = hash(req.body.login + req.body.password);
+	var token = hash(req.body.user.email + req.body.user.password);
 	console.log(token);
 	return User.findOne({token: token.toString()}).then( function(user) {
 		console.log(user);
 		if (user) {
 			req.headers.authorization = token;
+			res.success = true;
+			res.auth_token = token;
 			return next();
 		} else {
 			next(new Error("no authorization"));
