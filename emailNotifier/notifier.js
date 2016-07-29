@@ -3,7 +3,6 @@ var nodemailer = require('nodemailer');
 class MessageNotifier{
 
     static sendNotificationEmail(user, message) {
-        // Not the movie transporter!
         var transporter = nodemailer.createTransport({
             service: 'Gmail',
             auth: {
@@ -15,8 +14,7 @@ class MessageNotifier{
             from: 'austenlangnotify', // sender address
             to: user.mail, // list of receivers
             subject: 'Austen lang nonify service', // Subject line
-            text: message //, // plaintext body
-            // html: '<b>Hello world ✔</b>' // You can choose to send an HTML body instead
+            text: message
         };
 
 

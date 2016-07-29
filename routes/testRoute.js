@@ -28,6 +28,23 @@ router.get('/', function (req, res) {
 	});
 });
 
+router.get('/isPassed', function (req, res) {
+	var query = Test.find({});
+
+	query.select('__id');
+
+	query.exec(function(err, tests) {
+		if (err) {
+			res.send(err);
+		}
+
+		else {
+			console.log(tests);
+    		res.send(tests);
+    	}
+	});
+});
+
 
 router.post('/:reviewerId', authentication([constants.ADMIN_ROLE]), function(req, res) {
 	var testsId = req.body.testsId;
