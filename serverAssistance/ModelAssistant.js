@@ -14,15 +14,15 @@ var Task = mongoose.models.Task;
 
 class ModelAssistant {
 
-	static createQuestion(question, taskId) {
+	static createQuestion(question, taskId, questionType, answerType) {
 
 		var newQuestion = new Question({
 			taskId: ObjectId(taskId) || null,
 			description: question.description || null,
 		    level: question.level || null,
-			questionType: question.questionType || null,
-			answerType: question.answerType || null,
-		    cost: question.cost || null
+			questionType: question.questionType || questionType,
+			answerType: question.answerType || answerType,
+		    cost: question.cost || constants.MAP_LEVEL_COST[question.level.toString()]
 		});
 
 		return newQuestion;
