@@ -65,12 +65,14 @@ router.post('/:candidateId', authentication([constants.USER_ROLE, constants.TEAC
 		var test = tests[CURRENT_TEST];
 
 		var userAnswers = req.body.userAnswers;
+		var TOPIC_ID = req.body.topicId;
 
 		userAnswers.forEach(function (userAnswer){
 
 			var newUsersAnswer = ModelAssistant.createUserAnswer(userAnswer, req.params.candidateId, test._id);
 
-			test.userAnswersId.push(ObjectId(newUsersAnswer._id));
+			console.log(test.userAnswersId[TOPIC_ID]);
+			test.userAnswersId[TOPIC_ID].push(ObjectId(newUsersAnswer._id));
 			promises.push(newUsersAnswer.save().then(function(err) {
 				if (err) console.log(err);
 			}));
@@ -78,7 +80,9 @@ router.post('/:candidateId', authentication([constants.USER_ROLE, constants.TEAC
 
 
 		promise.all(promises).then(function() {
-			test.save(function() {
+			test.save(function(err) {
+				if(err)
+					res.send(err);
 				console.log(test);
 			})
 		});
@@ -96,14 +100,12 @@ router.get('/:id/statistics/:seqNumber', authentication([constants.ADMIN_ROLE]),
 
 		var statistics = {};
 
-
 		var userAnswers = test.userAnswersId;
-		console.log("success:" +  userAnswers);
 
-		statistics.lexicalGrammar = userAnswers.slice(0, 10);
-		statistics.reading = userAnswers.slice(10, 14);
-		statistics.listening = userAnswers.slice(14, 18);
-		statistics.speaking = userAnswers.slice(18, 20);
+		statistics.lexicalGrammar = userAnswers[LEXICAL_GRAMMAR_ID];
+		statistics.reading = userAnswers[READING_ID];
+		statistics.listening = userAnswers[LISTENING_ID];
+		statistics.speaking = userAnswers[SPEAKING_ID];
 
 		statistics.lexicalGrammar.push(test.resultLexicalGrammarTest);
 		statistics.reading.push(test.resultReadingTest);

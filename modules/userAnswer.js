@@ -19,7 +19,8 @@ var userAnswerSchema = new Schema({
 		ref: 'Question'
 	},
 	answer: String,
-	isCorrect: Boolean
+	isCorrect: Boolean,
+	cost: Number
 });
 
 module.exports = userAnswerSchema;

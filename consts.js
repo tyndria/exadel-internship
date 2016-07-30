@@ -14,5 +14,16 @@ module.exports = {
 	 	'B1': 20,
 	 	'B2': 25,
 	 	'C1': 30
+	}, 
+	MAP_NOTIFICATION: {
+		'0': function(userName) {
+			return 'User ' + userName + ' has requested a test';
+			},
+		'1': function(userName) {
+			return 'User ' +  userName + ' has passed a test';
+		},
+		'2': function(teacherName) {
+			return 'Teacher ' + teacherName + 'has checked a test';
+		}
 	}
 };

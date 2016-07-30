@@ -9,6 +9,7 @@ var UserAnswer = mongoose.models.UserAnswer;
 var Test = mongoose.models.Test;
 var Question = mongoose.models.Question;
 var Task = mongoose.models.Task;
+var Notifiction = mongoose.models.Notifiction;
 
 'use strict';
 
@@ -43,10 +44,10 @@ class ModelAssistant {
 	static createUserAnswer(answer, userId, testId){
 
 		var newUsersAnswer = new UserAnswer({
-				userId: ObjectId(userId) || null,
-				testId: ObjectId(testId) || null,
-				questionId: ObjectId(answer.questionId) || null,
-				answer: answer.answer || null,
+			userId: ObjectId(userId) || null,
+			testId: ObjectId(testId) || null,
+			questionId: ObjectId(answer.questionId) || null,
+			answer: answer.answer || null,
 			});
 		if (answer.isCorrect) { // for handle posting
 			newUsersAnswer.isCorrect = true;

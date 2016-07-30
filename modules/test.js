@@ -16,12 +16,17 @@ var testSchema = new Schema({
 	questionsId: [{ type: mongoose.Schema.Types.ObjectId,
 		ref: 'Question'
 	}],
-	userAnswersId: [{type: mongoose.Schema.Types.ObjectId,
-		ref: 'UserAnswer'}],
+	userAnswersId: {
+		LEXICAL_GRAMMAR_ID : [{type: mongoose.Schema.Types.ObjectId, ref: 'UserAnswer'}],
+		READING_ID : [{type: mongoose.Schema.Types.ObjectId, ref: 'UserAnswer'}],
+		LISTENING_ID : [{type: mongoose.Schema.Types.ObjectId, ref: 'UserAnswer'}],
+		SPEAKING_ID : [{type: mongoose.Schema.Types.ObjectId, ref: 'UserAnswer'}]
+	},
 	resultLexicalGrammarTest: Number,
 	resultReadingTest: Number,
 	resultListeningTest: Number,
 	resultSpeakingTest: Number,
+	isPassed: Boolean, 
 	isChecked: Boolean
 });
 
