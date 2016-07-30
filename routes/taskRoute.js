@@ -165,9 +165,9 @@ function postLexicalGrammarTask(req, res) {
 
 		var task = tasks[0];
 
-		var newQuestion = ModelAssistant.createQuestion(req.body, task._id.toString());
+		var newQuestion = ModelAssistant.createQuestion(req.body.question, task._id.toString(), false, "string");
 
-		var answers = req.body.answersId;
+		var answers = req.body.question.answersId;
 
 		answers.forEach(function(answer) {
 			var newAnswer = new Answer(answer);
@@ -178,8 +178,8 @@ function postLexicalGrammarTask(req, res) {
 		});
 
 		promise.all(promises).then(function() {
-			console.log(newQuestion);
 			newQuestion.save(function() {
+				console.log(newQuestion);
 				res.send(newQuestion);
 			});
 		});
