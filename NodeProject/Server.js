@@ -6,7 +6,7 @@ var cors = require('cors');
 var mongodb = require('mongodb');
 
 var mongoose  = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/austenDB');
+mongoose.connect('mongodb://readOnlyUser:readOnlyUser@ds052408.mlab.com:52408/austendb');
 
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'error connection:'));
@@ -32,6 +32,13 @@ mongoose.model('Task', require('./modules/task'));
 
 //import main router
 
+app.use(function(req, res, next){
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
+
 var router = require('./routes/index');
 app.use('/api', router);
 
@@ -41,9 +48,5 @@ app.listen(8083, function(){
 
 app.use(cors());
 
-app.use(function(req, res, next){
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-});
+
 
