@@ -5,8 +5,10 @@ var userSchema = new Schema({
 	firstName:String,
 	lastName:String,
 	role: Number,
+	status: Number, 
 	mail: String,
-	meta: {}
+	photo: String,
+	token: String
 });
 
 

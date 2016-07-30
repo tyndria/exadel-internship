@@ -4,5 +4,8 @@ module.exports = {
 	 LEXICAL_GRAMMAR_ID: '578e1ab7364a9658259c61d5',
 	 LISTENING_ID: '578e1ac7364a9658259c61d7',
 	 SPEAKING_ID: '578e1acd364a9658259c61d8',
-	 LEVELS: ['A1', 'A2', 'B1', 'B2', 'C1']
+	 LEVELS: ['A1', 'A2', 'B1', 'B2', 'C1'],
+	 USER_ROLE: '0',
+	 TEACHER_ROLE: '1',
+	 ADMIN_ROLE: '2'
 	 };

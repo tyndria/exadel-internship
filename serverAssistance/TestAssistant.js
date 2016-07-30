@@ -7,74 +7,38 @@ var Task = mongoose.models.Task;
 var constants = require('../consts');
 var shuffle = require('knuth-shuffle').knuthShuffle;
 var promise = require('bluebird');
-var TestChecker = require('../TestChecker');
+var TestChecker = require('../serverAssistance/TestChecker');
 
 'use strict';
 
-class Engine {
-
-	constructor(testId) {
-		this.testId = testId;
-	}
-
+class TestAssistant {
 
 	static get Level() {
 		return this.level;
 	}
 
 
-	getReadingTest() {
-		var testChecker = new TestChecker(this.testId);
-		return testChecker.summarize().then(function(level) {
-			let levelDef = 'B1';
-			console.log("level:" + level);
-			let arrayPromises = [];
-			let data = [];
-			return Task.find({}).populate('parentTaskId')
-				.then( function(tasks) {
-					var filteredTasksByTopic =  Engine.getTasksById(tasks, constants.READING_ID);
-					var task = Engine.getTaskByLevel(filteredTasksByTopic, levelDef)[0];
-					let tasksByParentTask = Engine.getTasksById(tasks, task._id);
-					tasksByParentTask.forEach(function(task) {
-						arrayPromises.push(Engine.getQuestionsByTask(task).then(function(question){
-							Array.prototype.push.apply(data, question);
-						}));
-					});
-					return promise.all(arrayPromises).then(function() {
-						return data;
-					});
-				})
-		});
-
-	}
-
-
-	getLexicalGrammarTest() {
-		return Task.find({}).populate('parentTaskId', 'title')
-		.then(function(tasks) {
-			var filteredTasksByTopic = Engine.getTasksById(tasks, constants.LEXICAL_GRAMMAR_ID);
-			return Engine.getQuestionsByTask(filteredTasksByTopic[0])
-			.then(function(questions) {
-				var questionsByRandomTask = Engine.getAllQuestionsByRandomTask(questions);
-				var resultQuestions = Engine.getAllQuestionsByLevels(questionsByRandomTask, constants.LEVELS);
-
-				return resultQuestions;
+	static summarize(userAnswers) {
+		return TestChecker.checkAnswers(userAnswers).then(function(userAnswers) {
+			var sum = 0;
+			userAnswers.forEach(function(userAnswer) {
+				sum += userAnswer.questionId.cost;
 			});
+			return sum;
 		});
 	}
 
-
-	getListeningTest() {
-		let level = 'B1';
+	static getReadingTest(level) {
+		this.level = level;
 		let arrayPromises = [];
 		let data = [];
 		return Task.find({}).populate('parentTaskId')
 			.then( function(tasks) {
-				var filteredTasksByTopic =  Engine.getTasksById(tasks, constants.LISTENING_ID);
-				var task = Engine.getTaskByLevel(filteredTasksByTopic, level)[0];
-				let tasksByParentTask = Engine.getTasksById(tasks, task._id);
+				var filteredTasksByTopic = TestAssistant.getTasksById(tasks, constants.READING_ID);
+				var task = TestAssistant.getTaskByLevel(filteredTasksByTopic, level)[0];
+				let tasksByParentTask = TestAssistant.getTasksById(tasks, task._id);
 				tasksByParentTask.forEach(function(task) {
-					arrayPromises.push(Engine.getQuestionsByTask(task).then(function(question){
+					arrayPromises.push(TestAssistant.getQuestionsByTask(task).then(function(question){
 						Array.prototype.push.apply(data, question);
 					}));
 				});
@@ -84,15 +48,50 @@ class Engine {
 			})
 	}
 
-	getSpeakingTest() {
-		var level = 'B1';
 
+	static getLexicalGrammarTest() {
+		return Task.find({}).populate('parentTaskId', 'title')
+		.then(function(tasks) {
+			var filteredTasksByTopic = TestAssistant.getTasksById(tasks, constants.LEXICAL_GRAMMAR_ID);
+			return TestAssistant.getQuestionsByTask(filteredTasksByTopic[0])
+			.then(function(questions) {
+				var questionsByRandomTask = TestAssistant.getAllQuestionsByRandomTask(questions);
+				var resultQuestions = TestAssistant.getAllQuestionsByLevels(questionsByRandomTask, constants.LEVELS);
+
+				return resultQuestions;
+			});
+		});
+	}
+
+
+	static getListeningTest() {
+		var that = this;
 		return Task.find({}).populate('parentTaskId')
 			.then( function(tasks) {
-				var filteredTaskByTopic =  Engine.getTasksById(tasks, constants.SPEAKING_ID)[0];
-				return Engine.getQuestionsByTask(filteredTaskByTopic)
+				let arrayPromises = [];
+				let data = [];
+				var filteredTasksByTopic = TestAssistant.getTasksById(tasks, constants.LISTENING_ID);
+				var task = TestAssistant.getTaskByLevel(filteredTasksByTopic, 'B1')[0];
+				let tasksByParentTask = TestAssistant.getTasksById(tasks, task._id);
+				tasksByParentTask.forEach(function(task) {
+					arrayPromises.push(TestAssistant.getQuestionsByTask(task).then(function(question){
+						Array.prototype.push.apply(data, question);
+					}));
+				});
+				return promise.all(arrayPromises).then(function() {
+					return data;
+				});
+			})
+	}
+
+	static getSpeakingTest() {
+		var that = this;
+		return Task.find({}).populate('parentTaskId')
+			.then( function(tasks) {
+				var filteredTaskByTopic = TestAssistant.getTasksById(tasks, constants.SPEAKING_ID)[0];
+				return TestAssistant.getQuestionsByTask(filteredTaskByTopic)
 					.then(function(questions) {
-						return Engine.getAllQuestionsByLevels(questions, [level]);
+						return TestAssistant.getAllQuestionsByLevels(questions, ['B1']);
 					});
 			});
 	}
@@ -117,7 +116,7 @@ static getAllQuestionsByLevels(questions, levels) {
 				array.push(question);
 			}
 		});
-		Array.prototype.push.apply(resultQuestions, Engine.getRandomArray(array, 2));
+		Array.prototype.push.apply(resultQuestions, TestAssistant.getRandomArray(array, 2));
 	});
 
 	return resultQuestions;
@@ -134,7 +133,7 @@ static getTaskByLevel(tasks, level) {
 		}
 	});
 
-	let task = Engine.getRandomArray(allTasks, 1);
+	let task = TestAssistant.getRandomArray(allTasks, 1);
 
 	return task;
 }
@@ -142,7 +141,7 @@ static getTaskByLevel(tasks, level) {
 static getAllQuestionsByRandomTask(questions) {
 	let filteredQuestionsByTask = [];
 
-	let randomTaskId = questions[Engine.getRandomIndex(questions.length)].taskId;
+	let randomTaskId = questions[TestAssistant.getRandomIndex(questions.length)].taskId;
 
 	questions.forEach(function(question) {
 
@@ -186,4 +185,4 @@ static getQuestionsByTask(task) {
 
 }
 
-module.exports = Engine;
+module.exports = TestAssistant;

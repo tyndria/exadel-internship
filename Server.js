@@ -5,8 +5,10 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 var mongodb = require('mongodb');
 
+var port = process.env.PORT || 8083;
 var mongoose  = require('mongoose');
-mongoose.connect('mongodb://readOnlyUser:readOnlyUser@ds052408.mlab.com:52408/austendb');
+
+mongoose.connect('mongodb://adminUser:adminUser@ds052408.mlab.com:52408/austendb');
 
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'error connection:'));
@@ -31,19 +33,22 @@ mongoose.model('Question', require('./modules/question'));
 mongoose.model('Task', require('./modules/task'));
 
 //import main router
+var message=require('./emailNotifier/notifier');
+
+//message.sendNotificationEmail({mail:'domanoffa.n@gmail.com'}, "Привет от системы");
 
 app.use(function(req, res, next){
+	res.header("Access-Control-Allow-Methods", "GET","POST", "PUT",  "OPTIONS");
     res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Methods", "GET");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
     next();
 });
 
 var router = require('./routes/index');
 app.use('/api', router);
 
-app.listen(8083, function(){
-    console.log('Express server listening on port 8083');
+app.listen(port, function(){
+    console.log('Express server listening on port '+ port);
 });
 
 app.use(cors());
