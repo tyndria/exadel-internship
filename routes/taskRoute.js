@@ -48,7 +48,7 @@ function postSpeakingTask(req, res) {
 	.then(function(tasks) {
 		var task = tasks[0];
 
-		var newQuestion = ModelAssistant.createQuestion(req.body, task._id.toString());;
+		var newQuestion = ModelAssistant.createQuestion(req.body.question, task._id.toString(), true, "audio");;
 
 		newQuestion.save(function() {
 			res.send(newQuestion);
