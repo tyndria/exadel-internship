@@ -95,7 +95,7 @@ router.get('/:id/startTest', authentication([constants.USER_ROLE]), function(req
 
 		TestAssistant.getLexicalGrammarTest().then(function(questions) {
 			questions.forEach(function(question) {
-				tests[CURRENT_TEST].questionsId.push(question._id);
+				tests[CURRENT_TEST].questionsId.push(ObjectId(question._id));
 
 				var object = {};
 				object.answersId = [];
@@ -111,9 +111,10 @@ router.get('/:id/startTest', authentication([constants.USER_ROLE]), function(req
 				objectsToSend.push(object);
 			});
 
-
 			tests[CURRENT_TEST].save(function(err) {
+				console.log("test:" + tests[CURRENT_TEST]);
 				if (err) {
+					console.log("err:" + err);
 					res.send(err);
 				}
 				res.json(objectsToSend);
