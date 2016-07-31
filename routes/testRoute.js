@@ -112,9 +112,8 @@ router.get('/:id/startTest', authentication([constants.USER_ROLE]), function(req
 			});
 
 			tests[CURRENT_TEST].save(function(err) {
-				console.log("test:" + tests[CURRENT_TEST]);
 				if (err) {
-					console.log("err:" + err);
+					console.log("err", err)
 					res.send(err);
 				}
 				res.json(objectsToSend);
