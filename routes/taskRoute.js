@@ -107,9 +107,13 @@ function postListeningTask(req, res) {
 
 
 function postReadingTask(req, res) {
-	var tasksforText = req.body.tasksForText;
 
-	var newTextTask = ModelAssistant.createTask(req.body.text, req.params.topicId);
+	var tasksforText = [];
+
+	tasksforText.push(req.body.task.translationTask);
+	tasksforText.push(req.body.task.statementTask);
+
+	var newTextTask = ModelAssistant.createTask(req.body.task.text, req.params.topicId);
 
 	newTextTask.save(function() {
 
@@ -118,7 +122,7 @@ function postReadingTask(req, res) {
 			var questions = taskForText.questions;
 
 			var newTask = new Task({
-				title: taskForText.title,
+				title: taskForText.title || 'Do this task',
 				parentTaskId: ObjectId(newTextTask._id.toString()),
 			});
 
