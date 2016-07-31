@@ -63,16 +63,14 @@ router.post('/:candidateId', authentication([constants.USER_ROLE, constants.TEAC
 		var CURRENT_TEST = tests.length - 1;
 
 		var test = tests[CURRENT_TEST];
+		var answers = req.body.answers;
+		var TOPIC = req.body.topic;
 
-		var userAnswers = req.body.userAnswers;
-		var TOPIC_ID = req.body.topicId;
-
-		userAnswers.forEach(function (userAnswer){
+		answers.forEach(function (userAnswer){
 
 			var newUsersAnswer = ModelAssistant.createUserAnswer(userAnswer, req.params.candidateId, test._id);
 
-			console.log(test.userAnswersId[TOPIC_ID]);
-			test.userAnswersId[TOPIC_ID].push(ObjectId(newUsersAnswer._id));
+			test.userAnswersId[TOPIC].push(ObjectId(newUsersAnswer._id));
 			promises.push(newUsersAnswer.save().then(function(err) {
 				if (err) console.log(err);
 			}));
