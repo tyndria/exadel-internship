@@ -13,7 +13,7 @@ var Question = mongoose.models.Question;
 var Task = mongoose.models.Task;
 
 router.get('/', function (req, res) {
-	var query = Test.find({}).populate('questionsId').populate('userAnswersId');
+	var query = Test.find({}).populate('questionsId');
 
 	query.select('-__v');
 
@@ -28,8 +28,25 @@ router.get('/', function (req, res) {
 	});
 });
 
-router.get('/isPassed', function (req, res) {
-	var query = Test.find({});
+router.get('/isPassed', function (req, res) { // LEXICAL-GRAMMAR TEST IS PASSED
+	var query = Test.find({isPassed: true});
+
+	query.select('__id');
+
+	query.exec(function(err, tests) {
+		if (err) {
+			res.send(err);
+		}
+
+		else {
+			console.log(tests);
+    		res.send(tests);
+    	}
+	});
+});
+
+router.get('/isChecked', function (req, res) { //  TEST IS PASSED AND  CHECKED
+	var query = Test.find({isChecked: true});
 
 	query.select('__id');
 

@@ -31,6 +31,7 @@ mongoose.model('Answer', require('./modules/answer'));
 mongoose.model('UserAnswer', require('./modules/userAnswer')); 
 mongoose.model('Question', require('./modules/question'));
 mongoose.model('Task', require('./modules/task'));
+mongoose.model('Notification', require('./modules/notification'));
 
 //import main router
 var message=require('./emailNotifier/notifier');
