@@ -5,6 +5,13 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 var mongodb = require('mongodb');
 
+// audio
+var BinaryServer = require('binaryjs').BinaryServer;
+var fs = require('fs');
+var wav = require('wav');
+var outFile = 'demo.wav';
+//
+
 var port = process.env.PORT || 8083;
 var mongoose  = require('mongoose');
 mongoose.connect('mongodb://adminUser:adminUser@ds052408.mlab.com:52408/austendb');
@@ -17,6 +24,12 @@ db.once('open', function() {
 });
 
 var app = express();
+
+
+//audio
+app.set('views', __dirname + '/tpl');
+app.set('view engine');
+//
 
 app.use(logger('dev')); // выводим все запросы со статусами в консоль 
 app.use(bodyParser.json());
@@ -56,3 +69,25 @@ app.use(cors());
 
 
 
+//
+binaryServer = BinaryServer({port: 9001});
+
+binaryServer.on('connection', function(client) {
+  console.log('new connection');
+
+  var fileWriter = new wav.FileWriter(outFile, {
+    channels: 1,
+    sampleRate: 48000,
+    bitDepth: 16
+  });
+
+  client.on('stream', function(stream, meta) {
+    console.log('new stream');
+    stream.pipe(fileWriter);
+
+    stream.on('end', function() {
+      fileWriter.end();
+      console.log('wrote to file ' + outFile);
+    });
+  });
+});

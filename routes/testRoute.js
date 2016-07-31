@@ -114,6 +114,8 @@ router.get('/:id/startTest', authentication([constants.USER_ROLE]), function(req
 			questions.forEach(function(question) {
 				tests[CURRENT_TEST].questionsId.push(question._id);
 
+				console.log("getLexicalGrammarTest");
+
 				var object = {};
 				object.answersId = [];
 				object.description = question.description;
@@ -128,6 +130,7 @@ router.get('/:id/startTest', authentication([constants.USER_ROLE]), function(req
 				objectsToSend.push(object);
 			});
 
+			console.log(objectsToSend);
 			tests[CURRENT_TEST].save(function(err) {
 
 				if (err) {
@@ -143,7 +146,7 @@ router.get('/:id/startTest', authentication([constants.USER_ROLE]), function(req
 
 
 router.get('/:id/getReadingTest/', authentication([constants.USER_ROLE]), function(req, res) {
-
+	console.log("getReadingTest");
 	Test.find({candidateId: req.params.id}, function(err, tests) {
 			if (err) {
 	        	res.send(err);
@@ -182,6 +185,7 @@ router.get('/:id/getReadingTest/', authentication([constants.USER_ROLE]), functi
 						tests[CURRENT_TEST].questionsId.push(question._id);
 					});
 
+		        	console.log(objectToSend);
 					tests[CURRENT_TEST].save(function(err) {
 						if (err) {
 							res.send(err);
