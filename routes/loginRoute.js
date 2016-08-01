@@ -16,10 +16,11 @@ function authorization(req, res, next) {
 	console.log(token);
 	return User.findOne({token: token.toString()}).then( function(user) {
 		console.log(user);
-		if (user.role == req.body.user.role) {
+		if (user) {
 			req.headers.authorization = token;
 			req.body.success = true;
 			req.body.auth_token = token;
+			req.body.role = user.role;
 			return next();
 		} else {
 			next(new Error("no authorization"));
