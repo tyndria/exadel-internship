@@ -16,7 +16,7 @@ function authorization(req, res, next) {
 	console.log(token);
 	return User.findOne({token: token.toString()}).then( function(user) {
 		console.log(user);
-		if (user) {
+		if (user.role == req.body.user.role) {
 			req.headers.authorization = token;
 			req.body.success = true;
 			req.body.auth_token = token;

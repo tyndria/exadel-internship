@@ -25,12 +25,6 @@ db.once('open', function() {
 
 var app = express();
 
-
-//audio
-app.set('views', __dirname + '/tpl');
-app.set('view engine');
-//
-
 app.use(logger('dev')); // выводим все запросы со статусами в консоль 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -66,28 +60,3 @@ app.listen(port, function(){
 });
 
 app.use(cors());
-
-
-
-//
-binaryServer = BinaryServer({port: 9001});
-
-binaryServer.on('connection', function(client) {
-  console.log('new connection');
-
-  var fileWriter = new wav.FileWriter(outFile, {
-    channels: 1,
-    sampleRate: 48000,
-    bitDepth: 16
-  });
-
-  client.on('stream', function(stream, meta) {
-    console.log('new stream');
-    stream.pipe(fileWriter);
-
-    stream.on('end', function() {
-      fileWriter.end();
-      console.log('wrote to file ' + outFile);
-    });
-  });
-});
