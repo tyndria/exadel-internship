@@ -48,16 +48,30 @@ function postSpeakingTask(req, res) {
 	.then(function(tasks) {
 		var task = tasks[0];
 
-		var newQuestion = ModelAssistant.createQuestion(req.body.question, task._id.toString(), true, "audio");;
+		var questions = req.body.questions;
 
-		newQuestion.save(function() {
-			res.send(newQuestion);
+		questions.forEach(function(question) {
+
+			var newQuestion = ModelAssistant.createQuestion(question, task._id.toString(), true, "audio");
+
+			newQuestion.save(function(err) {
+				if (err) {
+					res.send(err);
+				}
+				console.log(newQuestion);
+			});
 		});
+
+		res.sendStatus(200);
+
 	});
 }
 
 function postListeningTask(req, res) {
-	var tasksforText = req.body.tasksForText;
+
+	var tasksforText = [];
+	tasksforText.push(req.body.task.questionTask); 
+	tasksforText.push(req.body.task.completeTheSentencesTask);
 
 	var newTextTask = ModelAssistant.createTask(req.body.text, req.params.topicId);
 
@@ -162,31 +176,38 @@ function postReadingTask(req, res) {
 
 
 function postLexicalGrammarTask(req, res) {
+
 	Task.find({parentTaskId: req.params.topicId})
 	.then(function(tasks) {
 
-		var promises = [];
-
 		var task = tasks[0];
 
-		var newQuestion = ModelAssistant.createQuestion(req.body.question, task._id.toString(), false, "string");
+		var questions = req.body.questions;
 
-		var answers = req.body.question.answersId;
+		questions.forEach(function(question) {
+			var promises = [];
 
-		answers.forEach(function(answer) {
-			var newAnswer = new Answer(answer);
-			newQuestion.answersId.push(ObjectId(newAnswer._id.toString()));
-			promises.push(newAnswer.save().then(function(answer, err) {
-				console.log(err);
-			}));
-		});
+			var newQuestion = ModelAssistant.createQuestion(question, task._id.toString(), false, "string");
 
-		promise.all(promises).then(function() {
-			newQuestion.save(function() {
-				console.log(newQuestion);
-				res.send(newQuestion);
+			var answers = question.answersId;
+
+			answers.forEach(function(answer) {
+				var newAnswer = new Answer(answer);
+				newQuestion.answersId.push(ObjectId(newAnswer._id.toString()));
+				promises.push(newAnswer.save().then(function(answer, err) {
+					console.log(err);
+				}));
+			});
+
+			promise.all(promises).then(function() {
+				newQuestion.save(function() {
+					console.log(newQuestion);
+				});
 			});
 		});
+
+		res.sendStatus(200);
+
 	});
 }
 

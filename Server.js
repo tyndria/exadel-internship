@@ -5,6 +5,13 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 var mongodb = require('mongodb');
 
+// audio
+var BinaryServer = require('binaryjs').BinaryServer;
+var fs = require('fs');
+var wav = require('wav');
+var outFile = 'demo.wav';
+//
+
 var port = process.env.PORT || 8083;
 var mongoose  = require('mongoose');
 
@@ -53,6 +60,3 @@ app.listen(port, function(){
 });
 
 app.use(cors());
-
-
-

@@ -13,8 +13,9 @@ module.exports = (roles) => {
 					isAuthorizated = true;
 				}
 			});
-			if(isAuthorizated)
+			if(isAuthorizated){
 				return next();
+			}
 			else
 				return res.sendStatus(401);
 		});

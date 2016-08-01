@@ -20,6 +20,7 @@ function authorization(req, res, next) {
 			req.headers.authorization = token;
 			req.body.success = true;
 			req.body.auth_token = token;
+			req.body.role = user.role;
 			return next();
 		} else {
 			next(new Error("no authorization"));
