@@ -91,7 +91,7 @@ class TestAssistant {
 				var filteredTaskByTopic = TestAssistant.getTasksById(tasks, constants.SPEAKING_ID)[0];
 				return TestAssistant.getQuestionsByTask(filteredTaskByTopic)
 					.then(function(questions) {
-						return TestAssistant.getAllQuestionsByLevels(questions, ['B1']);
+						return TestAssistant.getAllQuestionsByLevels(questions, ['B2']);
 					});
 			});
 	}

@@ -176,6 +176,7 @@ function postReadingTask(req, res) {
 
 
 function postLexicalGrammarTask(req, res) {
+
 	Task.find({parentTaskId: req.params.topicId})
 	.then(function(tasks) {
 
