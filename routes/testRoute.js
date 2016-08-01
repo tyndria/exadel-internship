@@ -85,10 +85,10 @@ router.post('/:reviewerId', authentication([constants.ADMIN_ROLE]), function(req
 router.post('/', authentication([constants.ADMIN_ROLE]), function(req, res) {
 
 	var newTest = new Test({
-		candidateId: mongoose.Types.ObjectId(req.body.candidateId),
-		startTime: req.body.startTime,
-		finishTime: req.body.finishTime,
-		duration: req.body.duration
+		candidateId: req.body.test.candidateId,
+		startTime: req.body.test.startTime,
+		finishTime: req.body.test.finishTime,
+		duration: req.body.test.duration
 	});
 
 	newTest.save(function(err) {
@@ -99,7 +99,6 @@ router.post('/', authentication([constants.ADMIN_ROLE]), function(req, res) {
 		res.json(newTest);
 	});
 });
-
 
 router.get('/:id/startTest', authentication([constants.USER_ROLE]), function(req, res) {
 
