@@ -150,28 +150,9 @@ router.post('/:candidateId', authentication([constants.USER_ROLE, constants.TEAC
 
 
 router.get('/:id/statistics/:seqNumber', authentication([constants.ADMIN_ROLE]), function(req, res) {
-	Test.find({candidateId: req.params.id}).populate('userAnswersId').then(function(tests) {
+	var query = Test.find({candidateId: req.params.id});
 
-		var CURRENT_TEST = req.params.seqNumber - 1;
-		var test = tests[CURRENT_TEST];
-
-		var statistics = {};
-
-		var userAnswers = test.userAnswersId;
-
-		statistics.lexicalGrammar = userAnswers[LEXICAL_GRAMMAR_ID];
-		statistics.reading = userAnswers[READING_ID];
-		statistics.listening = userAnswers[LISTENING_ID];
-		statistics.speaking = userAnswers[SPEAKING_ID];
-
-		statistics.lexicalGrammar.push(test.resultLexicalGrammarTest);
-		statistics.reading.push(test.resultReadingTest);
-		statistics.listening.push(test.resultListeningTest);
-		statistics.speaking.push(test.resultSpeakingTest);
-
-		res.send(statistics);
-
-	});
+	query.select('-userAnswersId');
 
 });
 

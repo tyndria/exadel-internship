@@ -8,11 +8,11 @@ var User = mongoose.models.User;
 
 // req.headers.authorization
 router.post('/',  function(req, res) {
-	console.log(req.body.user);
+	
 	var newUser = new User(req.body.user);
 
 	newUser.role = 3;
-	newUser.photo = "1.jpeg"; // random choice!!!!!!
+	newUser.photo = Math.floor(Math.random()*100)%4 + '.jpeg'; 
 
 	newUser.save(function(err) {
 		if (err) {

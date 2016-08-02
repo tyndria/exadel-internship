@@ -13,13 +13,6 @@ var TestChecker = require('../serverAssistance/TestChecker');
 
 class TestAssistant {
 
-	static getLevel(userAnswers) {
-
-		return this.summarize(userAnswers).then(function(sum){
-			return constants.MAP_RESULT(sum);
-		});
-	}
-
 
 	static summarize(userAnswers) {
 		return TestChecker.checkAnswers(userAnswers).then(function(userAnswers) {
