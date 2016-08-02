@@ -7,7 +7,7 @@ var User = mongoose.models.User;
 var hash = require('../hashFunction');
 var authentication = require('../serverAssistance/AuthenticationAssistant');
 
-router.post('/', authorization, authentication([constants.USER_ROLE, constants.ADMIN_ROLE, constants.TEACHER_ROLE), function (req, res) {
+router.post('/', authorization, authentication([constants.USER_ROLE, constants.ADMIN_ROLE, constants.TEACHER_ROLE]), function (req, res) {
 	res.status(200).send(req.body);
 });
 

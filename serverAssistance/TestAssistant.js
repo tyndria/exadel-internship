@@ -25,7 +25,6 @@ class TestAssistant {
 	}
 
 	static getReadingTest(level) {
-		this.level = level;
 		let arrayPromises = [];
 		let data = [];
 		return Task.find({}).populate('parentTaskId')
@@ -61,7 +60,6 @@ class TestAssistant {
 
 
 	static getListeningTest(level) {
-		var that = this;
 		return Task.find({}).populate('parentTaskId')
 			.then( function(tasks) {
 				let arrayPromises = [];
@@ -81,7 +79,6 @@ class TestAssistant {
 	}
 
 	static getSpeakingTest(level) {
-		var that = this;
 		return Task.find({}).populate('parentTaskId')
 			.then( function(tasks) {
 				var filteredTaskByTopic = TestAssistant.getTasksById(tasks, constants.SPEAKING_ID)[0];
