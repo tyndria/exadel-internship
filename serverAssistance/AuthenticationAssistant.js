@@ -3,7 +3,7 @@ var mongoose  = require('mongoose');
 var User = mongoose.models.User;
 
 module.exports = (roles) => {
-	return (req, res, next) => {
+	return function(req, res, next) {
 		return User.findOne({token: req.headers.authorization})
 		.then(function(user) {
 			var isAuthorizated = false;

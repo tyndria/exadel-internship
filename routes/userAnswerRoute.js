@@ -54,30 +54,29 @@ router.post('/:candidateId/:seqNumber/sendAudio', upload.single('audioFromUser')
 
 })
 
-function saveAudio(outFile) {
-	binaryServer = BinaryServer({port: 9001});
-
-	return binaryServer.on('connection').then(function(client) {
-	  console.log('new connection');
-
-	  var fileWriter = new wav.FileWriter(outFile, {
-	    channels: 1,
-	    sampleRate: 50000,
-	    bitDepth: 16
-	  });
-
-	  client.on('stream', function(stream, meta) {
-	    console.log('new stream');
-	    stream.pipe(fileWriter);
-
-	    stream.on('end', function() {
-	      fileWriter.end();
-	      console.log('wrote to file ' + outFile);
-	    });
-	  });
-	});
-}
-
+// function saveAudio(outFile) {
+// 	binaryServer = BinaryServer({port: 9002});
+//
+// 	return binaryServer.on('connection').then(function(client) {
+// 		console.log('new connection');
+//
+// 		var fileWriter = new wav.FileWriter(outFile, {
+// 			channels: 1,
+// 			sampleRate: 50000,
+// 			bitDepth: 16
+// 		});
+//
+// 		client.on('stream', function(stream, meta) {
+// 			console.log('new stream');
+// 			stream.pipe(fileWriter);
+//
+// 			stream.on('end', function() {
+// 				fileWriter.end();
+// 				console.log('wrote to file ' + outFile);
+// 			});
+// 		});
+// 	});
+// }
 
 router.post('/:candidateId/sendAudio', function (req, res, next) {
 
@@ -97,15 +96,15 @@ router.post('/:candidateId/sendAudio', function (req, res, next) {
 
 		test.userAnswersId.push(ObjectId(newUsersAnswer._id.toString()));
 
-		saveAudio.then(function(err){
-			if(err) res.send(err);
-
-			newUsersAnswer.save().then(function(err) {
-				if (err) 
-					console.log(err);
-				res.send(newUsersAnswer);
-			});
-		});
+		// saveAudio.then(function(err){
+		// 	if(err) res.send(err);
+        //
+		// 	newUsersAnswer.save().then(function(err) {
+		// 		if (err) 
+		// 			console.log(err);
+		// 		res.send(newUsersAnswer);
+		// 	});
+		// });
 		
 	});
 

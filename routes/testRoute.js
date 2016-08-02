@@ -12,6 +12,12 @@ var Test = mongoose.models.Test;
 var Question = mongoose.models.Question;
 var Task = mongoose.models.Task;
 
+
+var BinaryServer = require('binaryjs').BinaryServer;
+var fs = require('fs');
+var wav = require('wav');
+var outFile = 'demo.wav';
+
 router.get('/', function (req, res) {
 	var query = Test.find({}).populate('questionsId');
 
@@ -244,6 +250,7 @@ router.get('/:id/getListeningTest', authentication([constants.USER_ROLE]), funct
 
 
 router.get('/:id/getSpeakingTest', authentication([constants.USER_ROLE]), function(req, res) {
+	
 	Test.find({candidateId: req.params.id}, function(err, tests) {
 
 		var CURRENT_TEST = tests.length - 1;
@@ -258,7 +265,7 @@ router.get('/:id/getSpeakingTest', authentication([constants.USER_ROLE]), functi
         	questions.forEach(function(question) {
 
         		var object = {};
-				
+
 				object.description = question.description;
 				object.questionType = question.questionType;
 				object.title = question.taskId.title;
@@ -269,17 +276,45 @@ router.get('/:id/getSpeakingTest', authentication([constants.USER_ROLE]), functi
 				tests[CURRENT_TEST].questionsId.push(question._id);
 			});
 
+			objectToSend.push({
+				port: '9002'
+			});
+
         	console.log(objectToSend);
+			// saveAudio('audio');
 			tests[CURRENT_TEST].save(function(err) {
 				if (err) {
 					res.send(err);
 				}
 				res.json(objectToSend);
+				// saveAudio(outFile);
 			});
         });
 	});
 });
 
+function saveAudio(outFile) {
+	binaryServer = BinaryServer({port: 9002});
 
+	return binaryServer.on('connection').then(function(client) {
+		console.log('new connection');
+
+		var fileWriter = new wav.FileWriter(outFile, {
+			channels: 1,
+			sampleRate: 50000,
+			bitDepth: 16
+		});
+
+		client.on('stream', function(stream, meta) {
+			console.log('new stream');
+			stream.pipe(fileWriter);
+
+			stream.on('end', function() {
+				fileWriter.end();
+				console.log('wrote to file ' + outFile);
+			});
+		});
+	});
+}
 
 module.exports = router;
