@@ -23,8 +23,8 @@ router.get('/', function (req, res) {
 		}
 
 		else {
-    		res.send(tests);
-    	}
+			res.send(tests);
+		}
 	});
 });
 
@@ -40,8 +40,8 @@ router.get('/isPassed', function (req, res) { // LEXICAL-GRAMMAR TEST IS PASSED
 
 		else {
 			console.log(tests);
-    		res.send(tests);
-    	}
+			res.send(tests);
+		}
 	});
 });
 
@@ -57,8 +57,8 @@ router.get('/isChecked', function (req, res) { //  TEST IS PASSED AND  CHECKED
 
 		else {
 			console.log(tests);
-    		res.send(tests);
-    	}
+			res.send(tests);
+		}
 	});
 });
 
@@ -138,7 +138,7 @@ router.get('/:id/startTest', authentication([constants.USER_ROLE]), function(req
 				res.json(objectsToSend);
 			});
 
-        });
+		});
 	});
 });
 
@@ -146,53 +146,53 @@ router.get('/:id/startTest', authentication([constants.USER_ROLE]), function(req
 router.get('/:id/getReadingTest/', authentication([constants.USER_ROLE]), function(req, res) {
 	console.log("getReadingTest");
 	Test.find({candidateId: req.params.id}, function(err, tests) {
-			if (err) {
-	        	res.send(err);
-	        }
+		if (err) {
+			res.send(err);
+		}
 
-			var CURRENT_TEST = tests.length - 1;
-			console.log(tests[CURRENT_TEST]);
+		var CURRENT_TEST = tests.length - 1;
+		console.log(tests[CURRENT_TEST]);
 
-			var userAnswers = tests[CURRENT_TEST].userAnswersId['LEXICAL_GRAMMAR_ID'];
-		
-			TestAssistant.getLevel(userAnswers).then(function(level) {
+		var userAnswers = tests[CURRENT_TEST].userAnswersId['LEXICAL_GRAMMAR_ID'];
 
-				console.log("level", level);
-			
-				TestAssistant.getReadingTest(level).then(function(questions) {
+		TestAssistant.getLevel(userAnswers).then(function(level) {
 
-					let objectToSend = {};
-				
-					objectToSend.textTitle = questions[0].taskId.parentTaskId.title;
-					objectToSend.text = questions[0].taskId.parentTaskId.description;
-					objectToSend.questions = [];
-					
-		        	questions.forEach(function(question) {
-		        		let object = {};
-		        		object.title = question.taskId.title;
-		        		object.description = question.description;
-		        		object.questionType = question.questionType;
-		        		object.questionId = question._id;
-		        		object.answersId = [];
+			console.log("level", level);
 
-		        		question.answersId.forEach(function(answer) {
-		        			object.answersId.push(answer.text);
-		        		});
-		        		objectToSend.questions.push(object);
+			TestAssistant.getReadingTest(level).then(function(questions) {
 
-						tests[CURRENT_TEST].questionsId.push(question._id);
+				let objectToSend = {};
+
+				objectToSend.textTitle = questions[0].taskId.parentTaskId.title;
+				objectToSend.text = questions[0].taskId.parentTaskId.description;
+				objectToSend.questions = [];
+
+				questions.forEach(function(question) {
+					let object = {};
+					object.title = question.taskId.title;
+					object.description = question.description;
+					object.questionType = question.questionType;
+					object.questionId = question._id;
+					object.answersId = [];
+
+					question.answersId.forEach(function(answer) {
+						object.answersId.push(answer.text);
 					});
+					objectToSend.questions.push(object);
 
-		        	console.log(objectToSend);
-					tests[CURRENT_TEST].save(function(err) {
-						if (err) {
-							res.send(err);
-						}
-						res.json(objectToSend);
-					});
+					tests[CURRENT_TEST].questionsId.push(question._id);
+				});
 
-	        	});
+				console.log(objectToSend);
+				tests[CURRENT_TEST].save(function(err) {
+					if (err) {
+						res.send(err);
+					}
+					res.json(objectToSend);
+				});
+
 			});
+		});
 	});
 });
 
@@ -203,34 +203,34 @@ router.get('/:id/getListeningTest', authentication([constants.USER_ROLE]), funct
 		var CURRENT_TEST = tests.length - 1;
 
 		if (err) {
-        	res.send(err);
-        }
+			res.send(err);
+		}
 
-        var userAnswers = tests[CURRENT_TEST].userAnswersId['LEXICAL_GRAMMAR_ID'];
-        TestAssistant.getLevel(userAnswers).then(function(level) {
+		var userAnswers = tests[CURRENT_TEST].userAnswersId['LEXICAL_GRAMMAR_ID'];
+		TestAssistant.getLevel(userAnswers).then(function(level) {
 
-        	console.log("getListeningTest", level);
+			console.log("getListeningTest", level);
 
-        	var objectToSend = {};
-	        TestAssistant.getListeningTest(level).then(function(questions) {
+			var objectToSend = {};
+			TestAssistant.getListeningTest(level).then(function(questions) {
 
-	        	objectToSend.textTitle = questions[0].taskId.parentTaskId.title;
+				objectToSend.textTitle = questions[0].taskId.parentTaskId.title;
 				objectToSend.text = questions[0].taskId.parentTaskId.description;
-	        	objectToSend.questions = []
+				objectToSend.questions = []
 
-	        	questions.forEach(function(question) {
-	        		var object = {};
-			        object.title = question.taskId.title;
-			        object.description = question.description;
-			        object.questionType = question.questionType;
-			        object.questionId = question._id;
-			        object.answersId = [];
+				questions.forEach(function(question) {
+					var object = {};
+					object.title = question.taskId.title;
+					object.description = question.description;
+					object.questionType = question.questionType;
+					object.questionId = question._id;
+					object.answersId = [];
 
-			        question.answersId.forEach(function(answer) {
-			        	object.answersId.push(answer.text);
-			        });
+					question.answersId.forEach(function(answer) {
+						object.answersId.push(answer.text);
+					});
 
-			        objectToSend.questions.push(object);
+					objectToSend.questions.push(object);
 					tests[CURRENT_TEST].questionsId.push(question._id);
 				});
 
@@ -240,9 +240,9 @@ router.get('/:id/getListeningTest', authentication([constants.USER_ROLE]), funct
 					}
 					res.json(objectToSend);
 				});
-	        });
+			});
 
-        });
+		});
 
 	});
 });
@@ -256,39 +256,39 @@ router.get('/:id/getSpeakingTest', authentication([constants.USER_ROLE]), functi
 		var CURRENT_TEST = tests.length - 1;
 
 		if (err) {
-        	res.send(err);
-        }
+			res.send(err);
+		}
 
-        var objectToSend = [];
-        var userAnswers = tests[CURRENT_TEST].userAnswersId['LEXICAL_GRAMMAR_ID'];
-        TestAssistant.getLevel(userAnswers).then(function(level) {
+		var objectToSend = [];
+		var userAnswers = tests[CURRENT_TEST].userAnswersId['LEXICAL_GRAMMAR_ID'];
+		TestAssistant.getLevel(userAnswers).then(function(level) {
 
-        	TestAssistant.getSpeakingTest(level).then(function(questions) {
-        		console.log("getSpeakingTest", level);
+			TestAssistant.getSpeakingTest(level).then(function(questions) {
+				console.log("getSpeakingTest", level);
 
-	        	questions.forEach(function(question) {
+				questions.forEach(function(question) {
 
-	        		var object = {};
-					
+					var object = {};
+
 					object.description = question.description;
 					object.questionType = question.questionType;
 					object.title = question.taskId.title;
 					object.questionId = question._id;
 
-	        		objectToSend.push(object);
-	        		console.log("object" + object);
+					objectToSend.push(object);
+					console.log("object" + object);
 					tests[CURRENT_TEST].questionsId.push(question._id);
 				});
 
-	        	console.log(objectToSend);
+				console.log(objectToSend);
 				tests[CURRENT_TEST].save(function(err) {
 					if (err) {
 						res.send(err);
 					}
 					res.json(objectToSend);
 				});
-        	});
-        });
+			});
+		});
 
 	});
 });
@@ -298,23 +298,23 @@ function saveAudio(outFile) {
 	binaryServer = BinaryServer({port: 9001});
 
 	return binaryServer.on('connection').then(function(client) {
-	  console.log('new connection');
+		console.log('new connection');
 
-	  var fileWriter = new wav.FileWriter(outFile, {
-	    channels: 1,
-	    sampleRate: 50000,
-	    bitDepth: 16
-	  });
+		var fileWriter = new wav.FileWriter(outFile, {
+			channels: 1,
+			sampleRate: 50000,
+			bitDepth: 16
+		});
 
-	  client.on('stream', function(stream, meta) {
-	    console.log('new stream');
-	    stream.pipe(fileWriter);
+		client.on('stream', function(stream, meta) {
+			console.log('new stream');
+			stream.pipe(fileWriter);
 
-	    stream.on('end', function() {
-	      fileWriter.end();
-	      console.log('wrote to file ' + outFile);
-	    });
-	  });
+			stream.on('end', function() {
+				fileWriter.end();
+				console.log('wrote to file ' + outFile);
+			});
+		});
 	});
 }
 

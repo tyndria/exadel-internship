@@ -40,7 +40,7 @@ router.put('/:id', authentication([constants.ADMIN_ROLE]), function(req, res) {
 }); 
 
 
-router.get('/:role', authentication([constants.ADMIN_ROLE]), function (req, res) {
+router.get('/role/:role', authentication([constants.ADMIN_ROLE]), function (req, res) {
 	var query = User.find({role: req.params.role});
 
 	query.select('-__v');
