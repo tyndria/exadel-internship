@@ -29,6 +29,17 @@ router.get('/', function (req, res) {
 });
 
 
+router.put('/:id/isPassed', function(req, res){
+
+	Test.findById(req.params.id, function(err, test){
+		test.isPassed = true;
+
+		test.save(function(err, test) {
+			res.sendStatus(200);
+		})
+	})
+});
+
 router.get('/isPassed', function (req, res) { // LEXICAL-GRAMMAR TEST IS PASSED
 	var query = Test.find({isPassed: true});
 
