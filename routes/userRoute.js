@@ -11,8 +11,8 @@ router.post('/',  function(req, res) {
 	console.log(req.body.user);
 	var newUser = new User(req.body.user);
 
-	//newUser.role = 3;
-	//newUser.photo = "1.jpeg"; // random choice!!!!!!
+	newUser.role = 3;
+	newUser.photo = "1.jpeg"; // random choice!!!!!!
 
 	newUser.save(function(err) {
 		if (err) {
