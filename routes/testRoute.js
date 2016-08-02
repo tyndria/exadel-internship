@@ -28,6 +28,7 @@ router.get('/', function (req, res) {
 	});
 });
 
+
 router.get('/isPassed', function (req, res) { // LEXICAL-GRAMMAR TEST IS PASSED
 	var query = Test.find({isPassed: true});
 

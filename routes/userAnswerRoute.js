@@ -152,7 +152,7 @@ router.post('/:candidateId', authentication([constants.USER_ROLE, constants.TEAC
 router.get('/:id/statistics/:seqNumber', authentication([constants.ADMIN_ROLE]), function(req, res) {
 	var query = Test.find({candidateId: req.params.id});
 
-	query.select('-questionsId -__v -_id -candidateId');
+	//query.select('-questionsId -__v -_id -candidateId');
 
 	query.exec(function(err, tests) {
 		var CURRENT_TEST = tests.length - 1;
