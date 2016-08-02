@@ -13,8 +13,11 @@ var TestChecker = require('../serverAssistance/TestChecker');
 
 class TestAssistant {
 
-	static get Level() {
-		return this.level;
+	static getLevel(userAnswers) {
+
+		return this.summarize(userAnswers).then(function(sum){
+			return constants.MAP_RESULT(sum);
+		});
 	}
 
 
@@ -64,14 +67,14 @@ class TestAssistant {
 	}
 
 
-	static getListeningTest() {
+	static getListeningTest(level) {
 		var that = this;
 		return Task.find({}).populate('parentTaskId')
 			.then( function(tasks) {
 				let arrayPromises = [];
 				let data = [];
 				var filteredTasksByTopic = TestAssistant.getTasksById(tasks, constants.LISTENING_ID);
-				var task = TestAssistant.getTaskByLevel(filteredTasksByTopic, 'B1')[0];
+				var task = TestAssistant.getTaskByLevel(filteredTasksByTopic, level)[0];
 				let tasksByParentTask = TestAssistant.getTasksById(tasks, task._id);
 				tasksByParentTask.forEach(function(task) {
 					arrayPromises.push(TestAssistant.getQuestionsByTask(task).then(function(question){
@@ -84,14 +87,14 @@ class TestAssistant {
 			})
 	}
 
-	static getSpeakingTest() {
+	static getSpeakingTest(level) {
 		var that = this;
 		return Task.find({}).populate('parentTaskId')
 			.then( function(tasks) {
 				var filteredTaskByTopic = TestAssistant.getTasksById(tasks, constants.SPEAKING_ID)[0];
 				return TestAssistant.getQuestionsByTask(filteredTaskByTopic)
 					.then(function(questions) {
-						return TestAssistant.getAllQuestionsByLevels(questions, ['B2']);
+						return TestAssistant.getAllQuestionsByLevels(questions, [level]);
 					});
 			});
 	}

@@ -151,14 +151,14 @@ router.get('/:id/getReadingTest/', authentication([constants.USER_ROLE]), functi
 	        }
 
 			var CURRENT_TEST = tests.length - 1;
+			console.log(tests[CURRENT_TEST]);
 
-			var userAnswers = tests[CURRENT_TEST].userAnswersId;
+			var userAnswers = tests[CURRENT_TEST].userAnswersId['LEXICAL_GRAMMAR_ID'];
 		
-			/*TestAssistant.summarize(userAnswers).then(function(sum) {*/
+			TestAssistant.getLevel(userAnswers).then(function(level) {
 
-				//tests[CURRENT_TEST].resultLexicalGrammarTest = sum;
+				console.log("level", level);
 			
-				var level = 'B1';
 				TestAssistant.getReadingTest(level).then(function(questions) {
 
 					let objectToSend = {};
@@ -192,7 +192,7 @@ router.get('/:id/getReadingTest/', authentication([constants.USER_ROLE]), functi
 					});
 
 	        	});
-			/*});*/
+			});
 	});
 });
 
@@ -206,35 +206,42 @@ router.get('/:id/getListeningTest', authentication([constants.USER_ROLE]), funct
         	res.send(err);
         }
 
-        var objectToSend = {};
-        TestAssistant.getListeningTest().then(function(questions) {
+        var userAnswers = tests[CURRENT_TEST].userAnswersId['LEXICAL_GRAMMAR_ID'];
+        TestAssistant.getLevel(userAnswers).then(function(level) {
 
-        	objectToSend.textTitle = questions[0].taskId.parentTaskId.title;
-			objectToSend.text = questions[0].taskId.parentTaskId.description;
-        	objectToSend.questions = []
+        	console.log("getListeningTest", level);
 
-        	questions.forEach(function(question) {
-        		var object = {};
-		        object.title = question.taskId.title;
-		        object.description = question.description;
-		        object.questionType = question.questionType;
-		        object.questionId = question._id;
-		        object.answersId = [];
+        	var objectToSend = {};
+	        TestAssistant.getListeningTest(level).then(function(questions) {
 
-		        question.answersId.forEach(function(answer) {
-		        	object.answersId.push(answer.text);
-		        });
+	        	objectToSend.textTitle = questions[0].taskId.parentTaskId.title;
+				objectToSend.text = questions[0].taskId.parentTaskId.description;
+	        	objectToSend.questions = []
 
-		        objectToSend.questions.push(object);
-				tests[CURRENT_TEST].questionsId.push(question._id);
-			});
+	        	questions.forEach(function(question) {
+	        		var object = {};
+			        object.title = question.taskId.title;
+			        object.description = question.description;
+			        object.questionType = question.questionType;
+			        object.questionId = question._id;
+			        object.answersId = [];
 
-			tests[CURRENT_TEST].save(function(err) {
-				if (err) {
-					res.send(err);
-				}
-				res.json(objectToSend);
-			});
+			        question.answersId.forEach(function(answer) {
+			        	object.answersId.push(answer.text);
+			        });
+
+			        objectToSend.questions.push(object);
+					tests[CURRENT_TEST].questionsId.push(question._id);
+				});
+
+				tests[CURRENT_TEST].save(function(err) {
+					if (err) {
+						res.send(err);
+					}
+					res.json(objectToSend);
+				});
+	        });
+
         });
 
 	});
@@ -253,33 +260,63 @@ router.get('/:id/getSpeakingTest', authentication([constants.USER_ROLE]), functi
         }
 
         var objectToSend = [];
-        TestAssistant.getSpeakingTest().then(function(questions) {
+        var userAnswers = tests[CURRENT_TEST].userAnswersId['LEXICAL_GRAMMAR_ID'];
+        TestAssistant.getLevel(userAnswers).then(function(level) {
 
-        	questions.forEach(function(question) {
+        	TestAssistant.getSpeakingTest(level).then(function(questions) {
+        		console.log("getSpeakingTest", level);
 
-        		var object = {};
-				
-				object.description = question.description;
-				object.questionType = question.questionType;
-				object.title = question.taskId.title;
-				object.questionId = question._id;
+	        	questions.forEach(function(question) {
 
-        		objectToSend.push(object);
-        		console.log("object" + object);
-				tests[CURRENT_TEST].questionsId.push(question._id);
-			});
+	        		var object = {};
+					
+					object.description = question.description;
+					object.questionType = question.questionType;
+					object.title = question.taskId.title;
+					object.questionId = question._id;
 
-        	console.log(objectToSend);
-			tests[CURRENT_TEST].save(function(err) {
-				if (err) {
-					res.send(err);
-				}
-				res.json(objectToSend);
-			});
+	        		objectToSend.push(object);
+	        		console.log("object" + object);
+					tests[CURRENT_TEST].questionsId.push(question._id);
+				});
+
+	        	console.log(objectToSend);
+				tests[CURRENT_TEST].save(function(err) {
+					if (err) {
+						res.send(err);
+					}
+					res.json(objectToSend);
+				});
+        	});
         });
+
 	});
 });
 
+
+function saveAudio(outFile) {
+	binaryServer = BinaryServer({port: 9001});
+
+	return binaryServer.on('connection').then(function(client) {
+	  console.log('new connection');
+
+	  var fileWriter = new wav.FileWriter(outFile, {
+	    channels: 1,
+	    sampleRate: 50000,
+	    bitDepth: 16
+	  });
+
+	  client.on('stream', function(stream, meta) {
+	    console.log('new stream');
+	    stream.pipe(fileWriter);
+
+	    stream.on('end', function() {
+	      fileWriter.end();
+	      console.log('wrote to file ' + outFile);
+	    });
+	  });
+	});
+}
 
 
 module.exports = router;

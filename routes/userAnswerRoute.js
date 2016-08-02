@@ -55,7 +55,7 @@ router.post('/:candidateId/:seqNumber/sendAudio', upload.single('audioFromUser')
 })
 
 function saveAudio(outFile) {
-	binaryServer = BinaryServer({port: 9001});
+	binaryServer = BinaryServer({port: 9003});
 
 	return binaryServer.on('connection').then(function(client) {
 	  console.log('new connection');
@@ -67,7 +67,7 @@ function saveAudio(outFile) {
 	  });
 
 	  client.on('stream', function(stream, meta) {
-	    console.log('new stream');
+	    console.log('new stream + meta', meta);
 	    stream.pipe(fileWriter);
 
 	    stream.on('end', function() {
@@ -83,7 +83,8 @@ router.post('/:candidateId/sendAudio', function (req, res, next) {
 
   Test.find({candidateId: req.params.candidateId})
 	.then(function(tests) {
-		var outFile = "../public/listening/" + req.body.answer.questionId + '.wav';
+		var outFile = '../public/listening/' + req.body.answer.questionId + '.wav';
+		console.log('outFile' + outFile);
 
 		var CURRENT_TEST = req.params.seqNumber - 1;
 		var test = tests[CURRENT_TEST];
@@ -95,7 +96,7 @@ router.post('/:candidateId/sendAudio', function (req, res, next) {
 			answer: outFile
 		});
 
-		test.userAnswersId.push(ObjectId(newUsersAnswer._id.toString()));
+		test.userAnswersId[SPEAKING_ID].push(ObjectId(newUsersAnswer._id.toString()));
 
 		saveAudio.then(function(err){
 			if(err) res.send(err);
