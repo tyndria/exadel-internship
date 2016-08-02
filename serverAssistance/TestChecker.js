@@ -32,8 +32,10 @@ module.exports = class TestChecker {
 
 		return promise.all(promisesUsersAnswers).then(function(){
 			userAnswers.forEach(function(userAnswer){
+				console.log(userAnswer.answer.toString() + ":" + TestChecker.getCorrectAnswer(userAnswer).text.toString());
 				if(userAnswer.answer.toString() == TestChecker.getCorrectAnswer(userAnswer).text.toString()) {
 					userAnswer.isCorrect = true;
+					userAnswer.cost = userAnswer.questionId.cost;
 					promises.push(userAnswer.save().then(function() { answers.push(userAnswer);}))
 				}
 			});

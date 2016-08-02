@@ -151,11 +151,14 @@ router.get('/:id/getReadingTest/', authentication([constants.USER_ROLE]), functi
 		}
 
 		var CURRENT_TEST = tests.length - 1;
-		console.log(tests[CURRENT_TEST]);
 
 		var userAnswers = tests[CURRENT_TEST].userAnswersId['LEXICAL_GRAMMAR_ID'];
 
-		TestAssistant.getLevel(userAnswers).then(function(level) {
+		TestAssistant.summarize(userAnswers).then(function(sum) {
+
+			tests[CURRENT_TEST].resultLexicalGrammarTest = sum;
+
+			var level = constants.MAP_RESULT(sum);
 
 			console.log("level", level);
 
@@ -207,7 +210,11 @@ router.get('/:id/getListeningTest', authentication([constants.USER_ROLE]), funct
 		}
 
 		var userAnswers = tests[CURRENT_TEST].userAnswersId['LEXICAL_GRAMMAR_ID'];
-		TestAssistant.getLevel(userAnswers).then(function(level) {
+		TestAssistant.summarize(userAnswers).then(function(sum) {
+
+			tests[CURRENT_TEST].resultLexicalGrammarTest = sum;
+
+			var level = constants.MAP_RESULT(sum);
 
 			console.log("getListeningTest", level);
 
@@ -261,7 +268,11 @@ router.get('/:id/getSpeakingTest', authentication([constants.USER_ROLE]), functi
 
 		var objectToSend = [];
 		var userAnswers = tests[CURRENT_TEST].userAnswersId['LEXICAL_GRAMMAR_ID'];
-		TestAssistant.getLevel(userAnswers).then(function(level) {
+		TestAssistant.summarize(userAnswers).then(function(sum) {
+
+			tests[CURRENT_TEST].resultLexicalGrammarTest = sum;
+
+			var level = constants.MAP_RESULT(sum);
 
 			TestAssistant.getSpeakingTest(level).then(function(questions) {
 				console.log("getSpeakingTest", level);
