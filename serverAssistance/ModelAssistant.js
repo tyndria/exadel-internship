@@ -47,7 +47,7 @@ class ModelAssistant {
 			userId: ObjectId(userId) || null,
 			testId: ObjectId(testId) || null,
 			questionId: ObjectId(answer.questionId) || null,
-			answer: answer.answer || null,
+			answer: answer.answer || ' '
 			});
 		if (answer.isCorrect) { // for handle posting
 			newUsersAnswer.isCorrect = true;

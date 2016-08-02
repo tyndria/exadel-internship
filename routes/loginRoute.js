@@ -14,7 +14,7 @@ router.post('/', authorization, authentication([constants.USER_ROLE, constants.A
 function authorization(req, res, next) {
 	var token = hash(req.body.user.email + req.body.user.password);
 	console.log(token);
-	return User.findOne({token: token.toString()}).then( function(user) {
+	return User.findOne({token: token}).then( function(user) {
 		console.log(user);
 		if (user) {
 			req.headers.authorization = token;
