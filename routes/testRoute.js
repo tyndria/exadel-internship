@@ -12,12 +12,6 @@ var Test = mongoose.models.Test;
 var Question = mongoose.models.Question;
 var Task = mongoose.models.Task;
 
-
-var BinaryServer = require('binaryjs').BinaryServer;
-var fs = require('fs');
-var wav = require('wav');
-var outFile = 'demo.wav';
-
 router.get('/', function (req, res) {
 	var query = Test.find({}).populate('questionsId');
 
@@ -29,8 +23,8 @@ router.get('/', function (req, res) {
 		}
 
 		else {
-    		res.send(tests);
-    	}
+			res.send(tests);
+		}
 	});
 });
 
@@ -46,8 +40,8 @@ router.get('/isPassed', function (req, res) { // LEXICAL-GRAMMAR TEST IS PASSED
 
 		else {
 			console.log(tests);
-    		res.send(tests);
-    	}
+			res.send(tests);
+		}
 	});
 });
 
@@ -63,8 +57,8 @@ router.get('/isChecked', function (req, res) { //  TEST IS PASSED AND  CHECKED
 
 		else {
 			console.log(tests);
-    		res.send(tests);
-    	}
+			res.send(tests);
+		}
 	});
 });
 
@@ -144,7 +138,7 @@ router.get('/:id/startTest', authentication([constants.USER_ROLE]), function(req
 				res.json(objectsToSend);
 			});
 
-        });
+		});
 	});
 });
 
@@ -152,53 +146,53 @@ router.get('/:id/startTest', authentication([constants.USER_ROLE]), function(req
 router.get('/:id/getReadingTest/', authentication([constants.USER_ROLE]), function(req, res) {
 	console.log("getReadingTest");
 	Test.find({candidateId: req.params.id}, function(err, tests) {
-			if (err) {
-	        	res.send(err);
-	        }
+		if (err) {
+			res.send(err);
+		}
 
-			var CURRENT_TEST = tests.length - 1;
+		var CURRENT_TEST = tests.length - 1;
+		console.log(tests[CURRENT_TEST]);
 
-			var userAnswers = tests[CURRENT_TEST].userAnswersId;
-		
-			/*TestAssistant.summarize(userAnswers).then(function(sum) {*/
+		var userAnswers = tests[CURRENT_TEST].userAnswersId['LEXICAL_GRAMMAR_ID'];
 
-				//tests[CURRENT_TEST].resultLexicalGrammarTest = sum;
-			
-				var level = 'B1';
-				TestAssistant.getReadingTest(level).then(function(questions) {
+		TestAssistant.getLevel(userAnswers).then(function(level) {
 
-					let objectToSend = {};
-				
-					objectToSend.textTitle = questions[0].taskId.parentTaskId.title;
-					objectToSend.text = questions[0].taskId.parentTaskId.description;
-					objectToSend.questions = [];
-					
-		        	questions.forEach(function(question) {
-		        		let object = {};
-		        		object.title = question.taskId.title;
-		        		object.description = question.description;
-		        		object.questionType = question.questionType;
-		        		object.questionId = question._id;
-		        		object.answersId = [];
+			console.log("level", level);
 
-		        		question.answersId.forEach(function(answer) {
-		        			object.answersId.push(answer.text);
-		        		});
-		        		objectToSend.questions.push(object);
+			TestAssistant.getReadingTest(level).then(function(questions) {
 
-						tests[CURRENT_TEST].questionsId.push(question._id);
+				let objectToSend = {};
+
+				objectToSend.textTitle = questions[0].taskId.parentTaskId.title;
+				objectToSend.text = questions[0].taskId.parentTaskId.description;
+				objectToSend.questions = [];
+
+				questions.forEach(function(question) {
+					let object = {};
+					object.title = question.taskId.title;
+					object.description = question.description;
+					object.questionType = question.questionType;
+					object.questionId = question._id;
+					object.answersId = [];
+
+					question.answersId.forEach(function(answer) {
+						object.answersId.push(answer.text);
 					});
+					objectToSend.questions.push(object);
 
-		        	console.log(objectToSend);
-					tests[CURRENT_TEST].save(function(err) {
-						if (err) {
-							res.send(err);
-						}
-						res.json(objectToSend);
-					});
+					tests[CURRENT_TEST].questionsId.push(question._id);
+				});
 
-	        	});
-			/*});*/
+				console.log(objectToSend);
+				tests[CURRENT_TEST].save(function(err) {
+					if (err) {
+						res.send(err);
+					}
+					res.json(objectToSend);
+				});
+
+			});
+		});
 	});
 });
 
@@ -209,39 +203,46 @@ router.get('/:id/getListeningTest', authentication([constants.USER_ROLE]), funct
 		var CURRENT_TEST = tests.length - 1;
 
 		if (err) {
-        	res.send(err);
-        }
+			res.send(err);
+		}
 
-        var objectToSend = {};
-        TestAssistant.getListeningTest().then(function(questions) {
+		var userAnswers = tests[CURRENT_TEST].userAnswersId['LEXICAL_GRAMMAR_ID'];
+		TestAssistant.getLevel(userAnswers).then(function(level) {
 
-        	objectToSend.textTitle = questions[0].taskId.parentTaskId.title;
-			objectToSend.text = questions[0].taskId.parentTaskId.description;
-        	objectToSend.questions = []
+			console.log("getListeningTest", level);
 
-        	questions.forEach(function(question) {
-        		var object = {};
-		        object.title = question.taskId.title;
-		        object.description = question.description;
-		        object.questionType = question.questionType;
-		        object.questionId = question._id;
-		        object.answersId = [];
+			var objectToSend = {};
+			TestAssistant.getListeningTest(level).then(function(questions) {
 
-		        question.answersId.forEach(function(answer) {
-		        	object.answersId.push(answer.text);
-		        });
+				objectToSend.textTitle = questions[0].taskId.parentTaskId.title;
+				objectToSend.text = questions[0].taskId.parentTaskId.description;
+				objectToSend.questions = []
 
-		        objectToSend.questions.push(object);
-				tests[CURRENT_TEST].questionsId.push(question._id);
+				questions.forEach(function(question) {
+					var object = {};
+					object.title = question.taskId.title;
+					object.description = question.description;
+					object.questionType = question.questionType;
+					object.questionId = question._id;
+					object.answersId = [];
+
+					question.answersId.forEach(function(answer) {
+						object.answersId.push(answer.text);
+					});
+
+					objectToSend.questions.push(object);
+					tests[CURRENT_TEST].questionsId.push(question._id);
+				});
+
+				tests[CURRENT_TEST].save(function(err) {
+					if (err) {
+						res.send(err);
+					}
+					res.json(objectToSend);
+				});
 			});
 
-			tests[CURRENT_TEST].save(function(err) {
-				if (err) {
-					res.send(err);
-				}
-				res.json(objectToSend);
-			});
-        });
+		});
 
 	});
 });
@@ -250,51 +251,51 @@ router.get('/:id/getListeningTest', authentication([constants.USER_ROLE]), funct
 
 
 router.get('/:id/getSpeakingTest', authentication([constants.USER_ROLE]), function(req, res) {
-	
 	Test.find({candidateId: req.params.id}, function(err, tests) {
 
 		var CURRENT_TEST = tests.length - 1;
 
 		if (err) {
-        	res.send(err);
-        }
+			res.send(err);
+		}
 
-        var objectToSend = [];
-        TestAssistant.getSpeakingTest().then(function(questions) {
+		var objectToSend = [];
+		var userAnswers = tests[CURRENT_TEST].userAnswersId['LEXICAL_GRAMMAR_ID'];
+		TestAssistant.getLevel(userAnswers).then(function(level) {
 
-        	questions.forEach(function(question) {
+			TestAssistant.getSpeakingTest(level).then(function(questions) {
+				console.log("getSpeakingTest", level);
 
-        		var object = {};
+				questions.forEach(function(question) {
 
-				object.description = question.description;
-				object.questionType = question.questionType;
-				object.title = question.taskId.title;
-				object.questionId = question._id;
+					var object = {};
 
-        		objectToSend.push(object);
-        		console.log("object" + object);
-				tests[CURRENT_TEST].questionsId.push(question._id);
+					object.description = question.description;
+					object.questionType = question.questionType;
+					object.title = question.taskId.title;
+					object.questionId = question._id;
+
+					objectToSend.push(object);
+					console.log("object" + object);
+					tests[CURRENT_TEST].questionsId.push(question._id);
+				});
+
+				console.log(objectToSend);
+				tests[CURRENT_TEST].save(function(err) {
+					if (err) {
+						res.send(err);
+					}
+					res.json(objectToSend);
+				});
 			});
+		});
 
-			objectToSend.push({
-				port: '9002'
-			});
-
-        	console.log(objectToSend);
-			// saveAudio('audio');
-			tests[CURRENT_TEST].save(function(err) {
-				if (err) {
-					res.send(err);
-				}
-				res.json(objectToSend);
-				// saveAudio(outFile);
-			});
-        });
 	});
 });
 
+
 function saveAudio(outFile) {
-	binaryServer = BinaryServer({port: 9002});
+	binaryServer = BinaryServer({port: 9001});
 
 	return binaryServer.on('connection').then(function(client) {
 		console.log('new connection');
@@ -316,5 +317,6 @@ function saveAudio(outFile) {
 		});
 	});
 }
+
 
 module.exports = router;

@@ -25,5 +25,11 @@ module.exports = {
 		'2': function(teacherName) {
 			return 'Teacher ' + teacherName + 'has checked a test';
 		}
+	},
+	MAP_RESULT: (result) => {
+		if (result < 100)
+			return 'A1';
+		if (result > 100)
+			return 'B1';
 	}
 };
