@@ -27,9 +27,6 @@ module.exports = {
 		}
 	},
 	MAP_RESULT: (result) => {
-		if (result < 100)
-			return 'A1';
-		if (result > 100)
-			return 'B1';
+		return 'B1';
 	}
 };

@@ -149,8 +149,8 @@ router.post('/:candidateId', authentication([constants.USER_ROLE, constants.TEAC
 });
 
 
-router.get('/:id/statistics/:seqNumber', authentication([constants.ADMIN_ROLE]), function(req, res) {
-	var query = Test.find({candidateId: req.params.id});
+router.get('/:candidateId/statistics/:seqNumber', authentication([constants.ADMIN_ROLE]), function(req, res) {
+	var query = Test.find({candidateId: req.params.candidateId});
 
 	//query.select('-questionsId -__v -_id -candidateId');
 
