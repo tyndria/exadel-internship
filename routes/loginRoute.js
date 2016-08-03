@@ -21,6 +21,7 @@ function authorization(req, res, next) {
 			req.body.success = true;
 			req.body.auth_token = token;
 			req.body.role = user.role;
+			req.body.auth_id = user._id;
 			return next();
 		} else {
 			next(new Error("no authorization"));

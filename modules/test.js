@@ -27,7 +27,8 @@ var testSchema = new Schema({
 	resultListeningTest: Number,
 	resultSpeakingTest: Number,
 	isPassed: Boolean, 
-	isChecked: Boolean
+	isChecked: Boolean,
+	isBreaked: Boolean
 });
 
 
