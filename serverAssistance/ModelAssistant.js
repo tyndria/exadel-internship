@@ -33,7 +33,7 @@ class ModelAssistant {
 
 		var newTextTask = new Task({
 			title: task.title || 'Listen or read the text',
-			description: task.description || null,
+			description: task.description || '',
 			parentTaskId: ObjectId(parentTaskId) || null,
 			level: task.level || null
 		});

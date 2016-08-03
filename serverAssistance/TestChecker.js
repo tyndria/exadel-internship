@@ -23,17 +23,20 @@ module.exports = class TestChecker {
 		var userAnswers = [];
 		var answers = [];
 
+		//get anwers from answersID
 		userAnswersId.forEach(function(userAnswer) {
-			promisesUsersAnswers.push(UserAnswer.findById(userAnswer).populate({path: 'questionId', 
-										populate: {path: 'answersId'}}).then(function(userAnswer) {
-				userAnswers.push(userAnswer);
+			promisesUsersAnswers.push(UserAnswer.findById(userAnswer)
+			.populate({path: 'questionId', populate: {path: 'answersId'}})
+			.then(function(userAnswer) {
+				if (!userAnswer.questionId.questionType) // if question isn't open
+					userAnswers.push(userAnswer);
 			}));
 		});
 
 		return promise.all(promisesUsersAnswers).then(function(){
 			userAnswers.forEach(function(userAnswer){
 				console.log(userAnswer.answer.toString() + ":" + TestChecker.getCorrectAnswer(userAnswer).text.toString());
-				if(userAnswer.answer.toString() == TestChecker.getCorrectAnswer(userAnswer).text.toString()) {
+				if(userAnswer.answer && userAnswer.answer.toString() == TestChecker.getCorrectAnswer(userAnswer).text.toString()) {
 					userAnswer.isCorrect = true;
 					userAnswer.cost = userAnswer.questionId.cost;
 					promises.push(userAnswer.save().then(function() { answers.push(userAnswer);}))
