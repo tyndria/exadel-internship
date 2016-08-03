@@ -11,6 +11,7 @@ var ObjectId = mongoose.Types.ObjectId;
 var Test = mongoose.models.Test;
 var Question = mongoose.models.Question;
 var Task = mongoose.models.Task;
+var Notification = mongoose.models.Notification;
 
 router.get('/', function (req, res) {
 	var query = Test.find({}).populate('questionsId');
@@ -35,6 +36,7 @@ router.post('/:id/isPassed', function(req, res){
 		test.isPassed = true;
 
 		test.save(function(err, test) {
+			
 			res.sendStatus(200);
 		})
 	})
@@ -75,7 +77,7 @@ router.get('/isChecked', function (req, res) { //  TEST IS PASSED AND  CHECKED
 });
 
 
-router.post('/:reviewerId', authentication([constants.ADMIN_ROLE]), function(req, res) {
+router.post('/reviewerId/:reviewerId', authentication([constants.ADMIN_ROLE]), function(req, res) {
 	var testsId = req.body.testsId;
 
 	testsId.forEach(function(testId) {
@@ -110,6 +112,29 @@ router.post('/', authentication([constants.ADMIN_ROLE]), function(req, res) {
 
 		res.json(newTest);
 	});
+});
+
+router.get('/assign/:personId', authentication([constants.USER_ROLE, constants.TEACHER_ROLE]), function(req, res) {
+	var role = req.body.role;
+
+	function getTest(searchField) {
+		return Test.find({searchField: req.params.personId}, function(tests) {
+			return tests;
+		});
+	};
+
+	switch(role) {
+		case '0':
+			getTest('candidateId').then(function(tests) {
+				res.send(tests.filter((test) => !test.isPassed).map((test) => test._id)); 
+			});
+			break;
+		case '1':
+			getTest('reviewerId').then(function(tests) {
+				res.send(tests.map((test) => test._id));
+			});
+			break;
+	}
 });
 
 router.get('/:id/startTest', authentication([constants.USER_ROLE]), function(req, res) {

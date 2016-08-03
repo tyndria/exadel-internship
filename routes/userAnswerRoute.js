@@ -159,6 +159,32 @@ router.get('/:candidateId/statistics/:seqNumber', authentication([constants.ADMI
 		var test = tests[CURRENT_TEST];
 
 		console.log(test);
+	});
+
+});
+
+router.get('/:testId', authentication([constants.TEACHER_ROLE]), function(req, res) {
+
+	var query = Test.findById(req.params.testId);
+
+	query.populate({path: 'userAnswersId.READING_ID', populate: {path: 'questionId'}});
+
+	query.select('-questionsId -__v -_id -candidateId');
+
+	query.exec(function(err, tests) {
+		var CURRENT_TEST = tests.length - 1;
+		var test = tests[CURRENT_TEST];
+
+		var userAnswers = [];
+
+		test.userAnswersId.forEach(function(userAnswer) {
+			if (userAnswer.questionId.questionType){
+				userAnswers.push(userAnswer);
+			}
+		});
+
+		console.log(userAnswers);
+		res.send(userAnswers);
 	})
 
 });
