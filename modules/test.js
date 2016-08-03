@@ -22,10 +22,12 @@ var testSchema = new Schema({
 		LISTENING_ID : [{type: mongoose.Schema.Types.ObjectId, ref: 'UserAnswer'}],
 		SPEAKING_ID : [{type: mongoose.Schema.Types.ObjectId, ref: 'UserAnswer'}]
 	},
-	resultLexicalGrammarTest: Number,
-	resultReadingTest: Number,
-	resultListeningTest: Number,
-	resultSpeakingTest: Number,
+	testResult: {
+		LEXICAL_GRAMMAR_ID: Number,
+		READING_ID: Number,
+		LISTENING_ID: Number,
+		SPEAKING_ID: Number
+	},
 	isPassed: Boolean, 
 	isChecked: Boolean,
 	isBreaked: Boolean

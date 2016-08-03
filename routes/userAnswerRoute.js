@@ -3,6 +3,7 @@ var mongoose  = require('mongoose');
 var promise = require('bluebird');
 var multer  = require('multer');
 var upload = multer({ dest: 'public/listening/answers'});
+var TestAssistant = require('../serverAssistance/TestAssistant');
 
 var UserAnswer = mongoose.models.UserAnswer;
 var Test = mongoose.models.Test;
@@ -136,12 +137,17 @@ router.post('/:candidateId', authentication([constants.USER_ROLE, constants.TEAC
 
 
 		promise.all(promises).then(function() {
-			test.save(function(err) {
-				if(err)
-					res.send(err);
-				console.log(test);
-				res.sendStatus(200);
-			})
+			TestAssistant.summarize(test.userAnswersId[TOPIC]).then(function(sum) {
+
+				test.testResult[TOPIC] = sum;
+
+				test.save(function(err) {
+					if(err)
+						res.send(err);
+					
+					res.sendStatus(200);
+				})
+			});
 		});
 
 	});
@@ -150,15 +156,29 @@ router.post('/:candidateId', authentication([constants.USER_ROLE, constants.TEAC
 
 
 router.get('/:candidateId/statistics/:seqNumber', authentication([constants.ADMIN_ROLE]), function(req, res) {
-	var query = Test.find({candidateId: req.params.candidateId});
+	Test.find({candidateId: req.params.candidateId}).then(function(tests) {
 
-	//query.select('-questionsId -__v -_id -candidateId');
+		var CURRENT_TEST = req.params.seqNumber - 1;
+ 		var test = tests[CURRENT_TEST];
+ 
+ 		var statistics = {};
 
-	query.exec(function(err, tests) {
-		var CURRENT_TEST = tests.length - 1;
-		var test = tests[CURRENT_TEST];
-
-		console.log(test);
+		var topics = ['LEXICAL_GRAMMAR_ID', 'READING_ID', 'LISTENING_ID', 'READING_ID'];
+ 
+ 		var userAnswers = {};
+		
+		topics.forEach(function(topic) {
+			userAnswers[topic] = [];
+			Array.prototype.push.apply(userAnswers[topic], test.userAnswersId[topic]);
+			userAnswers[topic].push(test.testResult[topic]);
+		});
+ 
+ 		statistics.lexicalGrammar = userAnswers['LEXICAL_GRAMMAR_ID'];
+ 		statistics.reading = userAnswers['READING_ID'];
+ 		statistics.listening = userAnswers['LISTENING_ID'];
+ 		statistics.speaking = userAnswers['SPEAKING_ID'];
+ 
+ 		res.send(statistics);
 	});
 
 });
@@ -167,26 +187,41 @@ router.get('/:testId', authentication([constants.TEACHER_ROLE]), function(req, r
 
 	var query = Test.findById(req.params.testId);
 
-	query.populate({path: 'userAnswersId.READING_ID', populate: {path: 'questionId'}});
+	query.populate({path: 'userAnswersId.LISTENING_ID', populate: {path: 'questionId'}});
+	query.populate({path: 'userAnswersId.SPEAKING_ID', populate: {path: 'questionId'}});
+	query.select('-userAnswersId.LISTENING_ID.testId')
 
-	query.select('-questionsId -__v -_id -candidateId');
+	var statistics = {};
 
-	query.exec(function(err, tests) {
-		var CURRENT_TEST = tests.length - 1;
-		var test = tests[CURRENT_TEST];
+	var topics = ['LISTENING_ID', 'SPEAKING_ID'];
+ 
+ 	var userAnswers = {};
 
-		var userAnswers = [];
+ 	query.exec(function(err, test) {
+ 		console.log(test);
 
-		test.userAnswersId.forEach(function(userAnswer) {
-			if (userAnswer.questionId.questionType){
-				userAnswers.push(userAnswer);
-			}
+	 	topics.forEach(function(topic) {
+			userAnswers[topic] = [];
+			test.userAnswersId[topic].forEach(function(userAnswer) {
+				var object = {};
+				if (userAnswer.questionId.questionType) {
+					userAnswers[topic].push({
+						answer: userAnswer.answer,
+						answerId: userAnswer._id,
+						question: userAnswer.questionId.description,
+						cost: userAnswer.questionId.cost
+					});
+				}
+			});
 		});
+	 
+	 	statistics.listening = userAnswers['LISTENING_ID'];
+	 	statistics.speaking = userAnswers['SPEAKING_ID'];
+		
+		res.send(statistics);
 
-		console.log(userAnswers);
-		res.send(userAnswers);
-	})
-
+	 });
+		
 });
 
 module.exports = router;

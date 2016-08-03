@@ -38,10 +38,44 @@ router.post('/:id/isPassed', function(req, res){
 
 		test.save(function(err, test) {
 
-			res.sendStatus(200);
+			saveNotification(req.body.notification).then(function(err) {
+				if (err) 
+					res.send(err);
+				res.sendStatus(200);
+			});
+
 		})
 	})
 });
+
+router.post('/:id/isChecked', function(req, res){
+
+	Test.findById(req.params.id, function(err, test){
+		test.isChecked = true;
+
+		test.save(function(err, test) {
+
+			saveNotification(req.body.notification).then(function(err) {
+				if (err) 
+					res.send(err);
+				res.sendStatus(200);
+			});
+
+		})
+	})
+});
+
+
+function saveNotification(notification) { // candidateId, event, date
+
+	var newNotification = new Notification(notification);
+
+	return newNotification.save(function(err) {
+		if (err) throw err;
+	});
+
+};
+
 
 router.get('/isPassed', function (req, res) { // LEXICAL-GRAMMAR TEST IS PASSED
 	var query = Test.find({isPassed: true});
@@ -52,11 +86,7 @@ router.get('/isPassed', function (req, res) { // LEXICAL-GRAMMAR TEST IS PASSED
 		if (err) {
 			res.send(err);
 		}
-
-		else {
-			console.log(tests);
-			res.send(tests);
-		}
+		res.send(tests.filter((test) => !test.reviewerId));
 	});
 });
 
@@ -118,6 +148,7 @@ router.post('/', authentication([constants.ADMIN_ROLE]), function(req, res) {
 router.get('/assign/:personId', authentication([constants.USER_ROLE, constants.TEACHER_ROLE]), function(req, res) {
 
 	User.findById(req.params.personId).then(function(user){
+		console.log("user", user);
 
 		switch(user.role.toString()) {
 			case '0':
@@ -127,6 +158,7 @@ router.get('/assign/:personId', authentication([constants.USER_ROLE, constants.T
 				break;
 			case '1':
 				Test.find({"reviewerId": req.params.personId}).then(function(tests) {
+					console.log(tests)
 					res.send(tests.filter((test) => !test.isChecked).map((test) => test._id));
 				});
 				break;
@@ -135,10 +167,10 @@ router.get('/assign/:personId', authentication([constants.USER_ROLE, constants.T
 });
 
 router.get('/:id/startTest', authentication([constants.USER_ROLE]), function(req, res) {
-
+	console.log("getLexicalGrammarTest");
 	Test.find({candidateId: req.params.id}, function(err, tests) {
 		var objectsToSend = [];
-
+		console.log("getLexicalGrammarTest");
 		var CURRENT_TEST = tests.length - 1;
 
 		tests[CURRENT_TEST].questionsId = [];
@@ -186,50 +218,45 @@ router.get('/:id/getReadingTest/', authentication([constants.USER_ROLE]), functi
 
 		var CURRENT_TEST = tests.length - 1;
 
-		var userAnswers = tests[CURRENT_TEST].userAnswersId['LEXICAL_GRAMMAR_ID'];
+		var sum = tests[CURRENT_TEST].testResult['LEXICAL_GRAMMAR_ID'];
+		var level = constants.MAP_RESULT(sum);
 
-		TestAssistant.summarize(userAnswers).then(function(sum) {
+		console.log("level", level);
 
-			tests[CURRENT_TEST].resultLexicalGrammarTest = sum;
+		TestAssistant.getReadingTest(level).then(function(questions) {
 
-			var level = constants.MAP_RESULT(sum);
+			let objectToSend = {};
 
-			console.log("level", level);
+			objectToSend.textTitle = questions[0].taskId.parentTaskId.title;
+			objectToSend.text = questions[0].taskId.parentTaskId.description;
+			objectToSend.questions = [];
 
-			TestAssistant.getReadingTest(level).then(function(questions) {
+			questions.forEach(function(question) {
+				let object = {};
+				object.title = question.taskId.title;
+				object.description = question.description;
+				object.questionType = question.questionType;
+				object.questionId = question._id;
+				object.answersId = [];
 
-				let objectToSend = {};
-
-				objectToSend.textTitle = questions[0].taskId.parentTaskId.title;
-				objectToSend.text = questions[0].taskId.parentTaskId.description;
-				objectToSend.questions = [];
-
-				questions.forEach(function(question) {
-					let object = {};
-					object.title = question.taskId.title;
-					object.description = question.description;
-					object.questionType = question.questionType;
-					object.questionId = question._id;
-					object.answersId = [];
-
-					question.answersId.forEach(function(answer) {
-						object.answersId.push(answer.text);
-					});
-					objectToSend.questions.push(object);
-
-					tests[CURRENT_TEST].questionsId.push(question._id);
+				question.answersId.forEach(function(answer) {
+					object.answersId.push(answer.text);
 				});
+				objectToSend.questions.push(object);
 
-				console.log(objectToSend);
-				tests[CURRENT_TEST].save(function(err) {
-					if (err) {
-						res.send(err);
-					}
-					res.json(objectToSend);
-				});
-
+				tests[CURRENT_TEST].questionsId.push(question._id);
 			});
+
+			console.log(objectToSend);
+			tests[CURRENT_TEST].save(function(err) {
+				if (err) {
+					res.send(err);
+				}
+				res.json(objectToSend);
+			});
+
 		});
+		
 	});
 });
 
@@ -242,47 +269,41 @@ router.get('/:id/getListeningTest', authentication([constants.USER_ROLE]), funct
 		if (err) {
 			res.send(err);
 		}
+		
+		var sum = tests[CURRENT_TEST].testResult['LEXICAL_GRAMMAR_ID'];
+		var level = constants.MAP_RESULT(sum);
 
-		var userAnswers = tests[CURRENT_TEST].userAnswersId['LEXICAL_GRAMMAR_ID'];
-		TestAssistant.summarize(userAnswers).then(function(sum) {
+		console.log("getListeningTest", level);
 
-			tests[CURRENT_TEST].resultLexicalGrammarTest = sum;
+		var objectToSend = {};
+		TestAssistant.getListeningTest(level).then(function(questions) {
 
-			var level = constants.MAP_RESULT(sum);
+			objectToSend.textTitle = questions[0].taskId.parentTaskId.title;
+			objectToSend.text = questions[0].taskId.parentTaskId.description;
+			objectToSend.questions = []
 
-			console.log("getListeningTest", level);
+			questions.forEach(function(question) {
+				var object = {};
+				object.title = question.taskId.title;
+				object.description = question.description;
+				object.questionType = question.questionType;
+				object.questionId = question._id;
+				object.answersId = [];
 
-			var objectToSend = {};
-			TestAssistant.getListeningTest(level).then(function(questions) {
-
-				objectToSend.textTitle = questions[0].taskId.parentTaskId.title;
-				objectToSend.text = questions[0].taskId.parentTaskId.description;
-				objectToSend.questions = []
-
-				questions.forEach(function(question) {
-					var object = {};
-					object.title = question.taskId.title;
-					object.description = question.description;
-					object.questionType = question.questionType;
-					object.questionId = question._id;
-					object.answersId = [];
-
-					question.answersId.forEach(function(answer) {
-						object.answersId.push(answer.text);
-					});
-
-					objectToSend.questions.push(object);
-					tests[CURRENT_TEST].questionsId.push(question._id);
+				question.answersId.forEach(function(answer) {
+					object.answersId.push(answer.text);
 				});
 
-				tests[CURRENT_TEST].save(function(err) {
-					if (err) {
-						res.send(err);
-					}
-					res.json(objectToSend);
-				});
+				objectToSend.questions.push(object);
+				tests[CURRENT_TEST].questionsId.push(question._id);
 			});
 
+			tests[CURRENT_TEST].save(function(err) {
+				if (err) {
+					res.send(err);
+				}
+				res.json(objectToSend);
+			});
 		});
 
 	});
@@ -301,37 +322,34 @@ router.get('/:id/getSpeakingTest', authentication([constants.USER_ROLE]), functi
 		}
 
 		var objectToSend = [];
-		var userAnswers = tests[CURRENT_TEST].userAnswersId['LEXICAL_GRAMMAR_ID'];
-		TestAssistant.summarize(userAnswers).then(function(sum) {
+		
+		var sum = tests[CURRENT_TEST].testResult['LEXICAL_GRAMMAR_ID'];
 
-			tests[CURRENT_TEST].resultLexicalGrammarTest = sum;
+		var level = constants.MAP_RESULT(sum);
 
-			var level = constants.MAP_RESULT(sum);
+		TestAssistant.getSpeakingTest(level).then(function(questions) {
+			console.log("getSpeakingTest", level);
 
-			TestAssistant.getSpeakingTest(level).then(function(questions) {
-				console.log("getSpeakingTest", level);
+			questions.forEach(function(question) {
 
-				questions.forEach(function(question) {
+				var object = {};
 
-					var object = {};
+				object.description = question.description;
+				object.questionType = question.questionType;
+				object.title = question.taskId.title;
+				object.questionId = question._id;
 
-					object.description = question.description;
-					object.questionType = question.questionType;
-					object.title = question.taskId.title;
-					object.questionId = question._id;
+				objectToSend.push(object);
+				console.log("object" + object);
+				tests[CURRENT_TEST].questionsId.push(question._id);
+			});
 
-					objectToSend.push(object);
-					console.log("object" + object);
-					tests[CURRENT_TEST].questionsId.push(question._id);
-				});
-
-				console.log(objectToSend);
-				tests[CURRENT_TEST].save(function(err) {
-					if (err) {
-						res.send(err);
-					}
-					res.json(objectToSend);
-				});
+			console.log(objectToSend);
+			tests[CURRENT_TEST].save(function(err) {
+				if (err) {
+					res.send(err);
+				}
+				res.json(objectToSend);
 			});
 		});
 
