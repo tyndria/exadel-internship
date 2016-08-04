@@ -24,9 +24,24 @@ router.post('/', function(req, res) { // candidateId, event, date
 
 });
 
+router.get('/', function(req, res) {
+
+	Notification.find({}).populate('candidateId').then(function(notifications) {
+		var notificationsToSend = [];
+		notifications.forEach(function(notification) {
+			notificationsToSend.push({
+				type: notification.event,
+				userId: notification.candidateId._id,
+				userName: notification.candidateId.firstName + notification.candidateId.lastName
+			});
+		});
+
+		res.send(notificationsToSend);
+	});
+});
 
 router.delete('/:id', function(req,res){
-	Notifications.remove(req.params.id,function(err, questions) {
+	Notification.remove(req.params.id, function(err) {
 		if (err) {
            res.send(err);
 		}
