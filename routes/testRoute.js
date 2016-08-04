@@ -50,6 +50,16 @@ router.post('/:id/isPassed', function(req, res){
 	})
 });
 
+
+router.post('/isRequested', function(req, res){
+
+	saveNotification(req.body.notification).then(function(err) {
+		if (err)
+			res.send(err);
+		res.sendStatus(200);
+	});
+});
+
 router.post('/:id/isChecked', function(req, res){
 
 	Test.findById(req.params.id, function(err, test){

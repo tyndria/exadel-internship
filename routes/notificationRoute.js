@@ -33,7 +33,8 @@ router.get('/', authentication([constants.ADMIN_ROLE]), function(req, res) {
 			notificationsToSend.push({
 				type: notification.event,
 				userId: notification.auth_id._id,
-				userName: notification.auth_id.firstName + " " + notification.auth_id.lastName
+				userName: notification.auth_id.firstName + " " + notification.auth_id.lastName,
+				_id: notification._id
 			});
 		});
 
