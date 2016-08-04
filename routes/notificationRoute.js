@@ -34,7 +34,7 @@ router.get('/', authentication([constants.ADMIN_ROLE]), function(req, res) {
 			notificationsToSend.push({
 				type: notification.event,
 				userId: notification.candidateId._id,
-				userName: notification.candidateId.firstName + notification.candidateId.lastName
+				userName: notification.candidateId.firstName + " " + notification.candidateId.lastName
 			});
 		});
 

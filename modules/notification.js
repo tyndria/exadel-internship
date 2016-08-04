@@ -1,6 +1,8 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
+var User = mongoose.models.User;
+
 var notificationSchema = new Schema({
 	candidateId: { type: mongoose.Schema.Types.ObjectId,
 		ref: 'User'
