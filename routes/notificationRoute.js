@@ -28,13 +28,13 @@ router.post('/', function(req, res) { // candidateId, event, date
 
 router.get('/', authentication([constants.ADMIN_ROLE]), function(req, res) {
 
-	Notification.find({}).populate('candidateId').then(function(notifications) {
+	Notification.find({}).populate('auth_id').then(function(notifications) {
 		var notificationsToSend = [];
 		notifications.forEach(function(notification) {
 			notificationsToSend.push({
 				type: notification.event,
-				userId: notification.candidateId._id,
-				userName: notification.candidateId.firstName + notification.candidateId.lastName
+				userId: notification.auth_id._id,
+				userName: notification.auth_id.firstName + " " + notification.auth_id.lastName
 			});
 		});
 
