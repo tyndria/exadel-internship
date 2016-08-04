@@ -1,6 +1,8 @@
 var router = require('express').Router();
 var mongoose  = require('mongoose');
 var constants = require('../consts');
+var authentication = require('../serverAssistance/AuthenticationAssistant');
+
 
 var Notification = mongoose.models.Notification;
 var User = mongoose.models.User;
@@ -24,7 +26,7 @@ router.post('/', function(req, res) { // candidateId, event, date
 
 });
 
-router.get('/', function(req, res) {
+router.get('/', authentication([constants.ADMIN_ROLE]), function(req, res) {
 
 	Notification.find({}).populate('candidateId').then(function(notifications) {
 		var notificationsToSend = [];
