@@ -4,13 +4,14 @@ var logger = require('morgan');
 var bodyParser = require('body-parser');
 var cors = require('cors');
 var mongodb = require('mongodb');
-
-// audio
+//audio
+var binaryjs = require('binaryjs');
 var BinaryServer = require('binaryjs').BinaryServer;
 var fs = require('fs');
 var wav = require('wav');
 var outFile = 'demo.wav';
 //
+
 
 var port = process.env.PORT || 8083;
 var mongoose  = require('mongoose');
@@ -25,6 +26,38 @@ db.once('open', function() {
 });
 
 var app = express();
+
+var metas = [];
+
+//
+console.log(BinaryServer);
+
+    var binaryServer = BinaryServer({port: 9001});
+
+	var AudioAssistant = require('./audioAssistant').getInstance();
+
+	console.log(binaryServer);
+
+	binaryServer.on('connection', function(client) {
+	  console.log('new connection');
+
+	  var fileWriter = new wav.FileWriter(outFile, {
+	    channels: 1,
+	    sampleRate: 48000,
+	    bitDepth: 16
+	  });
+
+	  client.on('stream', function(stream, meta) {
+	    console.log('new stream');
+	    stream.pipe(fileWriter);
+
+	    stream.on('end', function() {
+	    	console.log(meta);
+	      fileWriter.end();
+	      console.log('wrote to file ' + outFile);
+	    });
+	  });
+	});
 
 app.use(logger('dev')); // выводим все запросы со статусами в консоль 
 app.use(bodyParser.json());
@@ -55,8 +88,15 @@ app.use(function(req, res, next){
 var router = require('./routes/index');
 app.use('/api', router);
 
+app.get('/', function(req, res){
+  res.render('index');
+});
+
+
 app.listen(port, function(){
     console.log('Express server listening on port '+ port);
 });
 
 app.use(cors());
+
+//audio

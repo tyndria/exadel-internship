@@ -56,64 +56,6 @@ router.post('/:candidateId/:seqNumber/sendAudio', upload.single('audioFromUser')
 
 })
 
-function saveAudio(outFile) {
-	binaryServer = BinaryServer({port: 9003});
-
-	return binaryServer.on('connection').then(function(client) {
-		console.log('new connection');
-
-		var fileWriter = new wav.FileWriter(outFile, {
-			channels: 1,
-			sampleRate: 50000,
-			bitDepth: 16
-		});
-
-		client.on('stream', function(stream, meta) {
-			console.log('new stream + meta', meta);
-			stream.pipe(fileWriter);
-
-			stream.on('end', function() {
-				fileWriter.end();
-				console.log('wrote to file ' + outFile);
-			});
-		});
-	});
-}
-
-
-router.post('/:candidateId/sendAudio', function (req, res, next) {
-
-	Test.find({candidateId: req.params.candidateId})
-		.then(function(tests) {
-			var outFile = '../public/listening/' + req.body.answer.questionId + '.wav';
-			console.log('outFile' + outFile);
-
-			var CURRENT_TEST = req.params.seqNumber - 1;
-			var test = tests[CURRENT_TEST];
-
-			var newUsersAnswer = new UserAnswer({
-				userId: ObjectId(req.params.candidateId.toString()),
-				testId: ObjectId(test._id.toString()),
-				questionId: ObjectId(req.body.answer.questionId.toString()),
-				answer: outFile
-			});
-
-			test.userAnswersId[SPEAKING_ID].push(ObjectId(newUsersAnswer._id.toString()));
-
-			saveAudio.then(function(err){
-				if(err) res.send(err);
-
-				newUsersAnswer.save().then(function(err) {
-					if (err)
-						console.log(err);
-					res.send(newUsersAnswer);
-				});
-			});
-
-		});
-
-});
-
 
 router.post('/:candidateId', authentication([constants.USER_ROLE, constants.TEACHER_ROLE]), function(req, res) {
 
@@ -192,10 +134,9 @@ router.get('/:testId', authentication([constants.TEACHER_ROLE]), function(req, r
 	query.populate({path: 'userAnswersId.SPEAKING_ID', populate: {path: 'questionId'}});
 
 	var statistics = {};
+	var userAnswers = {};
 
 	var topics = ['LISTENING_ID', 'SPEAKING_ID'];
- 
- 	var userAnswers = {};
 
  	query.exec(function(err, test) {
 

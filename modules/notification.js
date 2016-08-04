@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 var User = mongoose.models.User;
 
 var notificationSchema = new Schema({
-	candidateId: { type: mongoose.Schema.Types.ObjectId,
+	auth_id: { type: mongoose.Schema.Types.ObjectId,
 		ref: 'User'
 	},
 	reviewerId: { type: mongoose.Schema.Types.ObjectId,
