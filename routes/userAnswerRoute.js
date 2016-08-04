@@ -4,6 +4,7 @@ var promise = require('bluebird');
 var multer  = require('multer');
 var upload = multer({ dest: 'public/listening/answers'});
 var TestAssistant = require('../serverAssistance/TestAssistant');
+var promise = require('bluebird');
 
 var UserAnswer = mongoose.models.UserAnswer;
 var Test = mongoose.models.Test;
@@ -189,7 +190,6 @@ router.get('/:testId', authentication([constants.TEACHER_ROLE]), function(req, r
 
 	query.populate({path: 'userAnswersId.LISTENING_ID', populate: {path: 'questionId'}});
 	query.populate({path: 'userAnswersId.SPEAKING_ID', populate: {path: 'questionId'}});
-	query.select('-userAnswersId.LISTENING_ID.testId')
 
 	var statistics = {};
 
@@ -198,7 +198,6 @@ router.get('/:testId', authentication([constants.TEACHER_ROLE]), function(req, r
  	var userAnswers = {};
 
  	query.exec(function(err, test) {
- 		console.log(test);
 
 	 	topics.forEach(function(topic) {
 			userAnswers[topic] = [];
@@ -222,6 +221,40 @@ router.get('/:testId', authentication([constants.TEACHER_ROLE]), function(req, r
 
 	 });
 		
+});
+
+router.post('/checked/:testId', function(req, res) {
+
+	var userAnswersChecked = req.body.userAnswersChecked; // cost, id
+	var topic = req.body.topic;
+
+	var promises = [];
+	var sum = 0;
+
+	userAnswersChecked.forEach(function(userAnswer) {
+		promises.push(
+			UserAnswer.findById(userAnswer.id).then(function(answer) {
+
+				answer.cost = userAnswer.cost;
+				if (answer.cost > 0){
+					answer.isCorrect = true;
+				}
+
+				answer.save().then(function() {
+					console.log("success");
+					return answer.cost;
+				});
+			})
+		);
+	});
+
+	promise.all(promises).then(function(result) {
+		Test.findById(req.body.params).then(function(test) {
+			var sum = result.reduce((prev, cur) => prev + cur);
+			test.testResult[topic] += sum;
+			res.sendStatus(200);
+		});
+	});
 });
 
 module.exports = router;

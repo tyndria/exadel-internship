@@ -7,6 +7,7 @@ var shuffle = require('knuth-shuffle').knuthShuffle;
 var mongodb = require("mongodb");
 var TestAssistant = require('../serverAssistance/TestAssistant');
 var ObjectId = mongoose.Types.ObjectId;
+var promise = require('bluebird');
 
 var Test = mongoose.models.Test;
 var Question = mongoose.models.Question;
@@ -110,18 +111,25 @@ router.get('/isChecked', function (req, res) { //  TEST IS PASSED AND  CHECKED
 
 router.post('/reviewerId/:reviewerId', authentication([constants.ADMIN_ROLE]), function(req, res) {
 	var testsId = req.body.testsId;
+	var promises = []; 
 
 	testsId.forEach(function(testId) {
-		console.log(testId);
-		Test.findById(ObjectId(testId), function(err, test) {
-			test.reviewerId = req.params.reviewerId;
+		promises.push(
+		
+			Test.findById(ObjectId(testId), function(err, test) {
+				test.reviewerId = req.params.reviewerId;
 
-			test.save(function(err) {
-				if (err)
-					res.send(err);
-				res.send(test);
-			});
-		});
+				test.save(function(err) {
+					if (err)
+						throw err;
+					console.log("success");
+				});
+			})
+		);
+	});
+
+	promise.all(promises).then(function() {
+		res.sendStatus(200);
 	});
 
 });
