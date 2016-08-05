@@ -13,7 +13,7 @@ var Test = mongoose.models.Test;
 var Question = mongoose.models.Question;
 var Task = mongoose.models.Task;
 var Notification = mongoose.models.Notification;
-var User = mongoose.models.User;	
+var User = mongoose.models.User;
 var UserAnswer = mongoose.models.UserAnswer;
 
 router.get('/', function (req, res) {
@@ -41,7 +41,7 @@ router.post('/:id/isPassed', function(req, res){
 		test.save(function(err, test) {
 
 			saveNotification(req.body.notification).then(function(err) {
-				if (err) 
+				if (err)
 					res.send(err);
 				res.sendStatus(200);
 			});
@@ -68,7 +68,7 @@ router.post('/:id/isChecked', function(req, res){
 		test.save(function(err, test) {
 
 			saveNotification(req.body.notification).then(function(err) {
-				if (err) 
+				if (err)
 					res.send(err);
 				res.sendStatus(200);
 			});
@@ -122,11 +122,11 @@ router.get('/isChecked', function (req, res) { //  TEST IS PASSED AND  CHECKED
 
 router.post('/reviewerId/:reviewerId', authentication([constants.ADMIN_ROLE]), function(req, res) {
 	var testsId = req.body.testsId;
-	var promises = []; 
+	var promises = [];
 
 	testsId.forEach(function(testId) {
 		promises.push(
-		
+
 			Test.findById(ObjectId(testId), function(err, test) {
 				test.reviewerId = req.params.reviewerId;
 
@@ -166,13 +166,13 @@ router.post('/', authentication([constants.ADMIN_ROLE]), function(req, res) {
 
 router.get('/assign/:personId', authentication([constants.USER_ROLE, constants.TEACHER_ROLE]), function(req, res) {
 
-	User.findById(req.params.personId).then(function(user){
+	User.findById( req.params.personId).then(function(user){
 		console.log("user", user);
 
 		switch(user.role.toString()) {
 			case '0':
 				Test.find({"candidateId": req.params.personId}).then(function(tests) {
-					res.send(tests.filter((test) => !test.isPassed && !test.isBreaked).map((test) => test._id)); 
+					res.send(tests.filter((test) => !test.isPassed && !test.isBreaked).map((test) => test._id));
 				});
 				break;
 			case '1':
@@ -275,7 +275,7 @@ router.get('/:id/getReadingTest/', authentication([constants.USER_ROLE]), functi
 			});
 
 		});
-		
+
 	});
 });
 
@@ -288,7 +288,7 @@ router.get('/:id/getListeningTest', authentication([constants.USER_ROLE]), funct
 		if (err) {
 			res.send(err);
 		}
-		
+
 		var sum = tests[CURRENT_TEST].testResult['LEXICAL_GRAMMAR_ID'];
 		var level = constants.MAP_RESULT(sum);
 
@@ -342,7 +342,7 @@ router.get('/:id/getSpeakingTest', authentication([constants.USER_ROLE]), functi
 		}
 
 		var objectToSend = [];
-		
+
 		var sum = tests[CURRENT_TEST].testResult['LEXICAL_GRAMMAR_ID'];
 		var level = constants.MAP_RESULT(sum);
 
@@ -370,7 +370,7 @@ router.get('/:id/getSpeakingTest', authentication([constants.USER_ROLE]), functi
 				}
 				res.json(objectToSend);
 
-				
+
 			});
 		});
 
