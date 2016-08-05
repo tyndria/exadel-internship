@@ -35,18 +35,25 @@ router.get('/', function (req, res) {
 
 router.post('/:id/isPassed', function(req, res){
 
-	Test.findById(req.params.id, function(err, test){
+	Test.findById(req.params.id).populate('candidateId').then(function(test){
 		test.isPassed = true;
+		test.candidateId.isPassingTest = false;
 
-		test.save(function(err, test) {
+		test.candidateId.isPassingTest.save(function(err) {
+			if (err) {
+				res.send(err);
+			} else {
+				test.save(function(err, test) {
 
-			saveNotification(req.body.notification).then(function(err) {
-				if (err) 
-					res.send(err);
-				res.sendStatus(200);
-			});
+					saveNotification(req.body.notification).then(function(err) {
+						if (err) 
+							res.send(err);
+						res.sendStatus(200);
+					});
 
-		})
+				})
+			}
+		});
 	})
 });
 
@@ -155,12 +162,28 @@ router.post('/', authentication([constants.ADMIN_ROLE]), function(req, res) {
 		duration: req.body.test.duration
 	});
 
-	newTest.save(function(err) {
+	User.findById(req.body.test.candidateId, function(err, user) {
 		if (err) {
 			res.send(err);
 		}
+		else {
+			user.isPassingTest = true;
 
-		res.json(newTest);
+			user.save(function(err) {
+				if (err) {
+					res.send(err);
+				}
+				else {
+					newTest.save(function(err) {
+						if (err) {
+							res.send(err);
+						}
+
+						res.json(newTest);
+					});
+				}
+			});
+		}
 	});
 });
 
@@ -178,7 +201,7 @@ router.get('/assign/:personId', authentication([constants.USER_ROLE, constants.T
 			case '1':
 				Test.find({"reviewerId": req.params.personId}).then(function(tests) {
 					console.log(tests)
-					res.send(tests.filter((test) => !test.isChecked).map((test) => test._id));
+					res.send(tests.filter((test) => !test.isChecked && !test.reviewerId).map((test) => test._id));
 				});
 				break;
 		}
