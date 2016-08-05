@@ -28,6 +28,7 @@ var testSchema = new Schema({
 		LISTENING_ID: Number,
 		SPEAKING_ID: Number
 	},
+	isAssigned: Boolean,
 	isPassed: Boolean, 
 	isChecked: Boolean,
 	isBreaked: Boolean

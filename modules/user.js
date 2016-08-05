@@ -5,7 +5,7 @@ var userSchema = new Schema({
 	firstName:String,
 	lastName:String,
 	role: Number,
-	status: Number, 
+	isPassingTest: Number, 
 	mail: String,
 	photo: String,
 	token: String

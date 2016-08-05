@@ -73,8 +73,9 @@ router.get('/:id', authentication([constants.ADMIN_ROLE]), function(req, res) {
 		if (err) {
            res.send(err);
 		}
-
-		res.send(user);
+		else{
+			res.send(user);
+		}
 	});
 });
 
