@@ -166,7 +166,7 @@ router.post('/', authentication([constants.ADMIN_ROLE]), function(req, res) {
 
 router.get('/assign/:personId', authentication([constants.USER_ROLE, constants.TEACHER_ROLE]), function(req, res) {
 
-	User.findById(req.params.personId).then(function(user){
+	User.findById( req.params.personId).then(function(user){
 		console.log("user", user);
 
 		switch(user.role.toString()) {
