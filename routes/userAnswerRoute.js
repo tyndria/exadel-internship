@@ -166,7 +166,7 @@ router.get('/:testId', authentication([constants.TEACHER_ROLE]), function(req, r
 
 router.post('/checked/:testId', function(req, res) {
 
-	var userAnswersChecked = req.body.userAnswersChecked; // cost, id
+	var userAnswersChecked = req.body.answers; // cost, id
 	var topic = req.body.topic;
 
 	var promises = [];
@@ -174,7 +174,7 @@ router.post('/checked/:testId', function(req, res) {
 
 	userAnswersChecked.forEach(function(userAnswer) {
 		promises.push(
-			UserAnswer.findById(userAnswer.id).then(function(answer) {
+			UserAnswer.findById(userAnswer.answerId).then(function(answer) {
 
 				answer.cost = userAnswer.cost;
 				if (answer.cost > 0){
@@ -193,7 +193,7 @@ router.post('/checked/:testId', function(req, res) {
 		Test.findById(req.body.params).then(function(test) {
 			var sum = result.reduce((prev, cur) => prev + cur);
 			test.testResult[topic] += sum;
-			res.sendStatus(200);
+			res.send(test);
 		});
 	});
 });

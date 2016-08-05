@@ -35,9 +35,7 @@ console.log(BinaryServer);
     var binaryServer = BinaryServer({port: 9001});
 
 	var AudioAssistant = require('./audioAssistant').getInstance();
-
-	console.log(binaryServer);
-
+	
 	binaryServer.on('connection', function(client) {
 	  console.log('new connection');
 
