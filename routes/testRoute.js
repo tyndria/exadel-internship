@@ -201,7 +201,7 @@ router.get('/assign/:personId', authentication([constants.USER_ROLE, constants.T
 			case '1':
 				Test.find({"reviewerId": req.params.personId}).then(function(tests) {
 					console.log(tests)
-					res.send(tests.filter((test) => !test.isChecked && !test.reviewerId).map((test) => test._id));
+					res.send(tests.filter((test) => !test.isChecked && !test.reviewerId && test.isPassed).map((test) => test._id));
 				});
 				break;
 		}
