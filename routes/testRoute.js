@@ -172,18 +172,27 @@ router.get('/assign/:personId', authentication([constants.USER_ROLE, constants.T
 		switch(user.role.toString()) {
 			case '0':
 				Test.find({"candidateId": req.params.personId}).then(function(tests) {
-					res.send(tests.filter((test) => !test.isPassed && !test.isBreaked).map((test) => test._id));
+					var test = tests.filter((test) => !test.isPassed && !test.isBreaked)[0];
+					var testForSend = {
+						startTime: test.startTime,
+						id: test._id,
+						finishTime: test.finishTime,
+						duration: test.duration
+					};
+					console.log(testForSend);
+					res.send(testForSend);
 				});
 				break;
 			case '1':
 				Test.find({"reviewerId": req.params.personId}).then(function(tests) {
 					console.log(tests)
-					res.send(tests.filter((test) => !test.isChecked).map((test) => test._id));
+					res.send(tests.filter((test) => !test.isChecked && !test.reviewerId && test.isPassed).map((test) => test._id));
 				});
 				break;
 		}
 	});
 });
+
 
 router.get('/:id/startTest', authentication([constants.USER_ROLE]), function(req, res) {
 	console.log("getLexicalGrammarTest");

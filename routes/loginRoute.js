@@ -15,13 +15,12 @@ function authorization(req, res, next) {
 	var token = hash(req.body.user.email + req.body.user.password);
 	console.log(token);
 	return User.findOne({token: token}).then( function(user) {
-		console.log(user);
+		console.log('user la la la', user);
 		if (user) {
 			req.headers.authorization = token;
 			req.body.success = true;
-			req.body.auth_token = token;
-			req.body.role = user.role;
-			req.body.auth_id = user._id;
+			req.body.user = user;
+			console.log(req.body);
 			return next();
 		} else {
 			next(new Error("no authorization"));
