@@ -9,7 +9,7 @@ var binaryjs = require('binaryjs');
 var BinaryServer = require('binaryjs').BinaryServer;
 var fs = require('fs');
 var wav = require('wav');
-var outFile = 'demo.wav';
+
 //
 
 
@@ -27,35 +27,9 @@ db.once('open', function() {
 
 var app = express();
 
-var metas = [];
+   var binaryServer = BinaryServer({port: 9001});
 
-//
-console.log(BinaryServer);
-
-    var binaryServer = BinaryServer({port: 9001});
-
-	var AudioAssistant = require('./audioAssistant').getInstance();
-	
-	binaryServer.on('connection', function(client) {
-	  console.log('new connection');
-
-	  var fileWriter = new wav.FileWriter(outFile, {
-	    channels: 1,
-	    sampleRate: 48000,
-	    bitDepth: 16
-	  });
-
-	  client.on('stream', function(stream, meta) {
-	    console.log('new stream');
-	    stream.pipe(fileWriter);
-
-	    stream.on('end', function() {
-	    	console.log(meta);
-	      fileWriter.end();
-	      console.log('wrote to file ' + outFile);
-	    });
-	  });
-	});
+   module.exports.binaryServer = binaryServer;
 
 app.use(logger('dev')); // выводим все запросы со статусами в консоль 
 app.use(bodyParser.json());
@@ -77,24 +51,20 @@ var message=require('./emailNotifier/notifier');
 //message.sendNotificationEmail({mail:'domanoffa.n@gmail.com'}, "Привет от системы");
 
 app.use(function(req, res, next){
-	res.header("Access-Control-Allow-Methods", "GET","POST", "PUT",  "OPTIONS", "DELETE");
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+	res.setHeader("Access-Control-Allow-Methods", "GET","POST", "PUT", "OPTIONS", "DELETE");
+    res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+    res.setHeader("Access-Control-Allow-Credentials", true);
+    res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
     next();
 });
 
 var router = require('./routes/index');
 app.use('/api', router);
 
-app.get('/', function(req, res){
-  res.render('index');
-});
-
-
 app.listen(port, function(){
     console.log('Express server listening on port '+ port);
 });
 
-app.use(cors());
+//app.use(cors());
 
 //audio

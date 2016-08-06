@@ -1,8 +1,6 @@
 var router = require('express').Router();
 var mongoose  = require('mongoose');
 var promise = require('bluebird');
-var multer  = require('multer');
-var upload = multer({ dest: 'public/listening/answers'});
 var TestAssistant = require('../serverAssistance/TestAssistant');
 var promise = require('bluebird');
 
@@ -27,34 +25,6 @@ router.get('/', function (req, res) {
 		res.json(userAnswers);
 	});
 });
-
-
-router.post('/:candidateId/:seqNumber/sendAudio', upload.single('audioFromUser'), function (req, res, next) {
-	var file = req.file;
-	Test.find({candidateId: req.params.candidateIdid})
-		.then(function(tests) {
-
-			var CURRENT_TEST = req.params.seqNumber - 1;
-			var test = tests[CURRENT_TEST];
-
-			var newUsersAnswer = new UserAnswer({
-				userId: ObjectId(req.params.id.toString()),
-				testId: ObjectId(test._id.toString()),
-				questionId: ObjectId(req.body.questionId.toString()),
-				answer: file.path
-			});
-
-			test.userAnswersId.push(ObjectId(newUsersAnswer._id.toString()));
-
-			newUsersAnswer.save().then(function(err) {
-				if (err)
-					console.log(err);
-				res.send(newUsersAnswer);
-			});
-
-		});
-
-})
 
 
 router.post('/:candidateId', authentication([constants.USER_ROLE, constants.TEACHER_ROLE]), function(req, res) {

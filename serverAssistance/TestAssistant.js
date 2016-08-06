@@ -84,7 +84,7 @@ class TestAssistant {
 				var filteredTaskByTopic = TestAssistant.getTasksById(tasks, constants.SPEAKING_ID)[0];
 				return TestAssistant.getQuestionsByTask(filteredTaskByTopic)
 					.then(function(questions) {
-						return TestAssistant.getAllQuestionsByLevels(questions, [level]);
+						return TestAssistant.getAllQuestionsByLevels(questions, [level], 3);
 					});
 			});
 	}
@@ -98,7 +98,7 @@ static getRandomIndex(length) {
 	return Math.floor(Math.random()*length);
 }
 
-static getAllQuestionsByLevels(questions, levels) {
+static getAllQuestionsByLevels(questions, levels, n) {
 	let resultQuestions = [];
 
 	levels.forEach(function(level) {
@@ -109,7 +109,7 @@ static getAllQuestionsByLevels(questions, levels) {
 				array.push(question);
 			}
 		});
-		Array.prototype.push.apply(resultQuestions, TestAssistant.getRandomArray(array, 2));
+		Array.prototype.push.apply(resultQuestions, TestAssistant.getRandomArray(array, n || 2));
 	});
 
 	return resultQuestions;
