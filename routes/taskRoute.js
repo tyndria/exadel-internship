@@ -1,6 +1,6 @@
 var router = require('express').Router();
 var multer  = require('multer');
-var upload = multer({ dest: 'public/listening/answers'});
+var upload = multer({ dest: 'public/listening/questions'});
 var authentication = require('../serverAssistance/AuthenticationAssistant');
 var constants = require('../consts');
 var mongoose = require('mongoose');
@@ -25,11 +25,13 @@ router.post('/', function(req, res) {
 
 });
 
+var MAP = require('../audioMap').AUDIO_MAP;
 
 router.post('/sendAudio', upload.single('file'), function (req, res, next) {
 	console.log(req.file);
+	MAP.set(req.file.originalname, req.file.filename);
+	res.sendStatus(200);
 })
-
 
 router.post('/:topicId', authentication([constants.ADMIN_ROLE]), upload.single('audio'), function(req, res) {
 	var topicId = req.params.topicId;
@@ -75,11 +77,10 @@ function postSpeakingTask(req, res) {
 function postListeningTask(req, res) {
 
 	var tasksforText = [];
-	var file = req.file; // audio
 	tasksforText.push(req.body.task.questionTask); 
 	tasksforText.push(req.body.task.completeTheSentencesTask);
 
-	var newTextTask = ModelAssistant.createTask(req.file.path, req.params.topicId);
+	var newTextTask = ModelAssistant.createTask(req.body.task.text, req.params.topicId, true);
 
 	newTextTask.save(function() {
 

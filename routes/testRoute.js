@@ -103,7 +103,7 @@ function saveNotification(notification) { // candidateId, event, date
 router.get('/isPassed', function (req, res) { // LEXICAL-GRAMMAR TEST IS PASSED
 	var query = Test.find({isPassed: true});
 
-	query.select('__id');
+	query.select('__id reviewerId');
 
 	query.exec(function(err, tests) {
 		if (err) {
@@ -213,7 +213,7 @@ router.get('/assign/:personId', authentication([constants.USER_ROLE, constants.T
 			case '1':
 				Test.find({"reviewerId": req.params.personId}).then(function(tests) {
 					console.log(tests)
-					res.send(tests.filter((test) => !test.isChecked && !test.reviewerId && test.isPassed).map((test) => test._id));
+					res.send(tests.filter((test) => !test.isChecked && test.isPassed).map((test) => test._id));
 				});
 				break;
 		}

@@ -27,9 +27,9 @@ db.once('open', function() {
 
 var app = express();
 
-   var binaryServer = BinaryServer({port: 9001});
+var binaryServer = BinaryServer({port: 9001});
 
-   module.exports.binaryServer = binaryServer;
+module.exports.binaryServer = binaryServer;
 
 app.use(logger('dev')); // выводим все запросы со статусами в консоль 
 app.use(bodyParser.json());
@@ -51,8 +51,13 @@ var message=require('./emailNotifier/notifier');
 //message.sendNotificationEmail({mail:'domanoffa.n@gmail.com'}, "Привет от системы");
 
 app.use(function(req, res, next){
-	res.setHeader("Access-Control-Allow-Methods", "GET","POST", "PUT", "OPTIONS", "DELETE");
-    res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+	var allowedOrigins = ["http://localhost:3000", "http://localhost:3002"];
+  	var origin = req.headers.origin;
+ 	if(allowedOrigins.indexOf(origin) > -1){
+       res.setHeader('Access-Control-Allow-Origin', origin);
+  	}
+
+	res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS, DELETE");
     res.setHeader("Access-Control-Allow-Credentials", true);
     res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
     next();
