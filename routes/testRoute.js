@@ -8,6 +8,9 @@ var mongodb = require("mongodb");
 var TestAssistant = require('../serverAssistance/TestAssistant');
 var ObjectId = mongoose.Types.ObjectId;
 var promise = require('bluebird');
+var fs = require('fs');
+var wav = require('wav');
+var outFile = 'demo.wav';
 
 var Test = mongoose.models.Test;
 var Question = mongoose.models.Question;
@@ -33,7 +36,9 @@ router.get('/', function (req, res) {
 });
 
 
+
 router.post('/:id/isPassed', function(req, res){
+
 
 	Test.findById(req.params.id).populate('candidateId').then(function(test){
 		test.isPassed = true;
@@ -360,8 +365,6 @@ router.get('/:id/getListeningTest', authentication([constants.USER_ROLE]), funct
 });
 
 
-
-
 router.get('/:id/getSpeakingTest', authentication([constants.USER_ROLE]), function(req, res) {
 
 	Test.find({candidateId: req.params.id}, function(err, tests) {
@@ -401,10 +404,62 @@ router.get('/:id/getSpeakingTest', authentication([constants.USER_ROLE]), functi
 				}
 				res.json(objectToSend);
 
+				var outFile;
+				require('../Server').binaryServer.on('connection', function(client) {
+					console.log('new connection');
+
+
+					client.on('stream', function(stream, meta) {
+					    console.log('new stream');
+
+					    outFile = meta.questionId + meta.userId + '.wav';
+
+					    var newUserAnswer = new UserAnswer({
+					    	questionId: meta.questionId,
+					    	userId: meta.userId,
+					    	testId: meta.testId,
+					    	answer: outFile
+					    });
+					   
+					    var fileWriter = new wav.FileWriter(outFile, {
+							channels: 1,
+					    	sampleRate: 50000,
+					    	bitDepth: 16
+					 	});
+
+					    stream.pipe(fileWriter);
+
+					    stream.on('end', function() {
+					    	console.log(meta);
+					        fileWriter.end();
+
+					        newUserAnswer.save(function(err) {
+					        	if(err){
+					        		console.log(err);
+					  			}
+					  			else{
+					  				Test.findById(newUserAnswer.testId).populate('userAnswersId.SPEAKING_ID').then(function(test) {
+					  					test.userAnswersId.SPEAKING_ID.push(newUserAnswer);
+
+					  					test.save(function(err){
+					  						if (err){
+					  							console.log(err);
+					  						} else {
+					  							console.log("test saved");
+					  						}
+					  					});
+					  				});
+
+					  				console.log("success: answer save", newUserAnswer);
+					  			}
+					  			console.log('wrote to file ' + outFile);
+					        });
+					    });
+					});
+				});
 
 			});
 		});
-
 	});
 });
 

@@ -26,7 +26,12 @@ router.post('/', function(req, res) {
 });
 
 
-router.post('/:topicId', authentication([constants.ADMIN_ROLE]), function(req, res) {
+router.post('/sendAudio', upload.single('file'), function (req, res, next) {
+	console.log(req.file);
+})
+
+
+router.post('/:topicId', authentication([constants.ADMIN_ROLE]), upload.single('audio'), function(req, res) {
 	var topicId = req.params.topicId;
 	switch(topicId.toString()) {
 		case constants.LEXICAL_GRAMMAR_ID:
@@ -70,10 +75,11 @@ function postSpeakingTask(req, res) {
 function postListeningTask(req, res) {
 
 	var tasksforText = [];
+	var file = req.file; // audio
 	tasksforText.push(req.body.task.questionTask); 
 	tasksforText.push(req.body.task.completeTheSentencesTask);
 
-	var newTextTask = ModelAssistant.createTask(req.body.text, req.params.topicId);
+	var newTextTask = ModelAssistant.createTask(req.file.path, req.params.topicId);
 
 	newTextTask.save(function() {
 
@@ -115,7 +121,7 @@ function postListeningTask(req, res) {
 		});
 	})
 	.then(function() {
-		res.send(textTask);
+		res.send(newTextTask);
 	});
 }
 
