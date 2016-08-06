@@ -76,7 +76,7 @@ router.get('/:candidateId/statistics/:seqNumber', authentication([constants.ADMI
  
  		var statistics = {};
 
-		var topics = ['LEXICAL_GRAMMAR_ID', 'READING_ID', 'LISTENING_ID', 'READING_ID'];
+		var topics = ['LEXICAL_GRAMMAR_ID', 'READING_ID', 'LISTENING_ID', 'SPEAKING_ID'];
  
  		var userAnswers = {};
 		
@@ -166,8 +166,12 @@ router.post('/checked/:testId', function(req, res) {
 			console.log(test);
 			var sum = result.reduce((prev, cur) => prev + cur);
 			test.testResult[topic] += sum;
-			console.log(sum);
-			res.send(test);
+			test.save(function(err) {
+				if (err)
+					console.log(err);
+				console.log(sum);
+				res.send(test);
+			});
 		});
 	});
 });

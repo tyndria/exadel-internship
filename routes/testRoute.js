@@ -408,7 +408,6 @@ router.get('/:id/getSpeakingTest', authentication([constants.USER_ROLE]), functi
 				require('../Server').binaryServer.on('connection', function(client) {
 					console.log('new connection');
 
-
 					client.on('stream', function(stream, meta) {
 					    console.log('new stream');
 
@@ -430,7 +429,7 @@ router.get('/:id/getSpeakingTest', authentication([constants.USER_ROLE]), functi
 					    stream.pipe(fileWriter);
 
 					    stream.on('end', function() {
-					    	console.log(meta);
+					    	
 					        fileWriter.end();
 
 					        newUserAnswer.save(function(err) {

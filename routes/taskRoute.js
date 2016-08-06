@@ -1,11 +1,11 @@
 var router = require('express').Router();
 var multer  = require('multer');
-var upload = multer({ dest: 'public/listening/questions'});
 var authentication = require('../serverAssistance/AuthenticationAssistant');
 var constants = require('../consts');
 var mongoose = require('mongoose');
 var ObjectId = mongoose.Types.ObjectId;
 var promise = require('bluebird');
+var path = require('path');
 
 var ModelAssistant = require('../serverAssistance/ModelAssistant');
 var Task = mongoose.models.Task;
@@ -25,11 +25,17 @@ router.post('/', function(req, res) {
 
 });
 
-var MAP = require('../audioMap').AUDIO_MAP;
+var storage = multer.diskStorage({
+    destination: './public/listening/questions/',
+    filename: function (req, file, cb) {
+    	cb(null, file.originalname)
+    }
+})
+
+var upload = multer({ storage: storage })
 
 router.post('/sendAudio', upload.single('file'), function (req, res, next) {
 	console.log(req.file);
-	MAP.set(req.file.originalname, req.file.filename);
 	res.sendStatus(200);
 })
 
@@ -99,7 +105,7 @@ function postListeningTask(req, res) {
 
 					var promises = [];
 
-					var newQuestion = ModelAssistant.createQuestion(question, newTask._id.toString());
+					var newQuestion = ModelAssistant.createQuestion(question, newTask._id.toString(), true, 'string');
 
 					var answers = question.answersId;
 					if (answers) {
