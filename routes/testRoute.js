@@ -104,11 +104,13 @@ router.get('/isPassed', function (req, res) { // LEXICAL-GRAMMAR TEST IS PASSED
 
     query.select('__id reviewerId');
 
-    query.exec(function(err, tests) {
+    query.exec(function (err, tests) {
         if (err) {
             res.send(err);
         }
-        res.send(tests.filter((test) => !test.reviewerId));
+        res.send(tests.filter((test) = > !test.reviewerId)
+        )
+        ;
     });
 });
 
@@ -189,33 +191,37 @@ router.post('/', authentication([constants.ADMIN_ROLE]), function (req, res) {
     });
 });
 
-router.get('/assign/:personId', authentication([constants.USER_ROLE, constants.TEACHER_ROLE]), function(req, res) {
+router.get('/assign/:personId', authentication([constants.USER_ROLE, constants.TEACHER_ROLE]), function (req, res) {
 
-	User.findById( req.params.personId).then(function(user){
-		console.log("user", user);
+    User.findById(req.params.personId).then(function (user) {
+        console.log("user", user);
 
-		switch(user.role.toString()) {
-			case '0':
-				Test.find({"candidateId": req.params.personId}).then(function(tests) {
-					var test = tests.filter((test) => !test.isPassed && !test.isBreaked)[0];
-					var testForSend = {
-						startTime: test.startTime,
-						id: test._id,
-						finishTime: test.finishTime,
-						duration: test.duration
-					};
-					console.log(testForSend);
-					res.send(testForSend);
-				});
-				break;
-			case '1':
-				Test.find({"reviewerId": req.params.personId}).then(function(tests) {
-					console.log(tests)
-					res.send(tests.filter((test) => !test.isChecked && test.isPassed).map((test) => test._id));
-				});
-				break;
-		}
-	});
+        switch (user.role.toString()) {
+            case '0':
+                Test.find({"candidateId": req.params.personId}).then(function (tests) {
+                    var test = tests.filter((test) = > !test.isPassed && !test.isBreaked
+                    )
+                    [0];
+                    var testForSend = {
+                        startTime: test.startTime,
+                        id: test._id,
+                        finishTime: test.finishTime,
+                        duration: test.duration
+                    };
+                    console.log(testForSend);
+                    res.send(testForSend);
+                });
+                break;
+            case '1':
+                Test.find({"reviewerId": req.params.personId}).then(function (tests) {
+                    console.log(tests)
+                    res.send(tests.filter((test) = > !test.isChecked && test.isPassed).map((test) = > test._id
+                    ))
+                    ;
+                });
+                break;
+        }
+    });
 });
 
 
@@ -406,7 +412,6 @@ router.get('/:id/getSpeakingTest', authentication([constants.USER_ROLE]), functi
                 require('../Server').binaryServer.on('connection', function (client) {
                     console.log('new connection');
 
-
                     client.on('stream', function (stream, meta) {
                         console.log('new stream');
 
@@ -428,7 +433,7 @@ router.get('/:id/getSpeakingTest', authentication([constants.USER_ROLE]), functi
                         stream.pipe(fileWriter);
 
                         stream.on('end', function () {
-                            console.log(meta);
+
                             fileWriter.end();
 
                             newUserAnswer.save(function (err) {
@@ -455,7 +460,6 @@ router.get('/:id/getSpeakingTest', authentication([constants.USER_ROLE]), functi
                         });
                     });
                 });
-
             });
         });
     });

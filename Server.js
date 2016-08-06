@@ -37,7 +37,6 @@ app.use(bodyParser.urlencoded({extended: true}));
 // app.use(express.static(path.join(__dirname, 'public'))); // запуск статического файлового сервера, который смотрит на папку public/ (в нашем случае отдает index.html)
 app.use(express.static('./public'));
 
-
 //require models 
 mongoose.model('User', require('./modules/user'));
 mongoose.model('Test', require('./modules/test'));

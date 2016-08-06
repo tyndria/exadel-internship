@@ -168,8 +168,12 @@ router.post('/checked/:testId', function(req, res) {
 			console.log(test);
 			var sum = result.reduce((prev, cur) => prev + cur);
 			test.testResult[topic] += sum;
-			console.log(sum);
-			res.send(test);
+			test.save(function(err) {
+				if (err)
+					console.log(err);
+				console.log(sum);
+				res.send(test);
+			});
 		});
 	});
 });
