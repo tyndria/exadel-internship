@@ -69,14 +69,16 @@ router.post('/:candidateId', authentication([constants.USER_ROLE, constants.TEAC
 
 
 router.get('/:candidateId/statistics/:seqNumber', authentication([constants.ADMIN_ROLE]), function(req, res) {
-	Test.find({candidateId: req.params.candidateId}).then(function(tests) {
+	Test.find({candidateId: req.params.candidateId})
+		.populate('userAnswersId.LEXICAL_GRAMMAR_ID userAnswersId.READING_ID userAnswersId.SPEAKING_ID userAnswersId.LISTENING_ID')
+		.then(function(tests) {
 
 		var CURRENT_TEST = req.params.seqNumber - 1;
  		var test = tests[CURRENT_TEST];
  
  		var statistics = {};
 
-		var topics = ['LEXICAL_GRAMMAR_ID', 'READING_ID', 'LISTENING_ID', 'READING_ID'];
+		var topics = ['LEXICAL_GRAMMAR_ID', 'READING_ID', 'LISTENING_ID', 'SPEAKING_ID'];
  
  		var userAnswers = {};
 		

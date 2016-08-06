@@ -11,6 +11,8 @@ var Question = mongoose.models.Question;
 var Task = mongoose.models.Task;
 var Notifiction = mongoose.models.Notifiction;
 
+var MAP = require('../audioMap').AUDIO_MAP;
+
 'use strict';
 
 class ModelAssistant {
@@ -20,20 +22,24 @@ class ModelAssistant {
 		var newQuestion = new Question({
 			taskId: ObjectId(taskId) || null,
 			description: question.description || null,
-		    level: question.level || null,
 			questionType: question.questionType || questionType,
 			answerType: question.answerType || answerType,
 		    cost: question.cost || constants.MAP_LEVEL_COST[question.level.toString()]
 		});
 
+		if (question.level != 'level') {
+			newQuestion.level = question.level;
+		}
+
 		return newQuestion;
 	}
 
-	static createTask(task, parentTaskId) {
+	static createTask(task, parentTaskId, isListening) {
+		console.log("**", MAP.get(task.description));
 
 		var newTextTask = new Task({
 			title: task.title || 'Listen or read the text',
-			description: task.description || '',
+			description: isListening && MAP.get(task.description),
 			parentTaskId: ObjectId(parentTaskId) || null,
 			level: task.level || null
 		});
