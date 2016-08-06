@@ -151,7 +151,7 @@ router.post('/checked/:testId', function(req, res) {
 					answer.isCorrect = true;
 				}
 
-				answer.save().then(function() {
+				return answer.save().then(function() {
 					console.log("success");
 					return answer.cost;
 				});
@@ -159,10 +159,14 @@ router.post('/checked/:testId', function(req, res) {
 		);
 	});
 
-	promise.all(promises).then(function(result) {
-		Test.findById(req.body.params).then(function(test) {
+
+	promise.all(promises).then( (result) => {
+		console.log("result", result);
+		Test.findById(req.params.testId).then(function(test) {
+			console.log(test);
 			var sum = result.reduce((prev, cur) => prev + cur);
 			test.testResult[topic] += sum;
+			console.log(sum);
 			res.send(test);
 		});
 	});
