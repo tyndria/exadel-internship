@@ -33,7 +33,7 @@ router.post('/:testId', authentication([constants.USER_ROLE, constants.TEACHER_R
 		var answers = req.body.answers;
 		var TOPIC = req.body.topic;
 
-		answers.forEach(function (userAnswer){
+		answers.forEach(function(userAnswer){
 
 			var newUsersAnswer = ModelAssistant.createUserAnswer(userAnswer, test.candidateId, test._id);
 
