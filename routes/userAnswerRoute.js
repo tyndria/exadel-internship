@@ -49,13 +49,15 @@ router.post('/:testId', authentication([constants.USER_ROLE, constants.TEACHER_R
 		promise.all(promises).then(function() {
 			TestAssistant.summarize(test.userAnswersId[TOPIC]).then(function(sum) {
 
+				console.log(sum);
 				test.testResult[TOPIC] = sum;
 
 				test.save(function(err) {
 					if(err)
-						res.send(err);
-					
-					res.sendStatus(200);
+						console.log(err);
+					else {
+						res.sendStatus(200);
+					}	
 				})
 			});
 		});

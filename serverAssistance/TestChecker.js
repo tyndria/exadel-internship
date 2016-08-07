@@ -3,6 +3,8 @@
 	var Question = mongoose.models.Question;
 	var UserAnswer = mongoose.models.UserAnswer;
 	var promise = require('bluebird');
+
+	var constants = require('../consts');
 'use strict'
 
 module.exports = class TestChecker {
@@ -26,8 +28,9 @@ module.exports = class TestChecker {
 		//get anwers from answersID
 		userAnswersId.forEach(function(userAnswer) {
 			promisesUsersAnswers.push(UserAnswer.findById(userAnswer)
-			.populate({path: 'questionId', populate: {path: 'answersId'}})
+			.populate({path: 'questionId', populate: {path: 'answersId taskId'}})
 			.then(function(userAnswer) {
+				console.log(userAnswer);
 				if (!userAnswer.questionId.questionType) // if question isn't open
 					userAnswers.push(userAnswer);
 			}));
@@ -38,7 +41,7 @@ module.exports = class TestChecker {
 				console.log(userAnswer.answer.toString() + ":" + TestChecker.getCorrectAnswer(userAnswer).text.toString());
 				if(userAnswer.answer && userAnswer.answer.toString() == TestChecker.getCorrectAnswer(userAnswer).text.toString()) {
 					userAnswer.isCorrect = true;
-					userAnswer.cost = userAnswer.questionId.cost;
+					userAnswer.cost = userAnswer.questionId.cost || constants.MAP_LEVEL_COST(userAnswer.questionId.level);
 					promises.push(userAnswer.save().then(function() { answers.push(userAnswer);}))
 				}
 			});
