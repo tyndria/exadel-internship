@@ -85,6 +85,7 @@ function postListeningTask(req, res) {
 	var tasksforText = [];
 	tasksforText.push(req.body.task.questionTask); 
 	tasksforText.push(req.body.task.completeTheSentencesTask);
+	var level = req.body.task.text.level;
 
 	var promisesTask = [];
 
@@ -95,7 +96,7 @@ function postListeningTask(req, res) {
 		tasksforText.forEach(function(taskForText) {
 
 			promisesTask.push(
-				storeTask(taskForText, newTextTask._id.toString(), true, 'string')
+				storeTask(level, taskForText, newTextTask._id.toString(), true, 'string')
 			);
 			
 		});
@@ -108,10 +109,11 @@ function postListeningTask(req, res) {
 
 
 
-function storeQuestion(question, taskId, questionType, answerType) {
+function storeQuestion(level, question, taskId, questionType, answerType) {
 
 	var promises = [];
 
+	question.level = level;
 	var newQuestion = ModelAssistant.createQuestion(question, taskId, questionType, answerType);
 
 	var answers = question.answersId;
@@ -134,7 +136,7 @@ function storeQuestion(question, taskId, questionType, answerType) {
 }
 
 
-function storeTask(task, parentTaskId, questionType, answerType) {
+function storeTask(level, task, parentTaskId, questionType, answerType) {
 
 	var newTask = new Task({
 		title: task.title || 'Do this task',
@@ -147,7 +149,7 @@ function storeTask(task, parentTaskId, questionType, answerType) {
 	questions.forEach(function(question) {
 
 		questionPromises.push(
-			storeQuestion(question, newTask._id.toString(), questionType, answerType)	
+			storeQuestion(level, question, newTask._id.toString(), questionType, answerType)	
 		);
 	});
 
@@ -168,13 +170,14 @@ function postReadingTask(req, res) {
 	tasksforText.push(req.body.task.statementTask);
 
 	var newTextTask = ModelAssistant.createTask(req.body.task.text, req.params.topicId);
+	var level = req.body.task.text.level;
 
 	newTextTask.save(function() {
 
 		tasksforText.forEach(function(taskForText) {
 
 			promisesTask.push(
-				storeTask(taskForText, newTextTask._id.toString())
+				storeTask(level, taskForText, newTextTask._id.toString())
 			);
 			
 		});
