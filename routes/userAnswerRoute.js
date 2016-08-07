@@ -27,14 +27,10 @@ router.get('/', function (req, res) {
 });
 
 
-router.post('/:candidateId', authentication([constants.USER_ROLE, constants.TEACHER_ROLE]), function(req, res) {
+router.post('/:testId', authentication([constants.USER_ROLE, constants.TEACHER_ROLE]), function(req, res) {
 
-	Test.find({candidateId: req.params.candidateId}).
-	then(function(tests) {
-		var promises = []
-		var CURRENT_TEST = tests.length - 1;
-
-		var test = tests[CURRENT_TEST];
+	Test.findById(req.params.testId).
+	then(function(test) {
 		var answers = req.body.answers;
 		var TOPIC = req.body.topic;
 

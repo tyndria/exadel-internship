@@ -108,7 +108,7 @@ router.get('/isPassed', function (req, res) { // LEXICAL-GRAMMAR TEST IS PASSED
         if (err) {
             res.send(err);
         }
-        res.send(tests.filter((test) = > !test.reviewerId)
+        res.send(tests.filter((test) => !test.reviewerId)
         )
         ;
     });
@@ -199,7 +199,7 @@ router.get('/assign/:personId', authentication([constants.USER_ROLE, constants.T
         switch (user.role.toString()) {
             case '0':
                 Test.find({"candidateId": req.params.personId}).then(function (tests) {
-                    var test = tests.filter((test) = > !test.isPassed && !test.isBreaked
+                    var test = tests.filter((test) => !test.isPassed && !test.isBreaked
                     )
                     [0];
                     var testForSend = {
@@ -215,7 +215,7 @@ router.get('/assign/:personId', authentication([constants.USER_ROLE, constants.T
             case '1':
                 Test.find({"reviewerId": req.params.personId}).then(function (tests) {
                     console.log(tests)
-                    res.send(tests.filter((test) = > !test.isChecked && test.isPassed).map((test) = > test._id
+                    res.send(tests.filter((test) => !test.isChecked && test.isPassed).map((test) => test._id
                     ))
                     ;
                 });
