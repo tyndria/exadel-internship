@@ -27,7 +27,7 @@ db.once('open', function () {
 
 var app = express();
 
-var binaryServer = BinaryServer({port: 9001});
+var binaryServer = {};
 
 module.exports.binaryServer = binaryServer;
 
