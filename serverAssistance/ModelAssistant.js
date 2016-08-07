@@ -37,9 +37,9 @@ class ModelAssistant {
 
 		var newTextTask = new Task({
 			title: task.title || (isListening && 'Listen a story') ||'Read the text',
-			description: isListening && task.description,
-			parentTaskId: ObjectId(parentTaskId) || null,
-			level: task.level || null
+			description: task.description,
+			parentTaskId: ObjectId(parentTaskId),
+			level: task.level
 		});
 
 		return newTextTask;
