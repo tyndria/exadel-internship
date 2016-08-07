@@ -49,6 +49,7 @@ router.post('/:id/isPassed', function (req, res) {
             } else {
                 test.save(function (err, test) {
 
+
                     saveNotification(req.body.notification).then(function (err) {
                         if (err)
                             res.send(err);

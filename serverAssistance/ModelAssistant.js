@@ -19,7 +19,7 @@ class ModelAssistant {
 	static createQuestion(question, taskId, questionType, answerType) {
 
 		var newQuestion = new Question({
-			taskId: ObjectId(taskId) || null,
+			taskId: ObjectId(taskId),
 			description: question.description || null,
 			questionType: question.questionType || questionType,
 			answerType: question.answerType || answerType,

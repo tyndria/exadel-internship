@@ -29,8 +29,17 @@ router.get('/', function (req, res) {
 
 router.post('/:testId', authentication([constants.USER_ROLE, constants.TEACHER_ROLE]), function(req, res) {
 
+// <<<<<<< HEAD
 	Test.findById(req.params.testId).
 	then(function(test) {
+// =======
+// 	Test.find({candidateId: req.params.candidateId})
+// 	.then(function(tests) {
+// 		var promises = []
+// 		var CURRENT_TEST = tests.length - 1;
+//
+// 		var test = tests[CURRENT_TEST];
+// >>>>>>> 92f89d93148630639658a6c92e787746d0d055ed
 		var answers = req.body.answers;
 		var TOPIC = req.body.topic;
 
