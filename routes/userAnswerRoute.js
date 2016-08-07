@@ -29,23 +29,14 @@ router.get('/', function (req, res) {
 
 router.post('/:testId', authentication([constants.USER_ROLE, constants.TEACHER_ROLE]), function(req, res) {
 
-// <<<<<<< HEAD
-	Test.findById(req.params.testId).
-	then(function(test) {
-// =======
-// 	Test.find({candidateId: req.params.candidateId})
-// 	.then(function(tests) {
-// 		var promises = []
-// 		var CURRENT_TEST = tests.length - 1;
-//
-// 		var test = tests[CURRENT_TEST];
-// >>>>>>> 92f89d93148630639658a6c92e787746d0d055ed
+	Test.findById(req.params.testId).then(function(test) {
+
 		var answers = req.body.answers;
 		var TOPIC = req.body.topic;
 
-		answers.forEach(function (userAnswer){
+		answers.forEach(function(userAnswer){
 
-			var newUsersAnswer = ModelAssistant.createUserAnswer(userAnswer, req.params.candidateId, test._id);
+			var newUsersAnswer = ModelAssistant.createUserAnswer(userAnswer, test.candidateId, test._id);
 
 			test.userAnswersId[TOPIC].push(ObjectId(newUsersAnswer._id));
 			promises.push(newUsersAnswer.save().then(function(err) {

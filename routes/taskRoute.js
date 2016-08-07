@@ -39,7 +39,7 @@ router.post('/sendAudio', upload.single('file'), function (req, res, next) {
 	res.sendStatus(200);
 })
 
-router.post('/:topicId', authentication([constants.ADMIN_ROLE]), upload.single('audio'), function(req, res) {
+router.post('/:topicId', authentication([constants.ADMIN_ROLE]), function(req, res) {
 	var topicId = req.params.topicId;
 	switch(topicId.toString()) {
 		case constants.LEXICAL_GRAMMAR_ID:
@@ -133,9 +133,62 @@ function postListeningTask(req, res) {
 }
 
 
+
+function storeQuestion(question, taskId) {
+
+	var promises = [];
+
+	var newQuestion = ModelAssistant.createQuestion(question, taskId);
+
+	var answers = question.answersId;
+
+	answers.forEach(function(answer) {
+		var newAnswer = new Answer(answer);
+		newQuestion.answersId.push(ObjectId(newAnswer._id.toString()));
+
+		promises.push(
+			newAnswer.save().then(function(err, answer) {
+				console.log(err);
+		}));
+	});
+
+	return promise.all(promises).then(function() {
+		return newQuestion.save(function() {
+			console.log(newQuestion);
+		});
+	});
+}
+
+
+function storeTask(task, parentTaskId) {
+
+	var newTask = new Task({
+		title: task.title || 'Do this task',
+		parentTaskId: ObjectId(parentTaskId),
+	});
+
+	var questions = task.questions;
+	var questionPromises = [];
+
+	questions.forEach(function(question) {
+
+		questionPromises.push(
+			storeQuestion(question, newTask._id.toString())	
+		);
+	});
+
+	return promise.all(questionPromises).then(function() {
+		return newTask.save(function() {
+			console.log("success");
+		});
+	});
+			
+}
+
 function postReadingTask(req, res) {
 
 	var tasksforText = [];
+	var promisesTask = [];
 
 	tasksforText.push(req.body.task.translationTask);
 	tasksforText.push(req.body.task.statementTask);
@@ -146,44 +199,16 @@ function postReadingTask(req, res) {
 
 		tasksforText.forEach(function(taskForText) {
 
-			var questions = taskForText.questions;
+			promisesTask.push(
+				storeTask(taskForText, newTextTask._id.toString())
+			);
+			
+		});
 
-			var newTask = new Task({
-				title: taskForText.title || 'Do this task',
-				parentTaskId: ObjectId(newTextTask._id.toString()),
-			});
-
-
-			newTask.save(function(){
-				questions.forEach(function(question) {
-
-					var promises = [];
-
-					var newQuestion = ModelAssistant.createQuestion(question, newTask._id.toString());
-
-					var answers = question.answersId;
-
-					answers.forEach(function(answer) {
-						var newAnswer = new Answer(answer);
-						newQuestion.answersId.push(ObjectId(newAnswer._id.toString()));
-						promises.push(newAnswer.save().then(function(answer, err) {
-							console.log(err);
-						}));
-					});
-
-					promise.all(promises).then(function() {
-						newQuestion.save(function() {
-							console.log(newQuestion);
-						});
-					});
-				});
-			});
+		promise.all(promisesTask).then(function() {
+			res.send(newTextTask);
 		});
 	})
-	.then(function() {
-		res.send(textTask);
-	});
-
 }
 
 
