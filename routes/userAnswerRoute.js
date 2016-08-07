@@ -28,10 +28,12 @@ router.get('/', function (req, res) {
 
 
 router.post('/:testId', authentication([constants.USER_ROLE, constants.TEACHER_ROLE]), function(req, res) {
-
+	
 	Test.findById(req.params.testId).then(function(test) {
 		var answers = req.body.answers;
 		var TOPIC = req.body.topic;
+	
+		var promises = [];
 
 		answers.forEach(function(userAnswer){
 

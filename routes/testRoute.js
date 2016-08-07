@@ -240,13 +240,13 @@ router.get('/assign/:personId', authentication([constants.USER_ROLE, constants.T
 
 
 router.get('/:id/startTest', authentication([constants.USER_ROLE]), function (req, res) {
-    console.log("getLexicalGrammarTest");
     Test.find({candidateId: req.params.id}, function (err, tests) {
         var objectsToSend = [];
         console.log("getLexicalGrammarTest");
         var CURRENT_TEST = tests.length - 1;
 
         tests[CURRENT_TEST].questionsId = [];
+        console.log(tests[CURRENT_TEST]);
 
         TestAssistant.getLexicalGrammarTest().then(function (questions) {
             questions.forEach(function (question) {
