@@ -45,7 +45,7 @@ class TestAssistant {
 
 
 	static getLexicalGrammarTest() {
-		return Task.find({}).populate('parentTaskId', 'title')
+		return Task.find({}).populate('parentTaskId')
 		.then(function(tasks) {
 			var filteredTasksByTopic = TestAssistant.getTasksById(tasks, constants.LEXICAL_GRAMMAR_ID);
 			return TestAssistant.getQuestionsByTask(filteredTasksByTopic[0])
