@@ -12,6 +12,9 @@ var fs = require('fs');
 var wav = require('wav');
 var outFile = 'demo.wav';
 
+var binaryjs = require('binaryjs');
+var BinaryServer = require('binaryjs').BinaryServer;
+
 var Test = mongoose.models.Test;
 var Question = mongoose.models.Question;
 var Task = mongoose.models.Task;
@@ -63,7 +66,6 @@ router.post('/:id/isPassed', function (req, res) {
             } else {
                 test.save(function (err, test) {
 
-
                     saveNotification(req.body.notification).then(function (err) {
                         if (err)
                             res.send(err);
@@ -75,6 +77,7 @@ router.post('/:id/isPassed', function (req, res) {
         });
     })
 });
+
 
 router.post('/isRequested', function (req, res) {
 
@@ -241,6 +244,9 @@ router.get('/assign/:personId', authentication([constants.USER_ROLE, constants.T
 
 
 router.get('/:id/startTest', authentication([constants.USER_ROLE]), function (req, res) {
+
+    require('../Server').binaryServer = BinaryServer({port: 9001});
+
     Test.find({candidateId: req.params.id}, function (err, tests) {
         var objectsToSend = [];
         console.log("getLexicalGrammarTest");
@@ -431,7 +437,7 @@ router.get('/:id/getSpeakingTest', authentication([constants.USER_ROLE]), functi
                         console.log('new stream');
 
                         outFile = meta.questionId + meta.userId + '.wav';
-
+                        console.log('testId', meta.testId);
                         var newUserAnswer = new UserAnswer({
                             questionId: meta.questionId,
                             userId: meta.userId,

@@ -26,6 +26,12 @@ router.get('/', function (req, res) {
 	});
 });
 
+router.get('/audioIsSend', authentication([constants.USER_ROLE]), function(req, res) {
+	require('../Server').binaryServer.close();
+	console.log("connection close");
+	res.sendStatus(200);
+});
+
 
 router.post('/:testId', authentication([constants.USER_ROLE, constants.TEACHER_ROLE]), function(req, res) {
 
