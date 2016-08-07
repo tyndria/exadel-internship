@@ -36,6 +36,19 @@ router.get('/', function (req, res) {
 });
 
 
+router.delete('/:id', function(req,res){
+
+    Test.remove({_id: req.params.id}, function(err) {
+        if (err) {
+           res.send(err);
+        } else{
+            res.send(req.params.id + 'Successefully deleted');
+        }
+    });
+
+});
+
+
 router.post('/:id/isPassed', function (req, res) {
 
 
