@@ -29,8 +29,8 @@ router.get('/', function (req, res) {
 
 router.post('/:candidateId', authentication([constants.USER_ROLE, constants.TEACHER_ROLE]), function(req, res) {
 
-	Test.find({candidateId: req.params.candidateId}).
-	then(function(tests) {
+	Test.find({candidateId: req.params.candidateId})
+	.then(function(tests) {
 		var promises = []
 		var CURRENT_TEST = tests.length - 1;
 

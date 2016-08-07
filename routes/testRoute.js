@@ -44,7 +44,7 @@ router.post('/:id/isPassed', function(req, res){
 		test.isPassed = true;
 		test.candidateId.isPassingTest = false;
 
-		test.candidateId.isPassingTest.save(function(err) {
+		test.candidateId.save(function(err) {
 			if (err) {
 				res.send(err);
 			} else {
