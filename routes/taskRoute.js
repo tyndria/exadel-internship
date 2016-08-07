@@ -86,59 +86,33 @@ function postListeningTask(req, res) {
 	tasksforText.push(req.body.task.questionTask); 
 	tasksforText.push(req.body.task.completeTheSentencesTask);
 
+	var promisesTask = [];
+
 	var newTextTask = ModelAssistant.createTask(req.body.task.text, req.params.topicId, true);
 
 	newTextTask.save(function() {
 
 		tasksforText.forEach(function(taskForText) {
 
-			var questions = taskForText.questions;
+			promisesTask.push(
+				storeTask(taskForText, newTextTask._id.toString(), true, 'string')
+			);
+			
+		});
 
-			var newTask = new Task({
-				title: taskForText.title,
-				parentTaskId: ObjectId(newTextTask._id.toString()),
-			});
-
-
-			newTask.save(function(){
-				questions.forEach(function(question) {
-
-					var promises = [];
-
-					var newQuestion = ModelAssistant.createQuestion(question, newTask._id.toString(), true, 'string');
-
-					var answers = question.answersId;
-					if (answers) {
-						answers.forEach(function(answer) {
-							var newAnswer = new Answer(answer);
-							newQuestion.answersId.push(ObjectId(newAnswer._id.toString()));
-							promises.push(newAnswer.save().then(function(answer, err) {
-								console.log(err);
-							}));
-						});
-					}
-
-					promise.all(promises).then(function() {
-						newQuestion.save(function() {
-							console.log(newQuestion);
-						});
-					});
-				});
-			});
+		promise.all(promisesTask).then(function() {
+			res.send(newTextTask);
 		});
 	})
-	.then(function() {
-		res.send(newTextTask);
-	});
 }
 
 
 
-function storeQuestion(question, taskId) {
+function storeQuestion(question, taskId, questionType, answerType) {
 
 	var promises = [];
 
-	var newQuestion = ModelAssistant.createQuestion(question, taskId);
+	var newQuestion = ModelAssistant.createQuestion(question, taskId, questionType, answerType);
 
 	var answers = question.answersId;
 
@@ -160,7 +134,7 @@ function storeQuestion(question, taskId) {
 }
 
 
-function storeTask(task, parentTaskId) {
+function storeTask(task, parentTaskId, questionType, answerType) {
 
 	var newTask = new Task({
 		title: task.title || 'Do this task',
@@ -173,7 +147,7 @@ function storeTask(task, parentTaskId) {
 	questions.forEach(function(question) {
 
 		questionPromises.push(
-			storeQuestion(question, newTask._id.toString())	
+			storeQuestion(question, newTask._id.toString(), questionType, answerType)	
 		);
 	});
 
