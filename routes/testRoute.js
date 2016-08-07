@@ -52,9 +52,10 @@ router.delete('/:id', function(req,res){
 router.post('/:id/isPassed', function (req, res) {
 
 
-    Test.findById(req.params.id).populate('candidateId').then(function (test) {
+    Test.findById(req.params.id).populate('candidateId testResult.SPEAKING_ID').then(function (test) {
         test.isPassed = true;
         test.candidateId.isPassingTest = false;
+        test.testResult.SPEAKING_ID = 0;
 
         test.candidateId.save(function (err) {
             if (err) {
