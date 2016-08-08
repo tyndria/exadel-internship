@@ -1,4 +1,5 @@
 var nodemailer = require('nodemailer');
+var fs = require('fs');
 
 class MessageNotifier{
 
