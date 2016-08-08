@@ -12,6 +12,8 @@ var fs = require('fs');
 var wav = require('wav');
 var outFile = 'demo.wav';
 
+var message = require('../emailNotifier/notifier');
+
 var binaryjs = require('binaryjs');
 var BinaryServer = require('binaryjs').BinaryServer;
 
@@ -39,9 +41,10 @@ router.get('/', function (req, res) {
 });
 
 router.get('/:candidateId/all', function (req, res) {
-    var query = Test.find({candidateId: req.params.candidateId});
+    var query = Test.find({candidateId: req.params.candidateId, isPassed: true});
 
     query.select('_id isPassed isChecked');
+
 
     query.exec(function (err, tests) {
         if (err) {
@@ -206,6 +209,7 @@ router.post('/', authentication([constants.ADMIN_ROLE]), function (req, res) {
         }
         else {
             user.isPassingTest = true;
+            message.sendNotificationEmail({mail:'tyndria23@gmail.com'}, "Привет от системы");
 
             user.save(function (err) {
                 if (err) {
