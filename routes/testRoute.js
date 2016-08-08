@@ -80,7 +80,8 @@ router.post('/:id/isPassed', function (req, res) {
                 res.send(err);
             } else {
                 test.save(function (err, test) {
-
+                    
+                    
                     saveNotification(req.body.notification).then(function (err) {
                         if (err)
                             res.send(err);
@@ -120,11 +121,9 @@ router.post('/:id/isChecked', function (req, res) {
     })
 });
 
-
-function saveNotification(notification, candidateId) { 
-    console.log(notification);
+function saveNotification(notification, candidateId) {
     var newNotification = new Notification(notification);
-    
+
     newNotification.auth_id = candidateId;
 
     return newNotification.save(function (err) {
