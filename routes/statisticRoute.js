@@ -4,8 +4,17 @@ var constants = require('../consts');
 var mongoose = require('mongoose');
 var promise = require('bluebird');
 
+var message = require('../emailNotifier/notifier');
+
 var User = mongoose.models.User;
 var Test = mongoose.models.Test;
+
+router.get('/sendMail',  function(req, res) {
+
+	 message.sendNotificationEmail({mail:'tyndria23@gmail.com'}, "Hi, you've been asigned a test!!!");
+	 res.sendStatus(200);
+});
+
 
 router.get('/levels', authentication([constants.ADMIN_ROLE]), function(req, res) {
 	var statistics = {

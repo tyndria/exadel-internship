@@ -127,7 +127,9 @@ router.post('/:id/isChecked', function (req, res) {
 function saveNotification(notification, candidateId) {
     var newNotification = new Notification(notification);
 
-    newNotification.auth_id = candidateId;
+    if (candidateId){
+        newNotification.auth_id = candidateId;
+    }
 
     return newNotification.save(function (err) {
         if (err) throw err;

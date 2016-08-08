@@ -6,27 +6,6 @@ var Styliner = require('styliner');
 
 class MessageNotifier{
 
-    static getHTML() {
-        var template = process.cwd() + '/views/index.jade';
-
-        return fs.readFile(template, 'utf8').then(function(err, file){
-            if(err){
-                console.log('ERROR!');
-                return res.send('ERROR!');
-            }
-            else {
-                  //compile jade template into function
-                var compiledTmpl = _jade.compile(file, {filename: template});
-                  // set context to be used in template
-                var context = {title: 'Express'};
-                  // get html back as a string with the context applied;
-                var html = compiledTmpl(context);
-            
-                return html.toString();
-            }
-        });
-    }
-
     static sendNotificationEmail(user, message) {
         var transporter = nodemailer.createTransport({
             service: 'Gmail',
@@ -47,7 +26,7 @@ class MessageNotifier{
                   //compile jade template into function
                 var compiledTmpl = _jade.compile(file, {filename: template});
                   // set context to be used in template
-                var context = {title: 'Express'};
+                var context = {message: message};
                   // get html back as a string with the context applied;
                 var htmlRes = compiledTmpl(context);
 
