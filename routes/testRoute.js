@@ -38,6 +38,21 @@ router.get('/', function (req, res) {
     });
 });
 
+router.get('/:candidateId/all', function (req, res) {
+    var query = Test.find({candidateId: req.params.candidateId});
+
+    query.select('_id isPassed isChecked');
+
+    query.exec(function (err, tests) {
+        if (err) {
+            res.send(err);
+        }
+
+        else {
+            res.send(tests);
+        }
+    });
+});
 
 router.delete('/:id', function(req,res){
 
@@ -108,7 +123,7 @@ router.post('/:id/isChecked', function (req, res) {
 
 
 function saveNotification(notification) { 
-
+    console.log(notification);
     var newNotification = new Notification(notification);
 
     return newNotification.save(function (err) {

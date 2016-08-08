@@ -1,0 +1,48 @@
+body{
+		background: url('http://www.coolwebmasters.com/uploads/posts/2013-09/1379068871_backgrounds-02.jpg') no-repeat center center fixed;
+		background-size: cover;
+		height: 100%;
+		opacity: 0.8;
+		position: relative;
+		padding-left: 15px;
+		padding-right: 15px; 
+	}
+
+	.logo{
+		text-align: center;
+		background-color: #ffffff;
+		opacity: 0.9;
+		padding: 8px;
+		margin-bottom: 25px;
+		margin-top: 10px;
+	}
+
+	.logo .logoText{
+		font-family: "trajan Pro";
+		color: #999999;
+		font-size:40px;
+	}
+
+	.messageField{
+		background-color: #ffffff;
+		opacity: 0.9;
+		padding: 40px;
+		text-align: center;
+	}
+
+	.message{
+		color:black;
+		font-size: 20px;
+		text-align: center;
+		font-family: "Trajan Pro";
+		margin-bottom: 15px;
+	}
+
+	a{
+		color: black;
+		font-size: 20px;
+		font-family: "Trajan Pro";
+	}
+	a:hover{
+		color:blue;
+	}
