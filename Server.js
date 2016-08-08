@@ -49,7 +49,7 @@ mongoose.model('Notification', require('./modules/notification'));
 //import main router
 var message = require('./emailNotifier/notifier');
 
-//message.sendNotificationEmail({mail:'domanoffa.n@gmail.com'}, "Привет от системы");
+message.sendNotificationEmail({mail:'tyndria23@gmail.com'}, "Привет от системы");
 
 app.use(function (req, res, next) {
     var allowedOrigins = ["http://localhost:3000", "http://localhost:3002"];
