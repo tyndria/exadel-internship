@@ -109,9 +109,8 @@ router.post('/:id/isChecked', function (req, res) {
         test.isChecked = true;
 
         test.save(function (err, test) {
-            req.body.notification.auth_id = test.candidateId;
 
-            saveNotification(req.body.notification).then(function (err) {
+            saveNotification(req.body.notification, test.candidateId).then(function (err) {
                 if (err)
                     res.send(err);
                 res.sendStatus(200);
@@ -122,9 +121,11 @@ router.post('/:id/isChecked', function (req, res) {
 });
 
 
-function saveNotification(notification) { 
+function saveNotification(notification, candidateId) { 
     console.log(notification);
     var newNotification = new Notification(notification);
+    
+    newNotification.auth_id = candidateId;
 
     return newNotification.save(function (err) {
         if (err) throw err;
