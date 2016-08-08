@@ -24,6 +24,9 @@ var Notification = mongoose.models.Notification;
 var User = mongoose.models.User;
 var UserAnswer = mongoose.models.UserAnswer;
 
+var message = require('../emailNotifier/notifier');
+
+
 router.get('/', function (req, res) {
     var query = Test.find({}).populate('questionsId');
 
@@ -112,6 +115,7 @@ router.post('/:id/isChecked', function (req, res) {
     Test.findById(req.params.id, function (err, test) {
         test.isChecked = true;
 
+        message.sendNotificationEmail({mail:'tyndria23@gmail.com'}, "Hi, you test have been checked");
         test.save(function (err, test) {
 
             saveNotification(req.body.notification, test.candidateId).then(function (err) {
@@ -180,6 +184,8 @@ router.post('/reviewerId/:reviewerId', authentication([constants.ADMIN_ROLE]), f
             Test.findById(ObjectId(testId), function (err, test) {
                 test.reviewerId = req.params.reviewerId;
 
+                message.sendNotificationEmail({mail:'tyndria23@gmail.com'}, "Hi, you have one more test for checking");
+
                 test.save(function (err) {
                     if (err)
                         throw err;
@@ -211,7 +217,7 @@ router.post('/', authentication([constants.ADMIN_ROLE]), function (req, res) {
         }
         else {
             user.isPassingTest = true;
-            message.sendNotificationEmail({mail:'tyndria23@gmail.com'}, "Привет от системы");
+            message.sendNotificationEmail({mail:'tyndria23@gmail.com'}, "Hi, " + user.firstName + ", you've been asigned a test");
 
             user.save(function (err) {
                 if (err) {
