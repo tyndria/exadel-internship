@@ -7,7 +7,22 @@ var promise = require('bluebird');
 var User = mongoose.models.User;
 var Test = mongoose.models.Test;
 
-router.get('/', authentication([constants.ADMIN_ROLE]), function(req, res) {
+router.get('/levels', authentication([constants.ADMIN_ROLE]), function(req, res) {
+	var statistics = {
+		A1: 0, A2: 0, B1: 0, B2: 0, C1: 0
+	};
+	console.log("!");
+	Test.find({isChecked: true}).then(function(tests) {
+		tests.forEach(function(test) {
+			var result = test.testResult.LEXICAL_GRAMMAR_ID;
+			statistics[constants.MAP_RESULT(result)] ++;
+		});
+
+		res.send(statistics);
+	});
+});
+
+router.get('/amounts', authentication([constants.ADMIN_ROLE]), function(req, res) {
 	var promises = [
 
 		User.find({}).then(function(users) {
