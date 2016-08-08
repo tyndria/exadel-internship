@@ -107,7 +107,6 @@ router.get('/:candidateId/statistics/:seqNumber', authentication([constants.ADMI
 router.get('/:testId', authentication([constants.TEACHER_ROLE]), function(req, res) {
 
 	var query = Test.findById(req.params.testId);
-
 	query.populate({path: 'userAnswersId.LISTENING_ID', populate: {path: 'questionId'}});
 	query.populate({path: 'userAnswersId.SPEAKING_ID', populate: {path: 'questionId'}});
 
@@ -117,6 +116,7 @@ router.get('/:testId', authentication([constants.TEACHER_ROLE]), function(req, r
 	var topics = ['LISTENING_ID', 'SPEAKING_ID'];
 
  	query.exec(function(err, test) {
+		console.log(test);
 
 	 	topics.forEach(function(topic) {
 			userAnswers[topic] = [];

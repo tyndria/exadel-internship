@@ -27,24 +27,23 @@ router.post('/', function(req, res) { // candidateId, event, date
 
 router.get('/', authentication([constants.ADMIN_ROLE]), function(req, res) {
 
-	Notification.find({}).populate('auth_id reviewerId').then(function(notifications) {
-		console.log(notifications);
+	Notification.find({}).populate('auth_id').then(function(notifications) {
 		var notificationsToSend = [];
 		notifications.forEach(function(notification) {
-			var newNotification = {
+			notificationsToSend.push({
 				type: notification.event,
 				userId: notification.auth_id._id,
 				userName: notification.auth_id.firstName + " " + notification.auth_id.lastName,
 				_id: notification._id
-			};
-			if (notification.reviewerId) {
+			});
+			/*if (notification.reviewerId) {
+				console.log("1");
 				newNotification.reviewerId = notification.reviewerId._id;
+				console.log("2");
 				newNotification.reviewerName = notification.reviewerId.firstName + " " + notification.reviewerId.lastName;
-			}
-
-			notificationsToSend.push(newNotification);
+			}*/
 		});
-		
+		console.log("&", notificationsToSend);
 		res.send(notificationsToSend);
 	});
 });
