@@ -82,6 +82,7 @@ router.get('/:candidateId/statistics/:seqNumber', authentication([constants.ADMI
 
 		var CURRENT_TEST = req.params.seqNumber - 1;
  		var test = tests[CURRENT_TEST];
+ 		console.log("test", test);
  
  		var statistics = {};
 
@@ -94,12 +95,12 @@ router.get('/:candidateId/statistics/:seqNumber', authentication([constants.ADMI
 			Array.prototype.push.apply(userAnswers[topic], test.userAnswersId[topic]);
 			userAnswers[topic].push(test.testResult[topic]);
 		});
- 
+ 	
  		statistics.lexicalGrammar = userAnswers['LEXICAL_GRAMMAR_ID'];
  		statistics.reading = userAnswers['READING_ID'];
  		statistics.listening = userAnswers['LISTENING_ID'];
  		statistics.speaking = userAnswers['SPEAKING_ID'];
- 
+ 		console.log("statistics", statistics);
  		res.send(statistics);
 	});
 
