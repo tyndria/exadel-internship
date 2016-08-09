@@ -1,5 +1,5 @@
 var express = require('express');
-var path = require('path'); // модуль для парсинга пути
+var path = require('path'); 
 var logger = require('morgan');
 var bodyParser = require('body-parser');
 var cors = require('cors');
@@ -28,7 +28,7 @@ var app = express();
 var binaryServer = {};
 module.exports.binaryServer = binaryServer;
 
-app.use(logger('dev')); // выводим все запросы со статусами в консоль 
+app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 // app.use(express.static(path.join(__dirname, 'public'))); // запуск статического файлового сервера, который смотрит на папку public/ (в нашем случае отдает index.html)
