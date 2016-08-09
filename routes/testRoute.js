@@ -245,9 +245,7 @@ router.get('/assign/:personId', authentication([constants.USER_ROLE, constants.T
         switch (user.role.toString()) {
             case '0':
                 Test.find({"candidateId": req.params.personId}).then(function (tests) {
-                    var test = tests.filter((test) => !test.isPassed && !test.isBreaked
-                    )
-                    [0];
+                    var test = tests.filter((test) => !test.isPassed && !test.isBreaked)[0];
                     var testForSend = {
                         startTime: test.startTime,
                         id: test._id,
@@ -270,10 +268,8 @@ router.get('/assign/:personId', authentication([constants.USER_ROLE, constants.T
     });
 });
 
-
+var port = 9001;
 router.get('/:id/startTest', authentication([constants.USER_ROLE]), function (req, res) {
-
-    require('../Server').binaryServer = BinaryServer({port: 9001});
 
     Test.find({candidateId: req.params.id}, function (err, tests) {
         var objectsToSend = [];
@@ -419,6 +415,9 @@ router.get('/:id/getListeningTest', authentication([constants.USER_ROLE]), funct
 
 
 router.get('/:id/getSpeakingTest', authentication([constants.USER_ROLE]), function (req, res) {
+    port = port + 1;
+    require('../Server').binaryServer = BinaryServer({port: port});
+    console.log('binaryServer connection on port ' + port);
 
     Test.find({candidateId: req.params.id}, function (err, tests) {
 
@@ -455,7 +454,7 @@ router.get('/:id/getSpeakingTest', authentication([constants.USER_ROLE]), functi
                 if (err) {
                     res.send(err);
                 }
-                res.json(objectToSend);
+                res.json({res: objectToSend, port: port});
 
                 var outFile;
                 require('../Server').binaryServer.on('connection', function (client) {
