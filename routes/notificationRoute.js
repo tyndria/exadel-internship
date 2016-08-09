@@ -30,18 +30,18 @@ router.get('/', authentication([constants.ADMIN_ROLE]), function(req, res) {
 	Notification.find({}).populate('auth_id').then(function(notifications) {
 		var notificationsToSend = [];
 		notifications.forEach(function(notification) {
-			notificationsToSend.push(
-				var newNotification = {
-					type: notification.event,
-					userId: notification.auth_id._id,
-					userName: notification.auth_id.firstName + " " + notification.auth_id.lastName,
-					_id: notification._id
-				});
+			var newNotification = {
+				type: notification.event,
+				userId: notification.auth_id._id,
+				userName: notification.auth_id.firstName + " " + notification.auth_id.lastName,
+				_id: notification._id
+			}
 			if (notification.reviewerId) {
 				newNotification.reviewerId = notification.reviewerId._id;
 				newNotification.reviewerName = notification.reviewerId.firstName + " " + notification.reviewerId.lastName;
 			}
-		});
+			notificationsToSend.push(newNotification);
+		}
 		res.send(notificationsToSend);
 	});
 });
