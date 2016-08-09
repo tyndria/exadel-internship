@@ -29,5 +29,18 @@ module.exports = {
 	MAP_RESULT: (result) => {
 		// have to consult with english teacher
 		return 'B1';
+	},
+	MAP_CONCLUSION: {
+		LEXICAL_GRAMMAR_ID: '<p>You should improve:\
+                            <a href="http://www.englishpage.com/verbpage/presentperfect.html">Present Perfect</a>,\
+                            <a href="http://www.englishpage.com/verbpage/presentperfectcontinuous.html">Present Perfect\
+                                Continuous</a> </p>',
+        READING_ID: '<p>It would be great to improve your reading. There are some books to read:\
+        	<a href="http://freenovelonline.com/241093-harry-potter-and-the-philosophers-stone.html">Garry Potter 1</a>,\
+        	<a href="http://freenovelonline.com/241094-harry-potter-and-the-chamber-of-secrets.html">Garry Potter 2</a></p>',
+        SPEAKING_ID: '<p>It would be great to improve your speaking. There are some films to watch:\
+        	<a href="http://www.englishpage.com/verbpage/presentperfect.html">Garry Potter</a></p>',
+        LISTENING_ID: '<p>It would be great to improve you listening. There are some films to watch:\
+        	<a href="http://www.englishpage.com/verbpage/presentperfect.html">Garry Potter</a></p>s',
 	}
 };
