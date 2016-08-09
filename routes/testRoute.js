@@ -472,7 +472,7 @@ router.get('/:id/getSpeakingTest', authentication([constants.USER_ROLE]), functi
                             answer: outFile
                         });
 
-                        var fileWriter = new wav.FileWriter(outFile, {
+                        var fileWriter = new wav.FileWriter('dir/' + outFile, {
                             channels: 1,
                             sampleRate: 50000,
                             bitDepth: 16

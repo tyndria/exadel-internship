@@ -27,6 +27,7 @@ module.exports = {
 		}
 	},
 	MAP_RESULT: (result) => {
+		// have to consult with english teacher
 		return 'B1';
 	}
 };

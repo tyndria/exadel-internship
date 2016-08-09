@@ -29,7 +29,10 @@ class TestAssistant {
 		
 		switch(minResult) {
 			case percent.LEXICAL_GRAMMAR_ID:
-				return 'Not bad, but LEXICAL_GRAMMAR can be better';
+				return 'You should improve:\
+                            <a href="http://www.englishpage.com/verbpage/presentperfect.html">Present Perfect</a>,\
+                            <a href="http://www.englishpage.com/verbpage/presentperfectcontinuous.html">Present Perfect\
+                                Continuous</a>';
 			case percent.READING_ID:
 				return 'Not bad, but READING can be better';
 			case percent.LISTENING_ID:

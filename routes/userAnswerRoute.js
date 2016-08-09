@@ -74,7 +74,7 @@ router.post('/:testId', authentication([constants.USER_ROLE, constants.TEACHER_R
 
 
 router.get('/:testId/statistics/', /*authentication([constants.ADMIN_ROLE]),*/ function(req, res) {
-	Test.findById(testId)
+	Test.findById(req.params.testId)
 		.populate('userAnswersId.LEXICAL_GRAMMAR_ID userAnswersId.READING_ID userAnswersId.SPEAKING_ID userAnswersId.LISTENING_ID')
 		.then(function(test) {
 
