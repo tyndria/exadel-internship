@@ -31,7 +31,6 @@ module.exports = class TestChecker {
 				UserAnswer.findById(userAnswer)
 					.populate({path: 'questionId', populate: {path: 'answersId taskId'}})
 					.then(function(userAnswer) {
-						console.log(userAnswer);
 						if (!userAnswer.questionId.questionType) // if question isn't open
 							userAnswers.push(userAnswer);
 					})
@@ -40,7 +39,6 @@ module.exports = class TestChecker {
 
 		return promise.all(promisesUsersAnswers).then(function(){
 			userAnswers.forEach(function(userAnswer){
-				console.log(userAnswer.answer.toString() + ":" + TestChecker.getCorrectAnswer(userAnswer).text.toString());
 				if(userAnswer.answer && userAnswer.answer.toString() == TestChecker.getCorrectAnswer(userAnswer).text.toString()) {
 					userAnswer.isCorrect = true;
 					userAnswer.cost = userAnswer.questionId.cost || constants.MAP_LEVEL_COST(userAnswer.questionId.level);

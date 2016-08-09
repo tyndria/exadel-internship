@@ -36,14 +36,11 @@ router.get('/', authentication([constants.ADMIN_ROLE]), function(req, res) {
 				userName: notification.auth_id.firstName + " " + notification.auth_id.lastName,
 				_id: notification._id
 			});
-			/*if (notification.reviewerId) {
-				console.log("1");
+			if (notification.reviewerId) {
 				newNotification.reviewerId = notification.reviewerId._id;
-				console.log("2");
 				newNotification.reviewerName = notification.reviewerId.firstName + " " + notification.reviewerId.lastName;
-			}*/
+			}
 		});
-		console.log("&", notificationsToSend);
 		res.send(notificationsToSend);
 	});
 });

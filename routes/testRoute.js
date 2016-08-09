@@ -240,7 +240,6 @@ router.post('/', authentication([constants.ADMIN_ROLE]), function (req, res) {
 router.get('/assign/:personId', authentication([constants.USER_ROLE, constants.TEACHER_ROLE]), function (req, res) {
 
     User.findById(req.params.personId).then(function (user) {
-        console.log("user", user);
 
         switch (user.role.toString()) {
             case '0':
@@ -252,13 +251,11 @@ router.get('/assign/:personId', authentication([constants.USER_ROLE, constants.T
                         finishTime: test.finishTime,
                         duration: test.duration
                     };
-                    console.log(testForSend);
                     res.send(testForSend);
                 });
                 break;
             case '1':
                 Test.find({"reviewerId": req.params.personId}).then(function (tests) {
-                    console.log(tests)
                     res.send(tests.filter((test) => !test.isChecked && test.isPassed).map((test) => test._id
                     ))
                     ;
@@ -277,13 +274,10 @@ router.get('/:id/startTest', authentication([constants.USER_ROLE]), function (re
         var CURRENT_TEST = tests.length - 1;
 
         tests[CURRENT_TEST].questionsId = [];
-        console.log(tests[CURRENT_TEST]);
 
         TestAssistant.getLexicalGrammarTest().then(function (questions) {
             questions.forEach(function (question) {
                 tests[CURRENT_TEST].questionsId.push(ObjectId(question._id));
-
-                console.log("getLexicalGrammarTest");
 
                 var object = {};
                 object.answersId = [];
@@ -299,7 +293,6 @@ router.get('/:id/startTest', authentication([constants.USER_ROLE]), function (re
                 objectsToSend.push(object);
             });
 
-            console.log(objectsToSend);
             tests[CURRENT_TEST].save(function (err) {
                 if (err) {
                     console.log("err", err)
@@ -351,7 +344,6 @@ router.get('/:id/getReadingTest/', authentication([constants.USER_ROLE]), functi
                 tests[CURRENT_TEST].questionsId.push(question._id);
             });
 
-            console.log(objectToSend);
             tests[CURRENT_TEST].save(function (err) {
                 if (err) {
                     res.send(err);
@@ -445,11 +437,9 @@ router.get('/:id/getSpeakingTest', authentication([constants.USER_ROLE]), functi
                 object.questionId = question._id;
 
                 objectToSend.push(object);
-                console.log("object" + object);
                 tests[CURRENT_TEST].questionsId.push(question._id);
             });
 
-            console.log(objectToSend);
             tests[CURRENT_TEST].save(function (err) {
                 if (err) {
                     res.send(err);

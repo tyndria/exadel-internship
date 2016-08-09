@@ -55,7 +55,6 @@ router.post('/:testId', authentication([constants.USER_ROLE, constants.TEACHER_R
 		promise.all(promises).then(function() {
 			TestAssistant.summarize(test.userAnswersId[TOPIC]).then(function(sum) {
 
-				console.log(sum);
 				test.testResult[TOPIC] = sum;
 
 				test.save(function(err) {
@@ -77,8 +76,6 @@ router.get('/:testId/statistics/', /*authentication([constants.ADMIN_ROLE]),*/ f
 	Test.findById(req.params.testId)
 		.populate('userAnswersId.LEXICAL_GRAMMAR_ID userAnswersId.READING_ID userAnswersId.SPEAKING_ID userAnswersId.LISTENING_ID')
 		.then(function(test) {
-
- 		console.log("test", test);
  
  		var statistics = {};
 
@@ -97,7 +94,7 @@ router.get('/:testId/statistics/', /*authentication([constants.ADMIN_ROLE]),*/ f
  		statistics.listening = userAnswers['LISTENING_ID'];
  		statistics.speaking = userAnswers['SPEAKING_ID']; 
  		statistics.conclusion = TestAssistant.getConclusion(userAnswers);
- 		console.log("statistics", statistics);
+ 
  		res.send(statistics);
 	});
 
@@ -115,7 +112,6 @@ router.get('/:testId', authentication([constants.TEACHER_ROLE]), function(req, r
 	var topics = ['LISTENING_ID', 'SPEAKING_ID'];
 
  	query.exec(function(err, test) {
-		console.log(test);
 
 	 	topics.forEach(function(topic) {
 			userAnswers[topic] = [];
@@ -170,13 +166,11 @@ router.post('/checked/:testId', function(req, res) {
 	promise.all(promises).then( (result) => {
 		console.log("result", result);
 		Test.findById(req.params.testId).then(function(test) {
-			console.log(test);
 			var sum = result.reduce((prev, cur) => prev + cur);
 			test.testResult[topic] += sum;
 			test.save(function(err) {
 				if (err)
 					console.log(err);
-				console.log(sum);
 				res.send(test);
 			});
 		});

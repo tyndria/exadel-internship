@@ -71,7 +71,7 @@ function postSpeakingTask(req, res) {
 				if (err) {
 					res.send(err);
 				}
-				console.log(newQuestion);
+				console.log("save newQuestion");
 			});
 		});
 
@@ -136,7 +136,7 @@ function storeQuestion(level, question, taskId, answerType) {
 
 	return promise.all(promises).then(function() {
 		return newQuestion.save(function() {
-			console.log(newQuestion);
+			console.log("save newQuestion");
 		});
 	});
 }
@@ -222,7 +222,7 @@ function postLexicalGrammarTask(req, res) {
 
 			promise.all(promises).then(function() {
 				newQuestion.save(function() {
-					console.log(newQuestion);
+					console.log("save newQuestion");
 				});
 			});
 		});

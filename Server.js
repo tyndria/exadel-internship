@@ -10,8 +10,6 @@ var BinaryServer = require('binaryjs').BinaryServer;
 var fs = require('fs');
 var wav = require('wav');
 
-//
-
 
 var port = process.env.PORT || 8083;
 var mongoose = require('mongoose');
@@ -28,7 +26,6 @@ db.once('open', function () {
 var app = express();
 
 var binaryServer = {};
-
 module.exports.binaryServer = binaryServer;
 
 app.use(logger('dev')); // выводим все запросы со статусами в консоль 
@@ -67,6 +64,4 @@ app.listen(port, function () {
     console.log('Express server listening on port ' + port);
 });
 
-//app.use(cors());
-
-//audio
+app.use(cors());
