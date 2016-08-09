@@ -27,7 +27,7 @@ router.post('/', function(req, res) { // candidateId, event, date
 
 router.get('/', authentication([constants.ADMIN_ROLE]), function(req, res) {
 
-	Notification.find({}).populate('auth_id').then(function(notifications) {
+	Notification.find({}).populate('auth_id reviewerId').then(function(notifications) {
 		var notificationsToSend = [];
 		notifications.forEach(function(notification) {
 			var newNotification = {
