@@ -27,13 +27,15 @@ module.exports = class TestChecker {
 
 		//get anwers from answersID
 		userAnswersId.forEach(function(userAnswer) {
-			promisesUsersAnswers.push(UserAnswer.findById(userAnswer)
-			.populate({path: 'questionId', populate: {path: 'answersId taskId'}})
-			.then(function(userAnswer) {
-				console.log(userAnswer);
-				if (!userAnswer.questionId.questionType) // if question isn't open
-					userAnswers.push(userAnswer);
-			}));
+			promisesUsersAnswers.push(
+				UserAnswer.findById(userAnswer)
+					.populate({path: 'questionId', populate: {path: 'answersId taskId'}})
+					.then(function(userAnswer) {
+						console.log(userAnswer);
+						if (!userAnswer.questionId.questionType) // if question isn't open
+							userAnswers.push(userAnswer);
+					})
+			);
 		});
 
 		return promise.all(promisesUsersAnswers).then(function(){

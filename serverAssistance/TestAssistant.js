@@ -13,6 +13,31 @@ var TestChecker = require('../serverAssistance/TestChecker');
 
 class TestAssistant {
 
+	static getConclusion(statistics) {
+		var level = constants.MAP_RESULT(statistics.LEXICAL_GRAMMAR_ID[statistics.LEXICAL_GRAMMAR_ID.length - 1]);
+		var topics = ['LEXICAL_GRAMMAR_ID', 'READING_ID', 'LISTENING_ID', 'SPEAKING_ID'];
+
+		var maxCount = {};
+		var percent = {};
+
+		topics.forEach(function(topic) {
+			var length = statistics[topic].length - 1;
+			maxCount[topic] = (length - 1)*(constants.MAP_LEVEL_COST[level]);
+			percent[topic] = statistics[topic][length]*100/maxCount[topic];
+		});
+		var minResult = Math.min.apply(Math, [percent.LEXICAL_GRAMMAR_ID, percent.READING_ID, percent.LISTENING_ID, percent.READING_ID]);
+		
+		switch(minResult) {
+			case percent.LEXICAL_GRAMMAR_ID:
+				return 'Not bad, but LEXICAL_GRAMMAR can be better';
+			case percent.READING_ID:
+				return 'Not bad, but READING can be better';
+			case percent.LISTENING_ID:
+				return 'Not bad, but LISTENING can be better';
+			case percent.SPEAKING_ID:
+				return 'Not bad, but LISTENING can be better';
+		}
+	}
 
 	static summarize(userAnswers) {
 		return TestChecker.checkAnswers(userAnswers).then(function(userAnswers) {

@@ -73,13 +73,11 @@ router.post('/:testId', authentication([constants.USER_ROLE, constants.TEACHER_R
 });
 
 
-router.get('/:candidateId/statistics/:seqNumber', authentication([constants.ADMIN_ROLE]), function(req, res) {
-	Test.find({candidateId: req.params.candidateId})
+router.get('/:testId/statistics/', /*authentication([constants.ADMIN_ROLE]),*/ function(req, res) {
+	Test.findById(testId)
 		.populate('userAnswersId.LEXICAL_GRAMMAR_ID userAnswersId.READING_ID userAnswersId.SPEAKING_ID userAnswersId.LISTENING_ID')
-		.then(function(tests) {
+		.then(function(test) {
 
-		var CURRENT_TEST = req.params.seqNumber - 1;
- 		var test = tests[CURRENT_TEST];
  		console.log("test", test);
  
  		var statistics = {};
@@ -97,7 +95,8 @@ router.get('/:candidateId/statistics/:seqNumber', authentication([constants.ADMI
  		statistics.lexicalGrammar = userAnswers['LEXICAL_GRAMMAR_ID'];
  		statistics.reading = userAnswers['READING_ID'];
  		statistics.listening = userAnswers['LISTENING_ID'];
- 		statistics.speaking = userAnswers['SPEAKING_ID'];
+ 		statistics.speaking = userAnswers['SPEAKING_ID']; 
+ 		statistics.conclusion = TestAssistant.getConclusion(userAnswers);
  		console.log("statistics", statistics);
  		res.send(statistics);
 	});
