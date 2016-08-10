@@ -46,7 +46,7 @@ mongoose.model('Notification', require('./modules/notification'));
 //import main router
 
 app.use(function (req, res, next) {
-    var allowedOrigins = ["http://localhost:3000", "http://localhost:3002"];
+    var allowedOrigins = ["http://localhost:3000", "http://localhost:3002", "https://gentle-woodland-30415.herokuapp.com"];
     var origin = req.headers.origin;
     if (allowedOrigins.indexOf(origin) > -1) {
         res.setHeader('Access-Control-Allow-Origin', origin);
