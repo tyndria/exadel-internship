@@ -454,7 +454,6 @@ router.get('/:id/getSpeakingTest', authentication([constants.USER_ROLE]), functi
                         console.log('new stream');
 
                         outFile = meta.questionId + meta.userId + '.wav';
-                        console.log('testId', meta.testId);
                         var newUserAnswer = new UserAnswer({
                             questionId: meta.questionId,
                             userId: meta.userId,
